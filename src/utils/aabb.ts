@@ -1,8 +1,8 @@
 import { Point, Vec2 } from "../geometry/vec2";
 
 export class AABB {
-  min = Vec2.ZERO.clone();
-  max = Vec2.ZERO.clone();
+  min = new Vec2(0, 0);
+  max = new Vec2(0, 0);
 
   equals(other: AABB) {
     return this.min.equals(other.min) && this.max.equals(other.max);

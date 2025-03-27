@@ -1,37 +1,65 @@
 import { Loop } from "vroum";
-import { Render } from "./render";
+import { Render } from "./webgl/render";
 import { Rect } from "./geometry/rect";
 
-const canvas = document.getElementById("app")! as HTMLCanvasElement;
-
-const loop = new Loop();
-const render = new Render(canvas, loop);
-
-function rand(min: number, max: number) {
-  return Math.floor(min + Math.random() * (max - min));
+function rand(min: number = 0, max: number = 1) {
+  return min + Math.random() * (max - min);
 }
 
-for (let i = 0; i < 1000; i++) {
-  const width = rand(10, 10);
-  const height = rand(10, 10);
-  const x = rand(width, 800 - width);
-  const y = rand(height, 600 - height);
+class App extends Loop {
+  canvas = document.getElementById("app") as HTMLCanvasElement;
+  render = new Render(this.canvas, this);
 
-  render.shapes.push(
-    new Rect({ x, y, width, height, fill: "red", stroke: "black" })
-  );
+  rect1 = new Rect({
+    x: 400,
+    y: 300,
+    width: 100,
+    height: 50,
+    color: [0, 1, 0, 1],
+  });
+
+  rect2 = new Rect({
+    x: 500,
+    y: 300,
+    width: 100,
+    height: 50,
+    color: [1, 0, 0, 1],
+  });
+
+  mount() {
+    for (let i = 0; i < 16_000; i++) {
+      this.render.add(
+        new Rect({
+          x: rand(0, 800),
+          y: rand(0, 600),
+          width: rand(10, 20),
+          height: rand(10, 20),
+          color: [rand(), rand(), rand(), 1],
+        })
+      );
+    }
+
+    this.render.add(this.rect1, this.rect2);
+  }
+
+  tick() {
+    for (const shape of this.render.shapes) {
+      if (shape === this.rect1 || shape === this.rect2) continue;
+      shape.angle += this.deltaTime * 0.001;
+    }
+
+    this.rect1.angle += this.deltaTime * 0.001;
+    this.rect2.angle += -this.deltaTime * 0.001;
+
+    if (this.rect1.overlaps(this.rect2)) {
+      this.rect1.color[3] = 0.5;
+      this.rect2.color[3] = 0.5;
+    } else {
+      this.rect1.color[3] = 1;
+      this.rect2.color[3] = 1;
+    }
+  }
 }
-
-const rect = new Rect({
-  x: 400,
-  y: 300,
-  width: 100,
-  height: 50,
-  fill: "green",
-  stroke: "yellow",
-});
-
-render.shapes.push(rect);
 
 // @ts-ignore
-window.rect = rect;
+window.app = new App();

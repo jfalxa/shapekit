@@ -1,5 +1,6 @@
 import { Point } from "../geometry/vec2";
 
+const axis: Point = { x: 0, y: 0 };
 export function SAT(poly1: Point[], poly2: Point[]): boolean {
   // Check both polygons' edges.
   for (const polygon of [poly1, poly2]) {
@@ -11,7 +12,8 @@ export function SAT(poly1: Point[], poly2: Point[]): boolean {
       const p2 = polygon[(i + 1) % len];
 
       // Compute the perpendicular axis (normal of the edge).
-      const axis = { x: p2.y - p1.y, y: -(p2.x - p1.x) };
+      axis.x = p2.y - p1.y;
+      axis.y = -(p2.x - p1.x);
 
       // Project both polygons onto the axis.
       const [minA, maxA] = projectPolygon(poly1, axis);
@@ -27,7 +29,7 @@ export function SAT(poly1: Point[], poly2: Point[]): boolean {
   return true;
 }
 
-// Helper: projects a polygon onto an axis and returns [min, max] projection values.
+const buffer: [number, number] = [0, 0];
 function projectPolygon(points: Point[], axis: Point): [number, number] {
   let min = Infinity;
   let max = -Infinity;
@@ -37,5 +39,7 @@ function projectPolygon(points: Point[], axis: Point): [number, number] {
     if (projection < min) min = projection;
     if (projection > max) max = projection;
   }
-  return [min, max];
+  buffer[0] = min;
+  buffer[1] = max;
+  return buffer;
 }

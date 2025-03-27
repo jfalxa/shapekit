@@ -1,41 +1,19 @@
-import { Polygon } from "./polygon";
-import { ShapeInit } from "./shape";
+import { Shape, ShapeInit } from "../webgl/shape";
 
-export interface RectInit extends ShapeInit {
+const vertices = [
+  { x: -0.5, y: -0.5 },
+  { x: 0.5, y: -0.5 },
+  { x: 0.5, y: 0.5 },
+  { x: -0.5, y: 0.5 },
+];
+
+export interface RectInit extends Omit<ShapeInit, "vertices"> {
   width: number;
   height: number;
 }
 
-export class Rect extends Polygon {
-  width: number;
-  height: number;
-
+export class Rect extends Shape {
   constructor(init: RectInit) {
-    const halfW = init.width / 2;
-    const halfH = init.height / 2;
-
-    const shape = [
-      { x: -halfW, y: -halfH },
-      { x: halfW, y: -halfH },
-      { x: halfW, y: halfH },
-      { x: -halfW, y: halfH },
-    ];
-
-    super({ ...init, shape });
-
-    this.width = init.width;
-    this.height = init.height;
-  }
-
-  update() {
-    const halfW = this.width / 2;
-    const halfH = this.height / 2;
-
-    this.shape[0].set(-halfW, -halfH);
-    this.shape[1].set(halfW, -halfH);
-    this.shape[2].set(halfW, halfH);
-    this.shape[3].set(-halfW, halfH);
-
-    super.update();
+    super({ ...init, vertices });
   }
 }

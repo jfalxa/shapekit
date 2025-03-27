@@ -7,7 +7,7 @@ export function v(point: Point) {
   return new Vec2(point.x, point.y);
 }
 
-export class Vec2 implements Point {
+export class Vec2 {
   static ZERO = new Vec2(0, 0);
 
   x: number;
@@ -48,12 +48,12 @@ export class Vec2 implements Point {
     return this;
   }
 
-  scale(factor: number, anchor: Point = Vec2.ZERO) {
+  scale(x: number, y: number = x, anchor: Point = Vec2.ZERO) {
     const deltaX = this.x - anchor.x;
     const deltaY = this.y - anchor.y;
 
-    const scaledX = deltaX * factor;
-    const scaledY = deltaY * factor;
+    const scaledX = deltaX * x;
+    const scaledY = deltaY * y;
 
     this.x = scaledX + anchor.x;
     this.y = scaledY + anchor.y;
