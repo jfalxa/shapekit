@@ -4,6 +4,7 @@ import { Point, v, Vec2 } from "../geometry/vec2";
 import { AABB } from "../utils/aabb";
 import { evenOddRule } from "../utils/even-odd-rule";
 import { SAT } from "../utils/separating-axis-theorem";
+import { Matrix3 } from "../geometry/mat4";
 
 export interface ShapeInit {
   vertices: Point[];
@@ -20,8 +21,9 @@ export class Shape extends Node {
 
   color: Float32Array;
 
-  private translation = new Float32Array(2);
-  private scaling = new Float32Array(2);
+  private transform = new Matrix3();
+  private translation = new Vec2(0, 0);
+  private scaling = new Vec2(0, 0);
   private rotation = 0;
 
   vertices: Float32Array;
@@ -33,38 +35,38 @@ export class Shape extends Node {
   dirty = false;
 
   get x() {
-    return this.translation[0];
+    return this.translation.x;
   }
 
   set x(value: number) {
-    this.translation[0] = value;
+    this.translation.x = value;
     this.update();
   }
 
   get y() {
-    return this.translation[1];
+    return this.translation.y;
   }
 
   set y(value: number) {
-    this.translation[1] = value;
+    this.translation.y = value;
     this.update();
   }
 
   get width() {
-    return this.scaling[0];
+    return this.scaling.x;
   }
 
   set width(value: number) {
-    this.scaling[0] = value;
+    this.scaling.x = value;
     this.update();
   }
 
   get height() {
-    return this.scaling[1];
+    return this.scaling.y;
   }
 
   set height(value: number) {
-    this.scaling[1] = value;
+    this.scaling.y = value;
     this.update();
   }
 
@@ -106,14 +108,21 @@ export class Shape extends Node {
   }
 
   update() {
+    this.transform
+      .identity()
+      .scale(this.scaling.x, this.scaling.y)
+      .rotate(this.angle)
+      .translate(this.translation.x, this.translation.y);
+
     this.hull.length = this.vertices.length / 2;
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i]
-        .set(this.vertices[i * 2], this.vertices[i * 2 + 1])
+        .put(this.vertices[i * 2], this.vertices[i * 2 + 1])
         .scale(this.width, this.height)
         .rotate(this.angle)
         .add(this);
     }
+
     this.aabb.update(this.hull);
   }
 
@@ -128,15 +137,13 @@ export class Shape extends Node {
 
   render() {
     const { gl, program } = this.parent;
-    const { aPosition, uTranslation, uScale, uRotation, uColor } = program;
+    const { aPosition, uTransform, uColor } = program;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
     gl.enableVertexAttribArray(aPosition);
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
 
-    gl.uniform2fv(uTranslation, this.translation);
-    gl.uniform2fv(uScale, this.scaling);
-    gl.uniform1f(uRotation, this.angle);
+    gl.uniformMatrix3fv(uTransform, false, this.transform);
     gl.uniform4fv(uColor, this.color);
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, this.numVertices);

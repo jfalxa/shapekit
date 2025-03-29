@@ -7,13 +7,27 @@ export function v(point: Point) {
   return new Vec2(point.x, point.y);
 }
 
-export class Vec2 {
+export class Vec2 extends Float32Array {
   static ZERO = new Vec2(0, 0);
 
-  x: number;
-  y: number;
+  get x() {
+    return this[0];
+  }
+
+  set x(value: number) {
+    this[0] = value;
+  }
+
+  get y() {
+    return this[1];
+  }
+
+  set y(value: number) {
+    this[1] = value;
+  }
 
   constructor(x: number, y: number) {
+    super(2);
     this.x = x;
     this.y = y;
   }
@@ -123,7 +137,7 @@ export class Vec2 {
     return this;
   }
 
-  set(x: number, y: number = x) {
+  put(x: number, y: number = x) {
     this.x = x;
     this.y = y;
     return this;

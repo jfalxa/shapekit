@@ -2,35 +2,12 @@ export class Program {
   // Vertex shader: transforms 2D vertices using per-shape uniforms
   static vertexShader = `
     attribute vec2 aPosition;
-
-    // Transformation uniforms:
-    // uTranslation: translation in pixel coordinates (relative to the top-left corner)
-    // uScale: scale factor for the shape
-    // uRotation: rotation in radians (applied around the local origin)
-    uniform vec2 uTranslation;
-    uniform float uRotation;
-    uniform vec2 uScale;
-
-    // Projection matrix to convert from pixel space to clip space
+    uniform mat3 uTransform;
     uniform mat4 uProjection;
-        
+
     void main() {
-      // Apply scaling in pixel space first
-      vec2 scaled = aPosition * uScale;
-      
-      // Compute rotation on the scaled coordinate
-      float cosR = cos(uRotation);
-      float sinR = sin(uRotation);
-      vec2 rotated = vec2(
-        scaled.x * cosR - scaled.y * sinR,
-        scaled.x * sinR + scaled.y * cosR
-      );
-      
-      // Apply translation
-      vec2 transformed = rotated + uTranslation;
-      
-      // Convert the 2D pixel coordinate into clip space using the projection matrix
-      gl_Position = uProjection * vec4(transformed, 0.0, 1.0);
+      vec3 pos = uTransform * vec3(aPosition, 1.0);
+      gl_Position = uProjection * vec4(pos.xy, 0.0, 1.0);
     }
   `;
 
@@ -49,9 +26,7 @@ export class Program {
 
   aPosition: GLint;
   uProjection: WebGLUniformLocation;
-  uTranslation: WebGLUniformLocation;
-  uRotation: WebGLUniformLocation;
-  uScale: WebGLUniformLocation;
+  uTransform: WebGLUniformLocation;
   uColor: WebGLUniformLocation;
 
   constructor(gl: WebGL2RenderingContext) {
@@ -62,9 +37,7 @@ export class Program {
 
     this.aPosition = gl.getAttribLocation(program, "aPosition");
     this.uProjection = gl.getUniformLocation(program, "uProjection")!;
-    this.uTranslation = gl.getUniformLocation(program, "uTranslation")!;
-    this.uRotation = gl.getUniformLocation(program, "uRotation")!;
-    this.uScale = gl.getUniformLocation(program, "uScale")!;
+    this.uTransform = gl.getUniformLocation(program, "uTransform")!;
     this.uColor = gl.getUniformLocation(program, "uColor")!;
   }
 
