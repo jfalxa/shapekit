@@ -7,8 +7,8 @@ export class DirtyRectangles {
 
   constructor(canvas: HTMLCanvasElement) {
     const screenRect = new AABB();
-    screenRect.min.set(0);
-    screenRect.max.set(canvas.width, canvas.height);
+    screenRect.min.put(0);
+    screenRect.max.put(canvas.width, canvas.height);
     this.dirtyRects.push(screenRect);
   }
 

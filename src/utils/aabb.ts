@@ -10,8 +10,8 @@ export class AABB {
 
   update(hull: Point[]) {
     const { min, max } = this;
-    min.set(Infinity);
-    max.set(-Infinity);
+    min.put(Infinity);
+    max.put(-Infinity);
 
     for (let i = 0; i < hull.length; i++) {
       min.min(hull[i]);
