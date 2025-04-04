@@ -1,6 +1,6 @@
 import { v, Vec2 } from "../math/vec2";
 import { Matrix3 } from "../math/mat3";
-import { AABB } from "../utils/aabb";
+import { BoundingBox } from "../utils/bounding-box";
 import { Path } from "../utils/path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
@@ -24,6 +24,7 @@ export interface ShapeInit {
   shadowColor?: string;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
+  src?: string;
 }
 
 export class Shape {
@@ -49,8 +50,11 @@ export class Shape {
   path2D: Path2D;
   vertices: Float32Array;
   hull: Vec2[];
-  aabb: AABB;
+  aabb: BoundingBox;
+  obb: BoundingBox;
   dirty = false;
+
+  image?: HTMLImageElement;
 
   get x() {
     return this.translation[0];
@@ -104,9 +108,15 @@ export class Shape {
     this.path2D = toPath2D(this.path);
     this.vertices = new Float32Array(points.flatMap((p) => [...p]));
     this.hull = points.map(v);
-    this.aabb = new AABB();
+    this.aabb = new BoundingBox();
+    this.obb = new BoundingBox();
 
     this.update();
+
+    if (shapeInit.src) {
+      this.image = new Image(this.obb.width, this.obb.height);
+      this.image.src = shapeInit.src;
+    }
   }
 
   contains(shape: Vec2 | Shape) {
@@ -142,13 +152,24 @@ export class Shape {
       .rotate(this.rotation)
       .translate(this.translation[0], this.translation[1]);
 
+    // prepare the hull array to hold the transformed vertices
     this.hull.length = this.vertices.length / 2;
+
+    // first pass: we compute the hull without rotation in order to get the OBB
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
         .put(this.vertices[i * 2], this.vertices[i * 2 + 1])
+        .scale(this.scaling[0], this.scaling[1])
+        .translate(this.translation[0], this.translation[1]);
+    }
+    this.obb.update(this.hull);
+
+    // second pass: we compute the hull with full transformation in order to get the AABB
+    for (let i = 0; i < this.hull.length; i++) {
+      this.hull[i]
+        .put(this.vertices[i * 2], this.vertices[i * 2 + 1])
         .transform(this.transform);
     }
-
     this.aabb.update(this.hull);
   }
 }

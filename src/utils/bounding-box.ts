@@ -1,6 +1,6 @@
-import { Vec2 } from "../math/vec2";
+import { v, Vec2 } from "../math/vec2";
 
-export class AABB {
+export class BoundingBox {
   min = new Vec2(0, 0);
   max = new Vec2(0, 0);
 
@@ -12,7 +12,11 @@ export class AABB {
     return this.max[1] - this.min[1];
   }
 
-  equals(other: AABB) {
+  center() {
+    return v(this.min).add(this.max).scale(0.5);
+  }
+
+  equals(other: BoundingBox) {
     return this.min.equals(other.min) && this.max.equals(other.max);
   }
 
@@ -27,12 +31,12 @@ export class AABB {
     }
   }
 
-  merge(other: AABB) {
+  merge(other: BoundingBox) {
     this.min.min(other.min);
     this.max.max(other.max);
   }
 
-  overlaps(other: AABB) {
+  overlaps(other: BoundingBox) {
     return (
       this.min[0] <= other.max[0] &&
       this.max[0] >= other.min[0] &&
@@ -42,7 +46,7 @@ export class AABB {
   }
 
   clone() {
-    const cloned = new AABB();
+    const cloned = new BoundingBox();
     cloned.min.copy(this.min);
     cloned.max.copy(this.max);
     return cloned;

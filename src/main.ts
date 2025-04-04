@@ -3,6 +3,7 @@ import { Renderer } from "./renderer/canvas2d";
 import { Rect } from "./shapes/rect";
 import { Shape } from "./shapes/shape";
 import { Path } from "./utils/path";
+import tree from "./tree.png";
 
 function rand(min: number = 0, max: number = 1) {
   return min + Math.random() * (max - min);
@@ -17,11 +18,12 @@ class App extends Loop {
     y: 450,
     width: 100,
     height: 50,
-    fill: "green",
+    // fill: "green",
     shadowBlur: 1,
     shadowOffsetX: 3,
     shadowOffsetY: 3,
     shadowColor: "#ccc",
+    src: tree,
   });
 
   // rect2 = new Rect({
@@ -71,10 +73,11 @@ class App extends Loop {
   roundRect = new Shape({
     x: 400,
     y: 300,
-    stroke: "blue",
-    fill: "yellow",
-    lineWidth: 3,
+    // stroke: "blue",
+    // fill: "yellow",
+    // lineWidth: 3,
     path: new Path().roundedRect(0, 0, 100, 100, 25),
+    src: tree,
   });
 
   // circle = new Shape({

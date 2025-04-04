@@ -22,7 +22,7 @@ export function renderHulls(ctx: CanvasRenderingContext2D, shapes: Shape[]) {
       ctx.lineTo(shape.hull[j][0], shape.hull[j][1]);
     }
 
-    if (shape.fill) {
+    if (shape.fill || shape.image) {
       ctx.lineTo(shape.hull[0][0], shape.hull[0][1]);
     }
 

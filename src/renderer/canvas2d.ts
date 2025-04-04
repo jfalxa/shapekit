@@ -83,5 +83,10 @@ export class Renderer extends Task {
 
       ctx.stroke(shape.path2D);
     }
+
+    if (shape.image) {
+      const { width, height } = shape.obb;
+      ctx.drawImage(shape.image, -width / 2, -height / 2, width, height);
+    }
   }
 }

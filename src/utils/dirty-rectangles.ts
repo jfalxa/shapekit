@@ -1,12 +1,12 @@
 import { Shape } from "../shapes/shape";
-import { AABB } from "./aabb";
+import { BoundingBox } from "./bounding-box";
 
 export class DirtyRectangles {
   shapes: Shape[] = [];
-  dirtyRects: AABB[] = [];
+  dirtyRects: BoundingBox[] = [];
 
   constructor(canvas: HTMLCanvasElement) {
-    const screenRect = new AABB();
+    const screenRect = new BoundingBox();
     screenRect.min.put(0);
     screenRect.max.put(canvas.width, canvas.height);
     this.dirtyRects.push(screenRect);
