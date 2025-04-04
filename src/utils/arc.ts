@@ -1,4 +1,4 @@
-import { Vec2 } from "../geometry/vec2";
+import { Vec2 } from "../math/vec2";
 
 export function sampleArc(
   center: Vec2,

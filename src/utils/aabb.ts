@@ -1,4 +1,4 @@
-import { Vec2 } from "../geometry/vec2";
+import { Vec2 } from "../math/vec2";
 
 export class AABB {
   min = new Vec2(0, 0);

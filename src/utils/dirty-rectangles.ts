@@ -1,4 +1,4 @@
-import { Shape } from "../geometry/shape";
+import { Shape } from "../shapes/shape";
 import { AABB } from "./aabb";
 
 export class DirtyRectangles {

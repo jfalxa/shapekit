@@ -1,5 +1,5 @@
-import { Shape } from "../geometry/shape";
-import { Vec2 } from "../geometry/vec2";
+import { Shape } from "../shapes/shape";
+import { Vec2 } from "../math/vec2";
 import { pointToSegmentDistance } from "./point-in-polyline";
 
 export function doPolylinesOverlap(a: Shape, b: Shape): boolean {

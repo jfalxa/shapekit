@@ -1,4 +1,4 @@
-import { v, Vec2 } from "../geometry/vec2";
+import { v, Vec2 } from "../math/vec2";
 
 export function getContour(polyline: Vec2[], thickness: number): Vec2[] {
   if (polyline.length < 2) {

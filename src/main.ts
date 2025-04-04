@@ -1,7 +1,7 @@
 import { Loop } from "vroum";
-import { Renderer } from "./2d/renderer";
-import { Rect } from "./geometry/rect";
-import { Shape } from "./geometry/shape";
+import { Renderer } from "./renderer/canvas2d";
+import { Rect } from "./shapes/rect";
+import { Shape } from "./shapes/shape";
 import { Path } from "./utils/path";
 
 function rand(min: number = 0, max: number = 1) {
@@ -74,12 +74,7 @@ class App extends Loop {
     stroke: "blue",
     fill: "yellow",
     lineWidth: 3,
-    path: new Path()
-      .moveTo(-50, 0)
-      .arcTo(0, -50, -50, -50, 25)
-      .arcTo(50, 0, 50, -50, 25)
-      .arcTo(0, 50, 50, 50, 25)
-      .arcTo(-50, 0, -50, 50, 25),
+    path: new Path().roundedRect(0, 0, 100, 100, 25),
   });
 
   // circle = new Shape({
@@ -139,7 +134,7 @@ class App extends Loop {
     // this.renderer.add(this.path);
     // this.renderer.add(this.path2);
     // this.renderer.add(this.path3);
-    // this.renderer.add(this.roundRect);
+    this.renderer.add(this.roundRect);
     // this.renderer.add(this.roundTriangle);
     // this.renderer.add(this.circle);
   }

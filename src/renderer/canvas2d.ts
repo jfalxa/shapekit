@@ -1,5 +1,5 @@
 import { Loop, Task } from "vroum";
-import { Shape } from "../geometry/shape";
+import { Shape } from "../shapes/shape";
 import { renderHulls } from "../utils/hull";
 
 export class Renderer extends Task {

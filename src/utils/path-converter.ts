@@ -1,4 +1,4 @@
-import { Vec2 } from "../geometry/vec2";
+import { Vec2 } from "../math/vec2";
 import { sampleArcTo } from "./arc";
 import { sampleCubicBezier, sampleQuadraticBezier } from "./bezier";
 import { Path, PathPart } from "./path";

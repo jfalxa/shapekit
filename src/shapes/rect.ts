@@ -1,6 +1,6 @@
 import { Path } from "../utils/path";
-import { Shape, ShapeInit } from "../geometry/shape";
-import { Vec2 } from "./vec2";
+import { Shape, ShapeInit } from "./shape";
+import { Vec2 } from "../math/vec2";
 
 export interface RectInit extends Omit<ShapeInit, "path"> {
   width: number;

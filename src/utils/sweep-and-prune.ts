@@ -1,4 +1,4 @@
-import { Shape } from "../geometry/shape";
+import { Shape } from "../shapes/shape";
 
 const pairs: number[] = [];
 

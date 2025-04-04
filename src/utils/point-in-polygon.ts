@@ -1,5 +1,5 @@
-import { Shape } from "../geometry/shape";
-import { Vec2 } from "../geometry/vec2";
+import { Shape } from "../shapes/shape";
+import { Vec2 } from "../math/vec2";
 
 // even odd rule algorithm
 export function isPointInPolygon(point: Vec2, shape: Shape): boolean {

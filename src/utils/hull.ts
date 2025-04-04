@@ -1,4 +1,4 @@
-import { Shape } from "../geometry/shape";
+import { Shape } from "../shapes/shape";
 
 export function renderHulls(ctx: CanvasRenderingContext2D, shapes: Shape[]) {
   ctx.resetTransform();

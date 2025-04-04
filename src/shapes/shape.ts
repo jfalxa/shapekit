@@ -1,5 +1,5 @@
-import { v, Vec2 } from "./vec2";
-import { Matrix3 } from "./mat3";
+import { v, Vec2 } from "../math/vec2";
+import { Matrix3 } from "../math/mat3";
 import { AABB } from "../utils/aabb";
 import { Path } from "../utils/path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
