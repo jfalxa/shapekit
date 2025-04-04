@@ -1,5 +1,6 @@
 import { Path } from "../utils/path";
 import { Shape, ShapeInit } from "../geometry/shape";
+import { Vec2 } from "./vec2";
 
 export interface RectInit extends Omit<ShapeInit, "path"> {
   width: number;
@@ -7,25 +8,34 @@ export interface RectInit extends Omit<ShapeInit, "path"> {
 }
 
 export class Rect extends Shape {
-  width: number;
-  height: number;
+  private dimensions = new Vec2(0, 0);
+
+  get width() {
+    return this.dimensions[0];
+  }
+
+  set width(value: number) {
+    this.dimensions[0] = value;
+    this.path.clear().rect(0, 0, this.dimensions[0], this.dimensions[1]);
+    this.rebuild();
+  }
+
+  get height() {
+    return this.dimensions[1];
+  }
+
+  set height(value: number) {
+    this.dimensions[1] = value;
+    this.path.clear().rect(0, 0, this.dimensions[0], this.dimensions[1]);
+    this.rebuild();
+  }
 
   constructor(rectInit: RectInit) {
-    const left = -rectInit.width / 2;
-    const right = rectInit.width / 2;
-    const top = -rectInit.height / 2;
-    const bottom = rectInit.height / 2;
-
-    const path = new Path()
-      .moveTo(left, top)
-      .lineTo(right, top)
-      .lineTo(right, bottom)
-      .lineTo(left, bottom)
-      .close();
+    const path = new Path().rect(0, 0, rectInit.width, rectInit.height);
 
     super({ ...rectInit, path });
 
-    this.width = rectInit.width;
-    this.height = rectInit.height;
+    this.dimensions[0] = rectInit.width;
+    this.dimensions[1] = rectInit.height;
   }
 }

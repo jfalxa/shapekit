@@ -1,8 +1,6 @@
 import { Vec2 } from "../geometry/vec2";
-import { sampleCubicBezier, sampleQuadraticBezier } from "./bezier";
-import { sampleArcTo } from "./arc";
 
-type PathPart =
+export type PathPart =
   | { type: "move"; to: Vec2 }
   | { type: "line"; to: Vec2 }
   | { type: "bezier2"; to: Vec2; control?: Vec2 }
@@ -12,6 +10,11 @@ type PathPart =
 
 export class Path {
   parts: PathPart[] = [];
+
+  clear() {
+    this.parts.length = 0;
+    return this;
+  }
 
   moveTo(x: number, y: number): this {
     this.parts.push({
@@ -83,113 +86,40 @@ export class Path {
     return this;
   }
 
+  rect(x: number, y: number, width: number, height: number) {
+    const left = x - width / 2;
+    const right = x + width / 2;
+    const top = y - height / 2;
+    const bottom = y + height / 2;
+
+    return this.moveTo(left, top)
+      .lineTo(right, top)
+      .lineTo(right, bottom)
+      .lineTo(left, bottom)
+      .close();
+  }
+
+  roundedRect(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) {
+    const left = x - width / 2;
+    const right = x + width / 2;
+    const top = y - height / 2;
+    const bottom = y + height / 2;
+
+    return this.moveTo(left, 0)
+      .arcTo(0, top, left, top, radius)
+      .arcTo(right, 0, right, top, radius)
+      .arcTo(0, bottom, right, bottom, radius)
+      .arcTo(left, 0, left, bottom, radius);
+  }
+
   close() {
     this.parts.push({ type: "close" });
     return this;
   }
-
-  toPath2D() {
-    const path = new Path2D();
-    let control: Vec2 | undefined;
-    let lastPoint: Vec2 | undefined;
-    let lastControl: Vec2 | undefined;
-    for (const part of this.parts) {
-      switch (part.type) {
-        case "move":
-          path.moveTo(part.to.x, part.to.y);
-          lastPoint = part.to;
-          lastControl = undefined;
-          break;
-        case "line":
-          path.lineTo(part.to.x, part.to.y);
-          lastPoint = part.to;
-          lastControl = undefined;
-          break;
-        case "arc":
-          path.arcTo(part.control.x, part.control.y, part.to.x, part.to.y, part.radius); // prettier-ignore
-          path.lineTo(part.to.x, part.to.y);
-          lastPoint = part.to;
-          lastControl = undefined;
-          break;
-        case "bezier2":
-          control = getControl(part, lastPoint, lastControl);
-          path.quadraticCurveTo(control.x, control.y, part.to.x, part.to.y);
-          lastPoint = part.to;
-          lastControl = control;
-          break;
-        case "bezier3":
-          control = getControl(part, lastPoint, lastControl);
-          path.bezierCurveTo(control.x, control.y, part.endControl.x, part.endControl.y, part.to.x, part.to.y); // prettier-ignore
-          lastPoint = part.to;
-          lastControl = part.endControl;
-          break;
-        case "close":
-          path.closePath();
-          lastPoint = undefined;
-          lastControl = undefined;
-          break;
-      }
-    }
-    return path;
-  }
-
-  toPoints() {
-    const points: Vec2[] = [];
-    let lastPoint: Vec2 = Vec2.ZERO;
-    let control: Vec2 | undefined;
-    for (const part of this.parts) {
-      switch (part.type) {
-        case "move":
-          points.push(part.to.clone());
-          lastPoint = part.to;
-          control = undefined;
-          break;
-        case "line":
-          points.push(part.to.clone());
-          lastPoint = part.to;
-          control = undefined;
-          break;
-        case "arc":
-          points.push(...sampleArcTo(lastPoint, part.to, part.control, part.radius)); // prettier-ignore
-          lastPoint = part.to;
-          control = undefined;
-          break;
-        case "bezier2":
-          control = getControl(part, lastPoint, control);
-          points.push(...sampleQuadraticBezier(lastPoint, control, part.to)); // prettier-ignore
-          lastPoint = part.to;
-          break;
-        case "bezier3":
-          control = getControl(part, lastPoint, control);
-          points.push(...sampleCubicBezier(lastPoint, control, part.endControl, part.to)); // prettier-ignore
-          lastPoint = part.to;
-          control = part.endControl;
-          break;
-      }
-    }
-
-    return points;
-  }
-}
-
-const buffer = new Vec2(0, 0);
-
-function getControl(
-  part: PathPart,
-  lastPoint: Vec2 | undefined,
-  lastControl: Vec2 | undefined
-) {
-  if (part.type !== "bezier2" && part.type !== "bezier3") throw new Error();
-
-  let control = part.type === "bezier2" ? part.control : part.startControl;
-
-  if (control) {
-    return control;
-  } else if (lastPoint && lastControl) {
-    return buffer.copy(lastPoint).scale(2).subtract(lastControl);
-  } else if (lastPoint) {
-    return lastPoint;
-  }
-
-  throw new Error("Missing control point data");
 }

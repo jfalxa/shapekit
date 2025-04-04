@@ -12,17 +12,17 @@ class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
   renderer = new Renderer(this.canvas, this);
 
-  // rect1 = new Rect({
-  //   x: 400,
-  //   y: 450,
-  //   width: 100,
-  //   height: 50,
-  //   fill: "green",
-  //   shadowBlur: 1,
-  //   shadowOffsetX: 3,
-  //   shadowOffsetY: 3,
-  //   shadowColor: "#ccc",
-  // });
+  rect1 = new Rect({
+    x: 400,
+    y: 450,
+    width: 100,
+    height: 50,
+    fill: "green",
+    shadowBlur: 1,
+    shadowOffsetX: 3,
+    shadowOffsetY: 3,
+    shadowColor: "#ccc",
+  });
 
   // rect2 = new Rect({
   //   x: 500,
@@ -33,17 +33,17 @@ class App extends Loop {
   //   stroke: "orange",
   // });
 
-  path = new Shape({
-    x: 300,
-    y: 200,
-    stroke: "blue",
-    lineWidth: 50,
-    lineCap: "round",
-    path: new Path()
-      .moveTo(10, 80)
-      .cubicBezierTo(95, 80, 40, 10, 65, 10)
-      .cubicBezierTo(180, 80, 150, 150),
-  });
+  // path = new Shape({
+  //   x: 300,
+  //   y: 200,
+  //   stroke: "blue",
+  //   lineWidth: 50,
+  //   lineCap: "round",
+  //   path: new Path()
+  //     .moveTo(10, 80)
+  //     .cubicBezierTo(95, 80, 40, 10, 65, 10)
+  //     .cubicBezierTo(180, 80, 150, 150),
+  // });
 
   // path3 = new Shape({
   //   x: 300,
@@ -68,19 +68,19 @@ class App extends Loop {
   //     .quadraticBezierTo(180, 80),
   // });
 
-  // roundRect = new Shape({
-  //   x: 400,
-  //   y: 300,
-  //   stroke: "blue",
-  //   fill: "yellow",
-  //   lineWidth: 3,
-  //   path: new Path()
-  //     .moveTo(-50, 0)
-  //     .arcTo(0, -50, -50, -50, 25)
-  //     .arcTo(50, 0, 50, -50, 25)
-  //     .arcTo(0, 50, 50, 50, 25)
-  //     .arcTo(-50, 0, -50, 50, 25),
-  // });
+  roundRect = new Shape({
+    x: 400,
+    y: 300,
+    stroke: "blue",
+    fill: "yellow",
+    lineWidth: 3,
+    path: new Path()
+      .moveTo(-50, 0)
+      .arcTo(0, -50, -50, -50, 25)
+      .arcTo(50, 0, 50, -50, 25)
+      .arcTo(0, 50, 50, 50, 25)
+      .arcTo(-50, 0, -50, 50, 25),
+  });
 
   // circle = new Shape({
   //   x: 400,
@@ -134,8 +134,9 @@ class App extends Loop {
     }
 
     // this.renderer.add(this.line);
-    // this.renderer.add(this.rect1, this.rect2);
-    this.renderer.add(this.path);
+    this.renderer.add(this.rect1);
+    // this.renderer.add(this.rect2);
+    // this.renderer.add(this.path);
     // this.renderer.add(this.path2);
     // this.renderer.add(this.path3);
     // this.renderer.add(this.roundRect);
@@ -144,10 +145,10 @@ class App extends Loop {
   }
 
   tick() {
-    // for (const shape of this.renderer.shapes) {
-    // if (shape === this.rect1 || shape === this.rect2) continue;
-    // shape.angle += this.deltaTime * 0.001;
-    // }
+    for (const shape of this.renderer.shapes) {
+      // if (shape === this.rect1 || shape === this.rect2) continue;
+      shape.angle += this.deltaTime * 0.001;
+    }
     // if (this.rect1.overlaps(this.rect2)) {
     //   this.rect1.fill = "lime";
     //   this.rect2.fill = "orange";

@@ -6,6 +6,7 @@ import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
 import { doPolylinesOverlap } from "../utils/polyline-overlap";
+import { toPath2D, toPoints } from "../utils/path-converter";
 
 export interface ShapeInit {
   path: Path;
@@ -47,9 +48,8 @@ export class Shape {
   path: Path;
   path2D: Path2D;
   vertices: Float32Array;
-
-  aabb: AABB;
   hull: Vec2[];
+  aabb: AABB;
   dirty = false;
 
   get x() {
@@ -81,10 +81,6 @@ export class Shape {
 
   constructor(shapeInit: ShapeInit) {
     this.path = shapeInit.path;
-    this.path2D = this.path.toPath2D();
-
-    const points = shapeInit.path.toPoints();
-    this.vertices = new Float32Array(points.flatMap((p) => [...p]));
 
     this.translation[0] = shapeInit.x ?? 0;
     this.translation[1] = shapeInit.y ?? 0;
@@ -104,6 +100,9 @@ export class Shape {
     this.shadowOffsetX = shapeInit.shadowOffsetX;
     this.shadowOffsetY = shapeInit.shadowOffsetY;
 
+    const points = toPoints(this.path);
+    this.path2D = toPath2D(this.path);
+    this.vertices = new Float32Array(points.flatMap((p) => [...p]));
     this.hull = points.map(v);
     this.aabb = new AABB();
 
@@ -130,6 +129,12 @@ export class Shape {
     return this.contains(shape) || shape.contains(this);
   }
 
+  rebuild() {
+    this.path2D = toPath2D(this.path);
+    this.vertices.set(toPoints(this.path).flatMap((p) => [...p]));
+    this.update();
+  }
+
   update() {
     this.transform
       .identity()
@@ -139,7 +144,7 @@ export class Shape {
 
     this.hull.length = this.vertices.length / 2;
     for (let i = 0; i < this.hull.length; i++) {
-      this.hull[i]
+      this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
         .put(this.vertices[i * 2], this.vertices[i * 2 + 1])
         .transform(this.transform);
     }
