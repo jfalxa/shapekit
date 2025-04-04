@@ -1,14 +1,22 @@
-import { Point, Vec2 } from "../geometry/vec2";
+import { Vec2 } from "../geometry/vec2";
 
 export class AABB {
   min = new Vec2(0, 0);
   max = new Vec2(0, 0);
 
+  get width() {
+    return this.max[0] - this.min[0];
+  }
+
+  get height() {
+    return this.max[1] - this.min[1];
+  }
+
   equals(other: AABB) {
     return this.min.equals(other.min) && this.max.equals(other.max);
   }
 
-  update(hull: Point[]) {
+  update(hull: Vec2[]) {
     const { min, max } = this;
     min.put(Infinity);
     max.put(-Infinity);
@@ -26,10 +34,10 @@ export class AABB {
 
   overlaps(other: AABB) {
     return (
-      this.min.x <= other.max.x &&
-      this.max.x >= other.min.x &&
-      this.min.y <= other.max.y &&
-      this.max.y >= other.min.y
+      this.min[0] <= other.max[0] &&
+      this.max[0] >= other.min[0] &&
+      this.min[1] <= other.max[1] &&
+      this.max[1] >= other.min[1]
     );
   }
 

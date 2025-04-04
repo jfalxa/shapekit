@@ -1,10 +1,7 @@
-export interface Point {
-  x: number;
-  y: number;
-}
+import { Matrix3 } from "./mat3";
 
-export function v(point: Point) {
-  return new Vec2(point.x, point.y);
+export function v(point: Vec2) {
+  return new Vec2(point[0], point[1]);
 }
 
 export class Vec2 extends Float32Array {
@@ -28,85 +25,105 @@ export class Vec2 extends Float32Array {
 
   constructor(x: number, y: number) {
     super(2);
-    this.x = x;
-    this.y = y;
+    this[0] = x;
+    this[1] = y;
   }
 
-  add(u: Point) {
-    this.x += u.x;
-    this.y += u.y;
+  add(u: Vec2) {
+    this[0] += u[0];
+    this[1] += u[1];
     return this;
   }
 
-  subtract(u: Point) {
-    this.x -= u.x;
-    this.y -= u.y;
+  subtract(u: Vec2) {
+    this[0] -= u[0];
+    this[1] -= u[1];
     return this;
   }
 
-  multiply(u: Point) {
-    this.x *= u.x;
-    this.y *= u.y;
+  multiply(u: Vec2) {
+    this[0] *= u[0];
+    this[1] *= u[1];
     return this;
   }
 
-  divide(u: Point) {
-    this.x /= u.x;
-    this.y /= u.y;
+  divide(u: Vec2) {
+    this[0] /= u[0];
+    this[1] /= u[1];
     return this;
   }
 
   translate(x: number, y: number = x) {
-    this.x += x;
-    this.y += y;
+    this[0] += x;
+    this[1] += y;
     return this;
   }
 
-  scale(x: number, y: number = x, anchor: Point = Vec2.ZERO) {
-    const deltaX = this.x - anchor.x;
-    const deltaY = this.y - anchor.y;
-
-    const scaledX = deltaX * x;
-    const scaledY = deltaY * y;
-
-    this.x = scaledX + anchor.x;
-    this.y = scaledY + anchor.y;
-
+  scale(x: number, y: number = x) {
+    this[0] *= x;
+    this[1] *= y;
     return this;
   }
 
-  rotate(angle: number, anchor: Point = Vec2.ZERO) {
-    const x = this.x - anchor.x;
-    const y = this.y - anchor.y;
+  rotate(angle: number) {
+    const x = this[0];
+    const y = this[1];
 
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
 
-    this.x = cos * x - sin * y + anchor.x;
-    this.y = sin * x + cos * y + anchor.y;
+    this[0] = cos * x - sin * y;
+    this[1] = sin * x + cos * y;
 
     return this;
   }
 
-  dot(u: Point) {
-    return this.x * u.x + this.y * u.y;
+  scaleAt(x: number, y: number = x, anchor: Vec2) {
+    const deltaX = this[0] - anchor[0];
+    const deltaY = this[1] - anchor[1];
+
+    const scaledX = deltaX * x;
+    const scaledY = deltaY * y;
+
+    this[0] = scaledX + anchor[0];
+    this[1] = scaledY + anchor[1];
+
+    return this;
   }
 
-  cross(u: Point) {
-    return this.x * u.y - u.x * this.y;
+  rotateAt(angle: number, anchor: Vec2 = Vec2.ZERO) {
+    const x = this[0] - anchor[0];
+    const y = this[1] - anchor[1];
+
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    this[0] = cos * x - sin * y + anchor[0];
+    this[1] = sin * x + cos * y + anchor[1];
+
+    return this;
+  }
+
+  dot(u: Vec2) {
+    return this[0] * u[0] + this[1] * u[1];
+  }
+
+  cross(u: Vec2) {
+    return this[0] * u[1] - u[0] * this[1];
   }
 
   norm() {
-    return Math.sqrt(this.x * this.x + this.y * this.y);
+    return Math.sqrt(this[0] * this[0] + this[1] * this[1]);
   }
 
   norm2() {
-    return this.x * this.x + this.y * this.y;
+    return this[0] * this[0] + this[1] * this[1];
   }
 
   normalize() {
-    if (this.is(0)) return new Vec2(0, 0);
-    else return this.scale(1 / this.norm());
+    const norm = this.norm();
+    if (norm < 1e-6) return new Vec2(0, 0);
+    else return this.scale(1 / norm);
   }
 
   project(u: Vec2) {
@@ -115,74 +132,91 @@ export class Vec2 extends Float32Array {
     return v(u).scale(dot / norm2);
   }
 
-  normal() {
-    return new Vec2(-this.y, this.x);
+  perpendicular() {
+    return new Vec2(-this[1], this[0]);
   }
 
-  equals(u: Point) {
-    return this.x === u.x && this.y === u.y;
+  equals(u: Vec2) {
+    return this[0] === u[0] && this[1] === u[1];
   }
 
   is(x: number, y: number = x) {
-    return this.x === x && this.y === y;
+    return this[0] === x && this[1] === y;
   }
 
   clone() {
-    return new Vec2(this.x, this.y);
+    return new Vec2(this[0], this[1]);
   }
 
-  copy(u: Point) {
-    this.x = u.x;
-    this.y = u.y;
+  copy(u: Vec2) {
+    this[0] = u[0];
+    this[1] = u[1];
     return this;
   }
 
   put(x: number, y: number = x) {
-    this.x = x;
-    this.y = y;
+    this[0] = x;
+    this[1] = y;
     return this;
   }
 
   apply(x: (x: number) => number, y: (y: number) => number = x) {
-    this.x = x(this.x);
-    this.y = y(this.y);
+    this[0] = x(this[0]);
+    this[1] = y(this[1]);
     return this;
   }
 
-  min(u: Point) {
-    this.x = Math.min(this.x, u.x);
-    this.y = Math.min(this.y, u.y);
+  min(u: Vec2) {
+    this[0] = Math.min(this[0], u[0]);
+    this[1] = Math.min(this[1], u[1]);
     return this;
   }
 
-  max(u: Point) {
-    this.x = Math.max(this.x, u.x);
-    this.y = Math.max(this.y, u.y);
+  max(u: Vec2) {
+    this[0] = Math.max(this[0], u[0]);
+    this[1] = Math.max(this[1], u[1]);
     return this;
   }
 
-  clamp(min: Point, max: Point) {
+  clamp(min: Vec2, max: Vec2) {
     return this.max(min).min(max);
   }
 
   floor(precision: number = 0) {
     const pow = Math.pow(10, precision);
-    this.x = Math.floor(this.x * pow) / pow;
-    this.y = Math.floor(this.y * pow) / pow;
+    this[0] = Math.floor(this[0] * pow) / pow;
+    this[1] = Math.floor(this[1] * pow) / pow;
     return this;
   }
 
   ceil(precision: number = 0) {
     const pow = Math.pow(10, precision);
-    this.x = Math.ceil(this.x * pow) / pow;
-    this.y = Math.ceil(this.y * pow) / pow;
+    this[0] = Math.ceil(this[0] * pow) / pow;
+    this[1] = Math.ceil(this[1] * pow) / pow;
     return this;
   }
 
   round(precision: number = 0) {
     const pow = Math.pow(10, precision);
-    this.x = Math.round(this.x * pow) / pow;
-    this.y = Math.round(this.y * pow) / pow;
+    this[0] = Math.round(this[0] * pow) / pow;
+    this[1] = Math.round(this[1] * pow) / pow;
     return this;
+  }
+
+  transform(matrix: Matrix3) {
+    const x = this[0];
+    const y = this[1];
+    this[0] = x * matrix[0] + y * matrix[3] + matrix[6];
+    this[1] = x * matrix[1] + y * matrix[4] + matrix[7];
+    return this;
+  }
+
+  between(p: Vec2, q: Vec2) {
+    return (
+      Math.min(p[0], q[0]) <= this[0] &&
+      this[0] <= Math.max(p[0], q[0]) &&
+      Math.min(p[1], q[1]) <= this[1] &&
+      this[1] <= Math.max(p[1], q[1])
+    );
   }
 }

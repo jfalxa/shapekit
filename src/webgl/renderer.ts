@@ -1,14 +1,17 @@
 import { Loop, Task } from "vroum";
 import { Program } from "./program";
-import { Shape } from "./shape";
+import { Shape } from "../geometry/shape";
+import { toRGBA } from "../utils/rgba";
 
-export class Render extends Task {
+export class Renderer extends Task {
   canvas: HTMLCanvasElement;
   gl: WebGL2RenderingContext;
   program: Program;
   projectionMatrix: Float32Array;
 
   shapes: Shape[] = [];
+
+  vertexBuffers = new Map<Shape, WebGLBuffer>();
 
   // Helper: initialize WebGL context on a given canvas
   constructor(canvas: HTMLCanvasElement, loop: Loop) {
@@ -50,13 +53,35 @@ export class Render extends Task {
     gl.uniformMatrix4fv(uProjection, false, projectionMatrix);
 
     for (let i = 0; i < this.shapes.length; i++) {
-      this.shapes[i].render();
+      this.render(this.shapes[i]);
     }
   }
 
   add(...shapes: Shape[]) {
     this.shapes.push(...shapes);
-    for (const shape of shapes) shape.bind(this);
+    for (const shape of shapes) {
+      const { gl } = this;
+      const vertexBuffer = gl.createBuffer();
+      this.vertexBuffers.set(shape, vertexBuffer);
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, shape.vertices, gl.STATIC_DRAW);
+    }
+  }
+
+  render(shape: Shape) {
+    const { gl, program } = this;
+    const { aPosition, uTransform, uColor } = program;
+
+    const vertexBuffer = this.vertexBuffers.get(shape)!;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.enableVertexAttribArray(aPosition);
+    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+
+    gl.uniformMatrix3fv(uTransform, false, shape.transform);
+    gl.uniform4fv(uColor, toRGBA(shape.fill ?? "transparent"));
+
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, shape.vertices.length / 2);
   }
 }
 

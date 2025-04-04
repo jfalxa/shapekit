@@ -1,4 +1,4 @@
-import { Shape } from "../webgl/shape";
+import { Shape } from "../geometry/shape";
 import { AABB } from "./aabb";
 
 export class DirtyRectangles {

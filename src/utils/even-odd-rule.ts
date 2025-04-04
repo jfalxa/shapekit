@@ -1,6 +1,6 @@
-import { Point } from "../geometry/vec2";
+import { Vec2 } from "../geometry/vec2";
 
-export function evenOddRule(point: Point, polygon: Point[]): boolean {
+export function evenOddRule(point: Vec2, polygon: Vec2[]): boolean {
   let inside = false;
   const n = polygon.length;
 
@@ -9,17 +9,17 @@ export function evenOddRule(point: Point, polygon: Point[]): boolean {
     const b = polygon[j];
 
     // Check if the point's y-coordinate is between the y-values of the edge endpoints
-    const yBetween = a.y > point.y !== b.y > point.y;
+    const yBetween = a[1] > point[1] !== b[1] > point[1];
 
     if (yBetween) {
-      // ratio for how far point.y is on the segment ab
-      const t = (point.y - a.y) / (b.y - a.y);
+      // ratio for how far point[1] is on the segment ab
+      const t = (point[1] - a[1]) / (b[1] - a[1]);
 
       // Compute the x-coordinate where the edge crosses the horizontal line at point.y
-      const xIntersection = a.x + t * (b.x - a.x);
+      const xIntersection = a[0] + t * (b[0] - a[0]);
 
       // Check if the point is to the left of this intersection
-      const isLeftOfIntersection = point.x < xIntersection;
+      const isLeftOfIntersection = point[0] < xIntersection;
 
       if (isLeftOfIntersection) {
         inside = !inside; // Toggle inside status

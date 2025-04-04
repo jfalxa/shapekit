@@ -1,19 +1,25 @@
-import { Shape, ShapeInit } from "../webgl/shape";
+import { Path } from "../utils/path";
+import { Shape, ShapeInit } from "../geometry/shape";
 
-const vertices = [
-  { x: -0.5, y: -0.5 },
-  { x: 0.5, y: -0.5 },
-  { x: 0.5, y: 0.5 },
-  { x: -0.5, y: 0.5 },
-];
-
-export interface RectInit extends Omit<ShapeInit, "vertices"> {
+export interface RectInit extends Omit<ShapeInit, "path"> {
   width: number;
   height: number;
 }
 
 export class Rect extends Shape {
   constructor(init: RectInit) {
-    super({ ...init, vertices });
+    const left = -init.width / 2;
+    const right = init.width / 2;
+    const top = -init.height / 2;
+    const bottom = init.height / 2;
+
+    const path = new Path()
+      .moveTo(left, top)
+      .lineTo(right, top)
+      .lineTo(right, bottom)
+      .lineTo(left, bottom)
+      .close();
+
+    super({ ...init, path });
   }
 }
