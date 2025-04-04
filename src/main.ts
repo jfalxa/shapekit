@@ -38,23 +38,23 @@ class App extends Loop {
     y: 200,
     stroke: "blue",
     lineWidth: 50,
-    lineCap: "square",
+    lineCap: "round",
     path: new Path()
       .moveTo(10, 80)
       .cubicBezierTo(95, 80, 40, 10, 65, 10)
       .cubicBezierTo(180, 80, 150, 150),
   });
 
-  path3 = new Shape({
-    x: 300,
-    y: 200,
-    stroke: "yellow",
-    // lineCap: "round",
-    path: new Path()
-      .moveTo(10, 80)
-      .cubicBezierTo(95, 80, 40, 10, 65, 10)
-      .cubicBezierTo(180, 80, 150, 150),
-  });
+  // path3 = new Shape({
+  //   x: 300,
+  //   y: 200,
+  //   stroke: "yellow",
+  //   // lineCap: "round",
+  //   path: new Path()
+  //     .moveTo(10, 80)
+  //     .cubicBezierTo(95, 80, 40, 10, 65, 10)
+  //     .cubicBezierTo(180, 80, 150, 150),
+  // });
 
   // path2 = new Shape({
   //   x: 300,

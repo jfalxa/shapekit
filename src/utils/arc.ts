@@ -1,12 +1,5 @@
 import { Vec2 } from "../geometry/vec2";
 
-const v0 = new Vec2(0, 0);
-const v1 = new Vec2(0, 0);
-const t0 = new Vec2(0, 0);
-const t1 = new Vec2(0, 0);
-const bisector = new Vec2(0, 0);
-const center = new Vec2(0, 0);
-
 export function sampleArc(
   center: Vec2,
   startAngle: number,
@@ -15,7 +8,9 @@ export function sampleArc(
   segments: number
 ): Vec2[] {
   const points: Vec2[] = [];
-  const angleDiff = endAngle - startAngle;
+  let angleDiff = endAngle - startAngle;
+  if (angleDiff < 0) angleDiff += 2 * Math.PI;
+
   for (let i = 0; i <= segments; i++) {
     const angle = startAngle + (angleDiff * i) / segments;
     const x = center.x + radius * Math.cos(angle);
@@ -24,6 +19,13 @@ export function sampleArc(
   }
   return points;
 }
+
+const v0 = new Vec2(0, 0);
+const v1 = new Vec2(0, 0);
+const t0 = new Vec2(0, 0);
+const t1 = new Vec2(0, 0);
+const bisector = new Vec2(0, 0);
+const center = new Vec2(0, 0);
 
 export function sampleArcTo(
   p0: Vec2,
@@ -57,14 +59,9 @@ export function sampleArcTo(
   const startAngle = Math.atan2(t0.y - center.y, t0.x - center.x);
   const endAngle = Math.atan2(t1.y - center.y, t1.x - center.x);
 
-  // Compute the sweep angle (delta). Adjust to ensure a positive angle.
-  let delta = endAngle - startAngle;
-  if (delta < 0) delta += 2 * Math.PI;
-
-  // Sample points along the arc from T0 to T1.
   const points = sampleArc(center, startAngle, endAngle, r, segments);
 
-  // place the target point
+  // put the target point
   points.push(p1.clone());
 
   return points;

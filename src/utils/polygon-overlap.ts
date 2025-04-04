@@ -3,7 +3,8 @@ import { Vec2 } from "../geometry/vec2";
 
 const axis = new Vec2(0, 0);
 
-export function SAT(a: Shape, b: Shape): boolean {
+// separating axis theorem
+export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
   for (const polygon of [a.hull, b.hull]) {
     const len = polygon.length;
 

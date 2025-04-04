@@ -1,12 +1,14 @@
+import { Shape } from "../geometry/shape";
 import { Vec2 } from "../geometry/vec2";
 
-export function evenOddRule(point: Vec2, polygon: Vec2[]): boolean {
+// even odd rule algorithm
+export function isPointInPolygon(point: Vec2, shape: Shape): boolean {
   let inside = false;
-  const n = polygon.length;
+  const n = shape.hull.length;
 
   for (let i = 0, j = n - 1; i < n; j = i++) {
-    const a = polygon[i];
-    const b = polygon[j];
+    const a = shape.hull[i];
+    const b = shape.hull[j];
 
     // Check if the point's y-coordinate is between the y-values of the edge endpoints
     const yBetween = a[1] > point[1] !== b[1] > point[1];

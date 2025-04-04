@@ -1,7 +1,6 @@
 import { Vec2 } from "../geometry/vec2";
 import { sampleCubicBezier, sampleQuadraticBezier } from "./bezier";
 import { sampleArcTo } from "./arc";
-import { getContour } from "./contour";
 
 type PathPart =
   | { type: "move"; to: Vec2 }
@@ -134,7 +133,7 @@ export class Path {
     return path;
   }
 
-  toPoints(lineWidth?: number) {
+  toPoints() {
     const points: Vec2[] = [];
     let lastPoint: Vec2 = Vec2.ZERO;
     let control: Vec2 | undefined;
@@ -167,10 +166,6 @@ export class Path {
           control = part.endControl;
           break;
       }
-    }
-
-    if (lineWidth) {
-      return getContour(points, lineWidth);
     }
 
     return points;

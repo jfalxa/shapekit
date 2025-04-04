@@ -1,10 +1,11 @@
 import { v, Vec2 } from "./vec2";
-import { AABB } from "../utils/aabb";
-import { evenOddRule } from "../utils/even-odd-rule";
-import { SAT } from "../utils/separating-axis-theorem";
-import { Path } from "../utils/path";
 import { Matrix3 } from "./mat3";
-import { polylinesOverlap } from "../utils/polyline-overlap";
+import { AABB } from "../utils/aabb";
+import { Path } from "../utils/path";
+import { isPointInPolygon } from "../utils/point-in-polygon";
+import { isPointInPolyline } from "../utils/point-in-polyline";
+import { doPolygonsOverlap } from "../utils/polygon-overlap";
+import { doPolylinesOverlap } from "../utils/polyline-overlap";
 
 export interface ShapeInit {
   path: Path;
@@ -37,10 +38,11 @@ export class Shape {
   shadowOffsetX?: number;
   shadowOffsetY?: number;
 
-  transform = new Matrix3();
   private translation = new Vec2(0, 0);
   private scaling = new Vec2(0, 0);
   private rotation = 0;
+
+  transform = new Matrix3();
 
   path: Path;
   path2D: Path2D;
@@ -81,7 +83,7 @@ export class Shape {
     this.path = shapeInit.path;
     this.path2D = this.path.toPath2D();
 
-    const points = shapeInit.path.toPoints(shapeInit.lineWidth);
+    const points = shapeInit.path.toPoints();
     this.vertices = new Float32Array(points.flatMap((p) => [...p]));
 
     this.translation[0] = shapeInit.x ?? 0;
@@ -92,8 +94,8 @@ export class Shape {
 
     this.fill = shapeInit.fill;
     this.stroke = shapeInit.stroke;
-    this.lineWidth = shapeInit.lineWidth ?? 1;
-    this.lineCap = shapeInit.lineCap ?? "butt";
+    this.lineWidth = shapeInit.lineWidth;
+    this.lineCap = shapeInit.lineCap;
     this.lineJoin = shapeInit.lineJoin;
     this.lineDashOffset = shapeInit.lineDashOffset;
     this.miterLimit = shapeInit.miterLimit;
@@ -110,19 +112,22 @@ export class Shape {
 
   contains(shape: Vec2 | Shape) {
     if (shape instanceof Vec2) {
-      return evenOddRule(shape, this.hull);
-    } else {
-      for (const point of shape.hull) {
-        if (!evenOddRule(point, this.hull)) return false;
-      }
-      return true;
+      if (this.fill && isPointInPolygon(shape, this)) return true;
+      if (this.stroke && isPointInPolyline(shape, this)) return true;
+      return false;
     }
+
+    for (const point of shape.hull) {
+      if (!this.contains(point)) return false;
+    }
+
+    return true;
   }
 
   overlaps(shape: Shape) {
-    let method = polylinesOverlap;
-    if (this.fill && shape.fill) method = SAT;
-    return method(this, shape) || this.contains(shape) || shape.contains(this);
+    if (this.fill && shape.fill && doPolygonsOverlap(this, shape)) return true;
+    if (this.stroke && doPolylinesOverlap(this, shape)) return true;
+    return this.contains(shape) || shape.contains(this);
   }
 
   update() {
