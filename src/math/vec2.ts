@@ -78,32 +78,6 @@ export class Vec2 extends Float32Array {
     return this;
   }
 
-  scaleAt(x: number, y: number = x, anchor: Vec2) {
-    const deltaX = this[0] - anchor[0];
-    const deltaY = this[1] - anchor[1];
-
-    const scaledX = deltaX * x;
-    const scaledY = deltaY * y;
-
-    this[0] = scaledX + anchor[0];
-    this[1] = scaledY + anchor[1];
-
-    return this;
-  }
-
-  rotateAt(angle: number, anchor: Vec2 = Vec2.ZERO) {
-    const x = this[0] - anchor[0];
-    const y = this[1] - anchor[1];
-
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-
-    this[0] = cos * x - sin * y + anchor[0];
-    this[1] = sin * x + cos * y + anchor[1];
-
-    return this;
-  }
-
   dot(u: Vec2) {
     return this[0] * u[0] + this[1] * u[1];
   }
