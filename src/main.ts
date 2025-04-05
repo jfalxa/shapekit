@@ -1,10 +1,10 @@
 import { Loop } from "vroum";
 import { Renderer } from "./renderer/canvas2d";
 import { Shape } from "./shapes/shape";
-import { Path } from "./utils/path";
 import tree from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
+import { bezier3, move, bezier2, roundedRect, corner, line, arc } from "./path";
 
 function rand(min: number = 0, max: number = 1) {
   return min + Math.random() * (max - min);
@@ -54,10 +54,11 @@ class App extends Loop {
     stroke: "blue",
     lineWidth: 50,
     lineCap: "round",
-    path: new Path()
-      .moveTo(10, 80)
-      .cubicBezierTo(95, 80, 40, 10, 65, 10)
-      .cubicBezierTo(180, 80, 150, 150),
+    path: [
+      move(10, 80),
+      bezier3(95, 80, 40, 10, 65, 10),
+      bezier3(180, 80, 150, 150),
+    ],
   });
 
   path3 = new Shape({
@@ -65,10 +66,11 @@ class App extends Loop {
     y: 200,
     stroke: "yellow",
     // lineCap: "round",
-    path: new Path()
-      .moveTo(10, 80)
-      .cubicBezierTo(95, 80, 40, 10, 65, 10)
-      .cubicBezierTo(180, 80, 150, 150),
+    path: [
+      move(10, 80),
+      bezier3(95, 80, 40, 10, 65, 10),
+      bezier3(180, 80, 150, 150),
+    ],
   });
 
   path2 = new Shape({
@@ -77,10 +79,11 @@ class App extends Loop {
     stroke: "blue",
     lineWidth: 50,
     lineCap: "round",
-    path: new Path()
-      .moveTo(10, 80)
-      .quadraticBezierTo(95, 80, 52.5, 10)
-      .quadraticBezierTo(180, 80),
+    path: [
+      move(10, 80),
+      bezier2(95, 80, 52.5, 10),
+      bezier2(180, 80), //
+    ],
   });
 
   roundRect = new Text({
@@ -96,7 +99,7 @@ class App extends Loop {
     textPosition: "middle",
     fontWeight: "bold",
     fontStyle: "italic",
-    path: new Path().roundedRect(0, 0, 200, 100, 25),
+    path: roundedRect(0, 0, 200, 100, 25),
   });
 
   lemon = new Shape({
@@ -106,10 +109,11 @@ class App extends Loop {
     fill: "yellow",
     lineWidth: 5,
     lineCap: "square",
-    path: new Path()
-      .moveTo(-50, 0)
-      .arcTo(50, 0, 0, -50, 50)
-      .arcTo(-50, 0, 0, 50, 50),
+    path: [
+      move(-50, 0),
+      corner(50, 0, 0, -50, 50),
+      corner(-50, 0, 0, 50, 50), //
+    ],
   });
 
   roundTriangle = new Shape({
@@ -118,11 +122,12 @@ class App extends Loop {
     stroke: "red",
     fill: "yellow",
     lineWidth: 3,
-    path: new Path()
-      .moveTo(0, 50)
-      .arcTo(-50, -50, -100, 50, 10)
-      .arcTo(50, -50, 0, -150, 10)
-      .arcTo(0, 50, 100, 50, 10),
+    path: [
+      move(0, 50),
+      corner(-50, -50, -100, 50, 10),
+      corner(50, -50, 0, -150, 10),
+      corner(0, 50, 100, 50, 10),
+    ],
   });
 
   line = new Shape({
@@ -130,11 +135,20 @@ class App extends Loop {
     y: 300,
     stroke: "yellow",
     lineWidth: 100,
-    path: new Path()
-      .moveTo(-50, 0)
-      .lineTo(50, 0)
-      .lineTo(50, 100)
-      .lineTo(100, 150),
+    path: [
+      move(-50, 0),
+      line(50, 0),
+      line(50, 100),
+      line(100, 150), //
+    ],
+  });
+
+  circle = new Shape({
+    x: 600,
+    y: 300,
+    stroke: "hotpink",
+    lineWidth: 5,
+    path: [arc(0, 0, 0, 2 * Math.PI, 50)],
   });
 
   mount() {
@@ -151,15 +165,16 @@ class App extends Loop {
     }
 
     // this.renderer.add(this.line);
-    this.renderer.add(this.image);
+    // this.renderer.add(this.image);
     // this.renderer.add(this.rect1);
     // this.renderer.add(this.rect2);
-    this.renderer.add(this.path);
+    // this.renderer.add(this.path);
     // this.renderer.add(this.path2);
     // this.renderer.add(this.path3);
-    this.renderer.add(this.roundRect);
+    // this.renderer.add(this.roundRect);
     // this.renderer.add(this.roundTriangle);
     // this.renderer.add(this.lemon);
+    this.renderer.add(this.circle);
   }
 
   tick() {

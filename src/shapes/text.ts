@@ -1,10 +1,8 @@
-import { Path } from "../utils/path";
 import { fitText } from "../utils/fit-text";
 import { Shape, ShapeInit } from "./shape";
 
-export interface TextInit extends Omit<ShapeInit, "path"> {
+export interface TextInit extends ShapeInit {
   text: string;
-  path?: Path;
   fontFamily?: string;
   fontSize?: number;
   fontStretch?: string;
@@ -45,7 +43,7 @@ export class Text extends Shape {
   lines!: string[];
 
   constructor(textInit: TextInit) {
-    super({ ...textInit, path: textInit.path ?? new Path() });
+    super(textInit);
 
     this.text = textInit.text;
     this.fontFamily = textInit.fontFamily;

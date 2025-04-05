@@ -1,12 +1,11 @@
 import { Vec2 } from "../math/vec2";
 import { Matrix3 } from "../math/mat3";
 import { BoundingBox } from "../utils/bounding-box";
-import { Path } from "../utils/path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
 import { doPolylinesOverlap } from "../utils/polyline-overlap";
-import { toPath2D, toPoints } from "../utils/path-converter";
+import { rect, Path, toPath2D, toPoints } from "../path";
 
 export interface ShapeInit {
   path?: Path;
@@ -46,12 +45,12 @@ export class Shape {
   transformation = new Matrix3();
 
   path: Path;
-  path2D!: Path2D;
-  points!: Vec2[];
   hull: Vec2[];
   aabb: BoundingBox;
   bb: BoundingBox;
-  dirty = false;
+
+  path2D!: Path2D;
+  points!: Vec2[];
 
   x: number;
   y: number;
@@ -62,7 +61,7 @@ export class Shape {
   angle: number;
 
   constructor(shapeInit: ShapeInit) {
-    this.path = shapeInit.path ?? new Path();
+    this.path = shapeInit.path ?? [];
 
     this.x = shapeInit.x ?? 0;
     this.y = shapeInit.y ?? 0;
@@ -91,7 +90,7 @@ export class Shape {
     // by default, create a centered rect of width x height
     if (!shapeInit.path) {
       if (this.width && this.height) {
-        this.path = new Path().rect(0, 0, this.width, this.height);
+        this.path = rect(0, 0, this.width, this.height);
       }
     }
 
@@ -119,8 +118,8 @@ export class Shape {
   }
 
   build() {
-    this.points = toPoints(this.path);
     this.path2D = toPath2D(this.path);
+    this.points = toPoints(this.path);
     this.bb.update(this.points);
     this.update();
   }

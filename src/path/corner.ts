@@ -7,7 +7,7 @@ export function corner(
   y: number,
   cx: number,
   cy: number,
-  radius: number,
+  radius = 0,
   segments = 10
 ) {
   return new Corner(x, y, cx, cy, radius, segments);
@@ -19,7 +19,7 @@ export class Corner extends Segment {
     y: number,
     public cx: number,
     public cy: number,
-    public radius: number,
+    public radius = 0,
     public segments = 10
   ) {
     super(x, y);

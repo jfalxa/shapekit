@@ -1,3 +1,4 @@
+import { rect } from "../path/rect";
 import { Shape, ShapeInit } from "./shape";
 
 export interface ImageInit extends ShapeInit {
@@ -22,7 +23,7 @@ export class Image extends Shape {
         this.height = this.image.naturalHeight;
         this.image.width = this.width;
         this.image.height = this.height;
-        this.path.rect(0, 0, this.width, this.height);
+        this.path = rect(0, 0, this.width, this.height);
         this.build();
       }
     };

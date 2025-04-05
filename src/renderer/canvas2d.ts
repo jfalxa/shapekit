@@ -1,6 +1,5 @@
 import { Loop, Task } from "vroum";
 import { Shape } from "../shapes/shape";
-import { renderHulls } from "../utils/hull";
 import { Image } from "../shapes/image";
 import { Text } from "../shapes/text";
 
@@ -30,8 +29,6 @@ export class Renderer extends Task {
     for (let i = 0; i < this.shapes.length; i++) {
       this.render(this.shapes[i]);
     }
-
-    renderHulls(ctx, this.shapes);
   }
 
   add(...shapes: Shape[]) {
