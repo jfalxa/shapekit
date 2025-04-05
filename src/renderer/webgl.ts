@@ -77,7 +77,7 @@ export class Renderer extends Task {
     gl.enableVertexAttribArray(aPosition);
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
 
-    gl.uniformMatrix3fv(uTransform, false, shape.transform);
+    gl.uniformMatrix3fv(uTransform, false, shape.transformation);
     gl.uniform4fv(uColor, toRGBA(shape.fill ?? "transparent"));
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, shape.vertices.length / 2);

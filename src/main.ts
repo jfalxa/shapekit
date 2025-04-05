@@ -4,6 +4,8 @@ import { Rect } from "./shapes/rect";
 import { Shape } from "./shapes/shape";
 import { Path } from "./utils/path";
 import tree from "./tree.png";
+import { Text } from "./shapes/text";
+import { Image } from "./shapes/image";
 
 function rand(min: number = 0, max: number = 1) {
   return min + Math.random() * (max - min);
@@ -14,6 +16,18 @@ class App extends Loop {
   renderer = new Renderer(this.canvas, this);
 
   rect1 = new Rect({
+    x: 400,
+    y: 450,
+    width: 100,
+    height: 50,
+    // fill: "green",
+    shadowBlur: 1,
+    shadowOffsetX: 3,
+    shadowOffsetY: 3,
+    shadowColor: "#ccc",
+  });
+
+  image = new Image({
     x: 400,
     y: 450,
     width: 100,
@@ -70,14 +84,20 @@ class App extends Loop {
   //     .quadraticBezierTo(180, 80),
   // });
 
-  roundRect = new Shape({
+  roundRect = new Text({
     x: 400,
     y: 300,
-    // stroke: "blue",
-    // fill: "yellow",
-    // lineWidth: 3,
-    path: new Path().roundedRect(0, 0, 100, 100, 25),
-    src: tree,
+    stroke: "blue",
+    fill: "yellow",
+    lineWidth: 6,
+    textFill: "black",
+    text: "Lorem ipsum dolor sit amet", //, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+    padding: 12,
+    textAlign: "center",
+    textPosition: "middle",
+    fontWeight: "bold",
+    fontStyle: "italic",
+    path: new Path().roundedRect(0, 0, 200, 100, 25),
   });
 
   // circle = new Shape({
@@ -132,7 +152,8 @@ class App extends Loop {
     }
 
     // this.renderer.add(this.line);
-    this.renderer.add(this.rect1);
+    this.renderer.add(this.image);
+    // this.renderer.add(this.rect1);
     // this.renderer.add(this.rect2);
     // this.renderer.add(this.path);
     // this.renderer.add(this.path2);
@@ -145,7 +166,7 @@ class App extends Loop {
   tick() {
     for (const shape of this.renderer.shapes) {
       // if (shape === this.rect1 || shape === this.rect2) continue;
-      shape.angle += this.deltaTime * 0.001;
+      // shape.angle += this.deltaTime * 0.001;
     }
     // if (this.rect1.overlaps(this.rect2)) {
     //   this.rect1.fill = "lime";

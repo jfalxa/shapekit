@@ -1,3 +1,4 @@
+import { Image } from "../shapes/image";
 import { Shape } from "../shapes/shape";
 
 export function renderHulls(ctx: CanvasRenderingContext2D, shapes: Shape[]) {
@@ -22,7 +23,7 @@ export function renderHulls(ctx: CanvasRenderingContext2D, shapes: Shape[]) {
       ctx.lineTo(shape.hull[j][0], shape.hull[j][1]);
     }
 
-    if (shape.fill || shape.image) {
+    if (shape.fill || shape instanceof Image) {
       ctx.lineTo(shape.hull[0][0], shape.hull[0][1]);
     }
 

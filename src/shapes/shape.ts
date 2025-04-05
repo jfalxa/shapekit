@@ -24,7 +24,6 @@ export interface ShapeInit {
   shadowColor?: string;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
-  src?: string;
 }
 
 export class Shape {
@@ -44,7 +43,7 @@ export class Shape {
   private scaling = new Vec2(0, 0);
   private rotation = 0;
 
-  transform = new Matrix3();
+  transformation = new Matrix3();
 
   path: Path;
   path2D: Path2D;
@@ -54,15 +53,13 @@ export class Shape {
   obb: BoundingBox;
   dirty = false;
 
-  image?: HTMLImageElement;
-
   get x() {
     return this.translation[0];
   }
 
   set x(value: number) {
     this.translation[0] = value;
-    this.update();
+    this.transform();
   }
 
   get y() {
@@ -71,7 +68,7 @@ export class Shape {
 
   set y(value: number) {
     this.translation[1] = value;
-    this.update();
+    this.transform();
   }
 
   get angle() {
@@ -80,7 +77,7 @@ export class Shape {
 
   set angle(value: number) {
     this.rotation = value;
-    this.update();
+    this.transform();
   }
 
   constructor(shapeInit: ShapeInit) {
@@ -111,12 +108,7 @@ export class Shape {
     this.aabb = new BoundingBox();
     this.obb = new BoundingBox();
 
-    this.update();
-
-    if (shapeInit.src) {
-      this.image = new Image(this.obb.width, this.obb.height);
-      this.image.src = shapeInit.src;
-    }
+    this.transform();
   }
 
   contains(shape: Vec2 | Shape) {
@@ -142,11 +134,11 @@ export class Shape {
   rebuild() {
     this.path2D = toPath2D(this.path);
     this.vertices.set(toPoints(this.path).flatMap((p) => [...p]));
-    this.update();
+    this.transform();
   }
 
-  update() {
-    this.transform
+  transform() {
+    this.transformation
       .identity()
       .scale(this.scaling[0], this.scaling[1])
       .rotate(this.rotation)
@@ -155,6 +147,7 @@ export class Shape {
     // prepare the hull array to hold the transformed vertices
     this.hull.length = this.vertices.length / 2;
 
+    // TODO better way of doing OBB, maybe extend AABB
     // first pass: we compute the hull without rotation in order to get the OBB
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
@@ -168,7 +161,7 @@ export class Shape {
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i]
         .put(this.vertices[i * 2], this.vertices[i * 2 + 1])
-        .transform(this.transform);
+        .transform(this.transformation);
     }
     this.aabb.update(this.hull);
   }
