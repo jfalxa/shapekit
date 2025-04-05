@@ -42,7 +42,7 @@ export class Text extends Shape {
   private _padding?: number;
 
   font!: string;
-  lines!: [string, number][];
+  lines!: string[];
 
   get text() {
     return this._text;

@@ -3,12 +3,11 @@ import { Text } from "../shapes/text";
 const textCanvas = document.createElement("canvas");
 const textCtx = textCanvas.getContext("2d")!;
 
-export function fitText(text: Text): [string, number][] {
-  const lines: [string, number][] = [];
+export function fitText(text: Text): string[] {
+  const lines: string[] = [];
   const words = (text.text ?? "").split(" ");
 
   let line = "";
-  let width = 0;
 
   let maxWidth = text.bb.width - 2 * (text.padding ?? 0);
 
@@ -20,17 +19,15 @@ export function fitText(text: Text): [string, number][] {
     const testWidth = textCtx.measureText(testLine).width;
 
     if (testWidth > maxWidth) {
-      lines.push([line, width]);
+      lines.push(line);
       line = "";
-      width = 0;
     } else {
       line = testLine;
-      width = testWidth;
     }
   }
 
   if (line.length > 0) {
-    lines.push([line, width]);
+    lines.push(line);
   }
 
   return lines;

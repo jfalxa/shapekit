@@ -145,7 +145,7 @@ export class Renderer extends Task {
       if (y < minY) continue;
       if (y > maxY) continue;
 
-      const line = lines[i][0];
+      const line = lines[i];
 
       if (textFill) {
         if (textFill !== ctx.fillStyle) ctx.fillStyle = textFill;
