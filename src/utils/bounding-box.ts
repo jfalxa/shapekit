@@ -22,6 +22,13 @@ export class BoundingBox {
 
   update(hull: Vec2[]) {
     const { min, max } = this;
+
+    if (hull.length === 0) {
+      min.put(0);
+      max.put(0);
+      return;
+    }
+
     min.put(Infinity);
     max.put(-Infinity);
 
