@@ -99,7 +99,7 @@ export class Renderer extends Task {
 
   renderImage(image: Image) {
     const { ctx } = this;
-    const { width, height } = image.obb;
+    const { width, height } = image.bb;
     ctx.drawImage(image.image, -width / 2, -height / 2, width, height);
   }
 
@@ -124,8 +124,8 @@ export class Renderer extends Task {
     if (textBaseline !== ctx.textBaseline) ctx.textBaseline = textBaseline;
 
     const textHeight = lines.length * lineHeight;
-    const halfWidth = text.obb.width / 2;
-    const halfHeight = text.obb.height / 2;
+    const halfWidth = text.bb.width / 2;
+    const halfHeight = text.bb.height / 2;
 
     const minY = -halfHeight + padding;
     const maxY = halfHeight - padding;

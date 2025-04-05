@@ -10,7 +10,7 @@ export function fitText(text: Text): [string, number][] {
   let line = "";
   let width = 0;
 
-  let maxWidth = text.obb.width - 2 * (text.padding ?? 0);
+  let maxWidth = text.bb.width - 2 * (text.padding ?? 0);
 
   const { font } = text;
   if (font !== textCtx.font) textCtx.font = font;

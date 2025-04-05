@@ -1,6 +1,6 @@
 import { Vec2 } from "../math/vec2";
 
-export type PathPart =
+export type PathSegment =
   | { type: "move"; to: Vec2 }
   | { type: "line"; to: Vec2 }
   | { type: "bezier2"; to: Vec2; control?: Vec2 }
@@ -9,15 +9,15 @@ export type PathPart =
   | { type: "close" };
 
 export class Path {
-  parts: PathPart[] = [];
+  segments: PathSegment[] = [];
 
   clear() {
-    this.parts.length = 0;
+    this.segments.length = 0;
     return this;
   }
 
   moveTo(x: number, y: number): this {
-    this.parts.push({
+    this.segments.push({
       type: "move",
       to: new Vec2(x, y),
     });
@@ -25,7 +25,7 @@ export class Path {
   }
 
   lineTo(x: number, y: number): this {
-    this.parts.push({
+    this.segments.push({
       type: "line",
       to: new Vec2(x, y),
     });
@@ -33,7 +33,7 @@ export class Path {
   }
 
   arcTo(x: number, y: number, cx: number, cy: number, r: number): this {
-    this.parts.push({
+    this.segments.push({
       type: "arc",
       to: new Vec2(x, y),
       control: new Vec2(cx, cy),
@@ -50,7 +50,7 @@ export class Path {
   ): this {
     let cp: Vec2 | undefined;
     if (cpx !== undefined && cpy !== undefined) cp = new Vec2(cpx, cpy);
-    this.parts.push({
+    this.segments.push({
       type: "bezier2",
       to: new Vec2(x, y),
       control: cp,
@@ -76,7 +76,7 @@ export class Path {
       end = new Vec2(startX, startY);
     }
 
-    this.parts.push({
+    this.segments.push({
       type: "bezier3",
       to: new Vec2(x, y),
       startControl: start,
@@ -119,7 +119,7 @@ export class Path {
   }
 
   close() {
-    this.parts.push({ type: "close" });
+    this.segments.push({ type: "close" });
     return this;
   }
 }

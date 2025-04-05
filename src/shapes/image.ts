@@ -26,20 +26,19 @@ export class Image extends Shape {
 
     super({ ...imageInit, path });
 
-    this.width = imageInit.width ?? this.obb.width;
-    this.height = imageInit.height ?? this.obb.height;
+    this.width = imageInit.width ?? this.bb.width;
+    this.height = imageInit.height ?? this.bb.height;
 
     this.image = new window.Image(this.width, this.height);
     this.image.src = imageInit.src;
 
     this.image.onload = () => {
-      if (this.path.parts.length === 0) {
+      if (this.path.segments.length === 0) {
         this.width = this.image.naturalWidth;
         this.height = this.image.naturalHeight;
         this.image.width = this.width;
         this.image.height = this.height;
         this.path.rect(0, 0, this.width, this.height);
-        this.rebuild();
       }
     };
   }

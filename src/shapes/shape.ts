@@ -50,7 +50,7 @@ export class Shape {
   vertices: Float32Array;
   hull: Vec2[];
   aabb: BoundingBox;
-  obb: BoundingBox;
+  bb: BoundingBox;
   dirty = false;
 
   get x() {
@@ -102,11 +102,14 @@ export class Shape {
     this.shadowOffsetY = shapeInit.shadowOffsetY;
 
     const points = toPoints(this.path);
+
     this.path2D = toPath2D(this.path);
     this.vertices = new Float32Array(points.flatMap((p) => [...p]));
     this.hull = points.map(v);
+
     this.aabb = new BoundingBox();
-    this.obb = new BoundingBox();
+    this.bb = new BoundingBox();
+    this.bb.update(points);
 
     this.transform();
   }
@@ -127,14 +130,8 @@ export class Shape {
 
   overlaps(shape: Shape) {
     if (this.fill && shape.fill && doPolygonsOverlap(this, shape)) return true;
-    if (this.stroke && doPolylinesOverlap(this, shape)) return true;
+    if (doPolylinesOverlap(this, shape)) return true;
     return this.contains(shape) || shape.contains(this);
-  }
-
-  rebuild() {
-    this.path2D = toPath2D(this.path);
-    this.vertices.set(toPoints(this.path).flatMap((p) => [...p]));
-    this.transform();
   }
 
   transform() {
@@ -147,17 +144,6 @@ export class Shape {
     // prepare the hull array to hold the transformed vertices
     this.hull.length = this.vertices.length / 2;
 
-    // TODO better way of doing OBB, maybe extend AABB
-    // first pass: we compute the hull without rotation in order to get the OBB
-    for (let i = 0; i < this.hull.length; i++) {
-      this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
-        .put(this.vertices[i * 2], this.vertices[i * 2 + 1])
-        .scale(this.scaling[0], this.scaling[1])
-        .translate(this.translation[0], this.translation[1]);
-    }
-    this.obb.update(this.hull);
-
-    // second pass: we compute the hull with full transformation in order to get the AABB
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i]
         .put(this.vertices[i * 2], this.vertices[i * 2 + 1])
