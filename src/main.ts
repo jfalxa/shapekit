@@ -49,7 +49,7 @@ class App extends Loop {
   });
 
   path = new Shape({
-    x: 300,
+    x: 200,
     y: 200,
     stroke: "blue",
     lineWidth: 50,
@@ -163,9 +163,8 @@ class App extends Loop {
   }
 
   tick() {
-    for (const shape of this.renderer.shapes) {
-      shape.angle += this.deltaTime * 0.001;
-    }
+    // for (const shape of this.renderer.shapes)
+    // shape.angle += this.deltaTime * 0.001;
 
     if (this.rect1.overlaps(this.rect2)) {
       this.rect1.fill = "lime";

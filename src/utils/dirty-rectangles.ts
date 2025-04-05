@@ -22,7 +22,7 @@ export class DirtyRectangles {
       const aabb = shape.aabb.clone();
       this.dirtyRects.push(aabb);
 
-      shape.transform();
+      shape.update();
       shape.dirty = false;
 
       if (!shape.aabb.equals(aabb)) {
