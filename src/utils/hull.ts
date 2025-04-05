@@ -15,6 +15,7 @@ export function renderHulls(ctx: CanvasRenderingContext2D, shapes: Shape[]) {
 
   for (let i = 0; i < shapes.length; i++) {
     const shape = shapes[i];
+    if (shape.path.segments.length === 0 || shape.hull.length === 0) continue;
 
     ctx.beginPath();
     ctx.moveTo(shape.hull[0][0], shape.hull[0][1]);

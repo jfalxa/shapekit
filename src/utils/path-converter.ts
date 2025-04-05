@@ -8,35 +8,35 @@ export function toPath2D(path: Path) {
   let control: Vec2 | undefined;
   let lastPoint: Vec2 | undefined;
   let lastControl: Vec2 | undefined;
-  for (const part of path.segments) {
-    switch (part.type) {
+  for (const seg of path.segments) {
+    switch (seg.type) {
       case "move":
-        path2D.moveTo(part.to.x, part.to.y);
-        lastPoint = part.to;
+        path2D.moveTo(seg.to.x, seg.to.y);
+        lastPoint = seg.to;
         lastControl = undefined;
         break;
       case "line":
-        path2D.lineTo(part.to.x, part.to.y);
-        lastPoint = part.to;
+        path2D.lineTo(seg.to.x, seg.to.y);
+        lastPoint = seg.to;
         lastControl = undefined;
         break;
       case "arc":
-        path2D.arcTo(part.control.x, part.control.y, part.to.x, part.to.y, part.radius); // prettier-ignore
-        path2D.lineTo(part.to.x, part.to.y);
-        lastPoint = part.to;
+        path2D.arcTo(seg.control.x, seg.control.y, seg.to.x, seg.to.y, seg.radius); // prettier-ignore
+        path2D.lineTo(seg.to.x, seg.to.y);
+        lastPoint = seg.to;
         lastControl = undefined;
         break;
       case "bezier2":
-        control = resolveControl(part.control, lastPoint, lastControl);
-        path2D.quadraticCurveTo(control.x, control.y, part.to.x, part.to.y);
-        lastPoint = part.to;
+        control = resolveControl(seg.control, lastPoint, lastControl);
+        path2D.quadraticCurveTo(control.x, control.y, seg.to.x, seg.to.y);
+        lastPoint = seg.to;
         lastControl = control;
         break;
       case "bezier3":
-        control = resolveControl(part.startControl, lastPoint, lastControl);
-        path2D.bezierCurveTo(control.x, control.y, part.endControl.x, part.endControl.y, part.to.x, part.to.y); // prettier-ignore
-        lastPoint = part.to;
-        lastControl = part.endControl;
+        control = resolveControl(seg.startControl, lastPoint, lastControl);
+        path2D.bezierCurveTo(control.x, control.y, seg.endControl.x, seg.endControl.y, seg.to.x, seg.to.y); // prettier-ignore
+        lastPoint = seg.to;
+        lastControl = seg.endControl;
         break;
       case "close":
         path2D.closePath();
@@ -53,33 +53,33 @@ export function toPoints(path: Path) {
   let control: Vec2 | undefined;
   let lastPoint: Vec2 = Vec2.ZERO;
   let lastControl: Vec2 | undefined;
-  for (const part of path.segments) {
-    switch (part.type) {
+  for (const seg of path.segments) {
+    switch (seg.type) {
       case "move":
-        points.push(part.to.clone());
-        lastPoint = part.to;
+        points.push(seg.to.clone());
+        lastPoint = seg.to;
         lastControl = undefined;
         break;
       case "line":
-        points.push(part.to.clone());
-        lastPoint = part.to;
+        points.push(seg.to.clone());
+        lastPoint = seg.to;
         lastControl = undefined;
         break;
       case "arc":
-        points.push(...sampleArcTo(lastPoint, part.to, part.control, part.radius)); // prettier-ignore
-        lastPoint = part.to;
+        points.push(...sampleArcTo(lastPoint, seg.to, seg.control, seg.radius)); // prettier-ignore
+        lastPoint = seg.to;
         lastControl = undefined;
         break;
       case "bezier2":
-        control = resolveControl(part.control, lastPoint, lastControl);
-        points.push(...sampleQuadraticBezier(lastPoint, control, part.to)); // prettier-ignore
-        lastPoint = part.to;
+        control = resolveControl(seg.control, lastPoint, lastControl);
+        points.push(...sampleQuadraticBezier(lastPoint, control, seg.to)); // prettier-ignore
+        lastPoint = seg.to;
         break;
       case "bezier3":
-        control = resolveControl(part.startControl, lastPoint, lastControl);
-        points.push(...sampleCubicBezier(lastPoint, control, part.endControl, part.to)); // prettier-ignore
-        lastPoint = part.to;
-        lastControl = part.endControl;
+        control = resolveControl(seg.startControl, lastPoint, lastControl);
+        points.push(...sampleCubicBezier(lastPoint, control, seg.endControl, seg.to)); // prettier-ignore
+        lastPoint = seg.to;
+        lastControl = seg.endControl;
         break;
     }
   }

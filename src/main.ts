@@ -17,7 +17,8 @@ class App extends Loop {
   rect1 = new Shape({
     x: 400,
     y: 300,
-    path: new Path().rect(0, 0, 100, 50),
+    width: 100,
+    height: 50,
     fill: "green",
     shadowBlur: 1,
     shadowOffsetX: 3,
@@ -41,7 +42,8 @@ class App extends Loop {
   rect2 = new Shape({
     x: 500,
     y: 300,
-    path: new Path().rect(0, 0, 100, 50),
+    width: 100,
+    height: 50,
     fill: "red",
     stroke: "orange",
   });
@@ -88,7 +90,7 @@ class App extends Loop {
     fill: "yellow",
     lineWidth: 6,
     textFill: "black",
-    text: "Lorem ipsum dolor sit amet", //, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
     padding: 12,
     textAlign: "center",
     textPosition: "middle",
@@ -141,7 +143,8 @@ class App extends Loop {
         new Shape({
           x: rand(0, 800),
           y: rand(0, 600),
-          path: new Path().rect(0, 0, rand(10, 20), rand(10, 20)),
+          width: rand(10, 20),
+          height: rand(10, 20),
           fill: `rgb(${rand(0, 255)}, ${rand(0, 255)}, ${rand(0, 255)})`,
         })
       );
@@ -151,10 +154,10 @@ class App extends Loop {
     this.renderer.add(this.image);
     // this.renderer.add(this.rect1);
     // this.renderer.add(this.rect2);
-    // this.renderer.add(this.path);
+    this.renderer.add(this.path);
     // this.renderer.add(this.path2);
     // this.renderer.add(this.path3);
-    // this.renderer.add(this.roundRect);
+    this.renderer.add(this.roundRect);
     // this.renderer.add(this.roundTriangle);
     // this.renderer.add(this.lemon);
   }
