@@ -42,25 +42,25 @@ export class Text extends Shape {
   font!: string;
   lines!: string[];
 
-  constructor(textInit: TextInit) {
-    super(textInit);
+  constructor(init: TextInit) {
+    super(init);
 
-    this.text = textInit.text;
-    this.fontFamily = textInit.fontFamily;
-    this.fontSize = textInit.fontSize;
-    this.fontStretch = textInit.fontStretch;
-    this.fontStyle = textInit.fontStyle;
-    this.fontVariant = textInit.fontVariant;
-    this.fontWeight = textInit.fontWeight;
-    this.lineHeight = textInit.lineHeight;
-    this.textFill = textInit.textFill;
-    this.textStroke = textInit.textStroke;
-    this.textLineWidth = textInit.textLineWidth;
-    this.textAlign = textInit.textAlign;
-    this.textBaseline = textInit.textBaseline;
-    this.textPosition = textInit.textPosition;
-    this.direction = textInit.direction;
-    this.padding = textInit.padding;
+    this.text = init.text;
+    this.fontFamily = init.fontFamily;
+    this.fontSize = init.fontSize;
+    this.fontStretch = init.fontStretch;
+    this.fontStyle = init.fontStyle;
+    this.fontVariant = init.fontVariant;
+    this.fontWeight = init.fontWeight;
+    this.lineHeight = init.lineHeight;
+    this.textFill = init.textFill;
+    this.textStroke = init.textStroke;
+    this.textLineWidth = init.textLineWidth;
+    this.textAlign = init.textAlign;
+    this.textBaseline = init.textBaseline;
+    this.textPosition = init.textPosition;
+    this.direction = init.direction;
+    this.padding = init.padding;
 
     this.format();
   }

@@ -1,15 +1,16 @@
 import { Loop, Task } from "vroum";
-import { Shape } from "../shapes/shape";
 import { Image } from "../shapes/image";
 import { Text } from "../shapes/text";
+import { Renderable } from "../shapes/renderable";
+import { Group } from "../shapes/group";
+import { Shape } from "../shapes/shape";
 
 export class Renderer extends Task {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
-  shapes: Shape[] = [];
+  children: Renderable[] = [];
 
-  // Helper: initialize WebGL context on a given canvas
   constructor(canvas: HTMLCanvasElement, loop: Loop) {
     super(loop);
 
@@ -26,31 +27,43 @@ export class Renderer extends Task {
     ctx.resetTransform();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < this.shapes.length; i++) {
-      this.render(this.shapes[i]);
+    for (let i = 0; i < this.children.length; i++) {
+      this.render(this.children[i]);
     }
   }
 
-  add(...shapes: Shape[]) {
-    this.shapes.push(...shapes);
+  add(...renderables: Renderable[]) {
+    this.children.push(...renderables);
   }
 
-  render(shape: Shape) {
-    this.ctx.setTransform(
-      shape.transformation[0],
-      shape.transformation[1],
-      shape.transformation[3],
-      shape.transformation[4],
-      shape.transformation[6],
-      shape.transformation[7]
-    );
+  render(renderable: Renderable) {
+    if (renderable instanceof Group) {
+      this.renderGroup(renderable);
+    }
 
-    this.renderShadows(shape);
+    if (renderable instanceof Shape) {
+      this.ctx.setTransform(
+        renderable.transformation[0],
+        renderable.transformation[1],
+        renderable.transformation[3],
+        renderable.transformation[4],
+        renderable.transformation[6],
+        renderable.transformation[7]
+      );
 
-    if (shape.fill) this.renderFill(shape);
-    if (shape.stroke) this.renderStroke(shape);
-    if (shape instanceof Image) this.renderImage(shape);
-    if (shape instanceof Text) this.renderText(shape);
+      this.renderShadows(renderable);
+
+      if (renderable.fill) this.renderFill(renderable);
+      if (renderable.stroke) this.renderStroke(renderable);
+      if (renderable instanceof Image) this.renderImage(renderable);
+      if (renderable instanceof Text) this.renderText(renderable);
+    }
+  }
+
+  renderGroup(group: Group) {
+    for (const child of group.children) {
+      this.render(child);
+    }
   }
 
   renderShadows(shape: Shape) {
@@ -132,9 +145,9 @@ export class Renderer extends Task {
     if (textAlign === "right") x = halfWidth - padding;
 
     let y = 0;
-    if (textPosition === "top") y += -halfHeight + padding;
-    if (textPosition === "middle") y += -textHeight / 2;
-    if (textPosition === "bottom") y += halfHeight - padding - textHeight;
+    if (textPosition === "top") y = -halfHeight + padding;
+    if (textPosition === "middle") y = -textHeight / 2;
+    if (textPosition === "bottom") y = halfHeight - padding - textHeight;
 
     for (let i = 0; i < lines.length; i++) {
       y += lineHeight;

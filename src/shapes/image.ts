@@ -8,14 +8,14 @@ export interface ImageInit extends ShapeInit {
 export class Image extends Shape {
   image: HTMLImageElement;
 
-  constructor(imageInit: ImageInit) {
-    super(imageInit);
+  constructor(init: ImageInit) {
+    super(init);
 
-    this.width = imageInit.width ?? this.bb.width;
-    this.height = imageInit.height ?? this.bb.height;
+    this.width = init.width ?? this.bb.width;
+    this.height = init.height ?? this.bb.height;
 
     this.image = new window.Image(this.width, this.height);
-    this.image.src = imageInit.src;
+    this.image.src = init.src;
 
     this.image.onload = () => {
       if (!this.width && !this.height) {
