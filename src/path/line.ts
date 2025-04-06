@@ -7,10 +7,10 @@ export function line(x: number, y: number) {
 
 export class Line extends Segment {
   apply(path: Path2D): void {
-    path.lineTo(this.x, this.y);
+    path.lineTo(this.to.x, this.to.y);
   }
 
   sample(): Vec2[] {
-    return [new Vec2(this.x, this.y)];
+    return [new Vec2(this.to.x, this.to.y)];
   }
 }

@@ -1,3 +1,4 @@
+import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
 import { Segment } from "./segment";
 
@@ -14,10 +15,8 @@ export function bezier3(
 }
 
 export class Bezier3 extends Segment {
-  sx: number | undefined;
-  sy: number | undefined;
-  ex: number;
-  ey: number;
+  start: Vec2 | undefined;
+  end: Vec2;
 
   constructor(
     x: number,
@@ -31,84 +30,61 @@ export class Bezier3 extends Segment {
     super(x, y);
 
     if (ex !== undefined && ey !== undefined) {
-      this.sx = sx;
-      this.sy = sy;
-      this.ex = ex;
-      this.ey = ey;
+      this.start = new Vec2(sx, sy);
+      this.end = new Vec2(ex, ey);
     } else {
-      this.ex = sx;
-      this.ey = sy;
+      this.end = new Vec2(sx, sy);
     }
   }
 
-  getOptionalControl(): Vec2 | undefined {
-    if (this.sx === undefined || this.sy === undefined) return undefined;
-    return new Vec2(this.sx, this.sy);
+  getOptionalControl() {
+    return this.start;
   }
 
-  getSharedControl(): Vec2 {
-    return new Vec2(this.ex, this.ey);
+  getSharedControl() {
+    return this.end;
   }
 
   apply(path: Path2D, control?: Vec2) {
-    const sx = this.sx ?? control?.x;
-    const sy = this.sy ?? control?.y;
-    if (sx === undefined || sy === undefined) {
-      throw new Error("Missing start control point");
-    }
+    const start = this.start ?? control;
+    if (!start) throw new Error("Missing start control point");
 
-    path.bezierCurveTo(sx, sy, this.ex, this.ey, this.x, this.y);
-  }
-
-  sample(from: Vec2, control?: Vec2): Vec2[] {
-    const sx = this.sx ?? control?.x;
-    const sy = this.sy ?? control?.y;
-
-    if (sx === undefined || sy === undefined) {
-      throw new Error("Missing start control point");
-    }
-
-    return Bezier3.sample(
-      from.x,
-      from.y,
-      sx,
-      sy,
-      this.ex,
-      this.ey,
-      this.x,
-      this.y,
-      this.segments
+    path.bezierCurveTo(
+      start.x,
+      start.y,
+      this.end.x,
+      this.end.y,
+      this.to.x,
+      this.to.y
     );
   }
 
-  static sample(
-    p0x: number,
-    p0y: number,
-    p1x: number,
-    p1y: number,
-    p2x: number,
-    p2y: number,
-    p3x: number,
-    p3y: number,
-    segments: number
-  ) {
-    if (p1x === undefined || p1y === undefined) {
-      throw new Error("Missing start control point");
-    }
+  sample(from: Vec2, control?: Vec2): Vec2[] {
+    const start = this.start ?? control;
+    if (!start) throw new Error("Missing start control point");
+    return Bezier3.sample(from, start, this.end, this.to, this.segments);
+  }
 
+  transform(matrix: Matrix3): void {
+    super.transform(matrix);
+    this.start?.transform(matrix);
+    this.end.transform(matrix);
+  }
+
+  static sample(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2, segments: number) {
     const points: Vec2[] = [];
     for (let t = 0; t <= 1; t += 1 / segments) {
       const x =
-        (1 - t) ** 3 * p0x +
-        3 * (1 - t) ** 2 * t * p1x +
-        3 * (1 - t) * t ** 2 * p2x +
-        t ** 3 * p3x;
+        (1 - t) ** 3 * p0.x +
+        3 * (1 - t) ** 2 * t * p1.x +
+        3 * (1 - t) * t ** 2 * p2.x +
+        t ** 3 * p3.x;
 
       const y =
-        (1 - t) ** 3 * p0y +
-        3 * (1 - t) ** 2 * t * p1y +
-        3 * (1 - t) * t ** 2 * p2y +
-        t ** 3 * p3y;
+        (1 - t) ** 3 * p0.y +
+        3 * (1 - t) ** 2 * t * p1.y +
+        3 * (1 - t) * t ** 2 * p2.y +
+        t ** 3 * p3.y;
 
       points.push(new Vec2(x, y));
     }

@@ -36,8 +36,8 @@ export class Arc extends Segment {
 
   apply(path: Path2D) {
     path.arc(
-      this.x,
-      this.y,
+      this.to.x,
+      this.to.y,
       this.radius,
       this.startAngle,
       this.endAngle,
@@ -47,8 +47,8 @@ export class Arc extends Segment {
 
   sample(): Vec2[] {
     return Arc.sampleArc(
-      this.x,
-      this.y,
+      this.to.x,
+      this.to.y,
       this.startAngle,
       this.endAngle,
       this.radius,
