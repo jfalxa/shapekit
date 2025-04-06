@@ -6,13 +6,11 @@ export class Matrix3 extends Float32Array {
     this.set(IDENTITY);
   }
 
-  // Reset to identity matrix
   identity() {
     this.set(IDENTITY);
     return this;
   }
 
-  // Apply translation (in-place)
   translate(tx: number, ty: number) {
     // prettier-ignore
     return this.multiply(
@@ -22,10 +20,9 @@ export class Matrix3 extends Float32Array {
     );
   }
 
-  // Apply rotation (in-place)
-  rotate(rad: number) {
-    const c = Math.cos(rad);
-    const s = Math.sin(rad);
+  rotate(angle: number) {
+    const c = Math.cos(angle);
+    const s = Math.sin(angle);
     // prettier-ignore
     return this.multiply(
       c, s, 0,
@@ -34,7 +31,6 @@ export class Matrix3 extends Float32Array {
     );
   }
 
-  // Apply scaling (in-place)
   scale(sx: number, sy: number) {
     // prettier-ignore
     return this.multiply(
@@ -44,8 +40,18 @@ export class Matrix3 extends Float32Array {
     );
   }
 
-  // Multiply the current matrix by another 3x3 matrix.
-  // The multiplication is in the order: this = this * m.
+  setTransform(tx: number, ty: number, sx: number, sy: number, angle: number) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    // prettier-ignore
+    this[0] = sx * cos,   this[1] = sx * sin,   this[2] = 0, 
+    this[3] = -sy * sin,  this[4] = sy * cos,   this[5] = 0, 
+    this[6] = tx,         this[7] = ty,         this[8] = 1;
+
+    return this;
+  }
+
   multiply(
     a: number,
     b: number,
@@ -57,15 +63,7 @@ export class Matrix3 extends Float32Array {
     h: number,
     i: number
   ) {
-    const _a = this[0];
-    const _b = this[1];
-    const _c = this[2];
-    const _d = this[3];
-    const _e = this[4];
-    const _f = this[5];
-    const _g = this[6];
-    const _h = this[7];
-    const _i = this[8];
+    const [_a, _b, _c, _d, _e, _f, _g, _h, _i] = this;
 
     this[0] = _a * a + _b * d + _c * g;
     this[1] = _a * b + _b * e + _c * h;

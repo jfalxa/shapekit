@@ -1,12 +1,12 @@
 import { Vec2 } from "../math/vec2";
+import { Matrix3 } from "../math/mat3";
+import { rect, Path, toPath2D, toPoints } from "../path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
 import { doPolylinesOverlap } from "../utils/polyline-overlap";
-import { rect, Path, toPath2D, toPoints } from "../path";
-import { Renderable } from "./renderable";
-import { Matrix3 } from "../math/mat3";
 import { BoundingBox } from "../utils/bounding-box";
+import { Renderable } from "./renderable";
 
 export interface ShapeInit {
   path?: Path;
@@ -119,6 +119,7 @@ export class Shape implements Renderable {
   build() {
     this.path2D = toPath2D(this.path);
     this.points = toPoints(this.path);
+    this.hull.length = this.points.length;
     this.aabb.update(this.points);
     this.width = this.aabb.width;
     this.height = this.aabb.height;
@@ -126,13 +127,13 @@ export class Shape implements Renderable {
   }
 
   update() {
-    this.transformation
-      .identity()
-      .scale(this.scaleX, this.scaleY)
-      .rotate(this.angle)
-      .translate(this.x, this.y);
-
-    this.hull.length = this.points.length;
+    this.transformation.setTransform(
+      this.x,
+      this.y,
+      this.scaleX,
+      this.scaleY,
+      this.angle
+    );
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
