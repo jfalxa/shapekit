@@ -28,24 +28,32 @@ export interface GroupInit {
 export class Group implements Renderable {
   children: Renderable[];
 
-  _scaleX: number;
-  _scaleY: number;
-  _angle: number;
+  private _x: number = 0;
+  private _y: number = 0;
+  private _scaleX: number = 1;
+  private _scaleY: number = 1;
+  private _angle: number = 0;
+  private _width: number = 0;
+  private _height: number = 0;
 
   aabb: BoundingBox;
 
   get x() {
-    return this.aabb.center.x;
+    return this._x;
   }
   set x(value: number) {
-    this.translate(value - this.aabb.center.x, 0);
+    const tx = value - this._x;
+    this._x = value;
+    this.translate(tx, 0);
   }
 
   get y() {
-    return this.aabb.center.y;
+    return this._y;
   }
   set y(value: number) {
-    this.translate(0, value - this.aabb.center.y);
+    const ty = value - this._y;
+    this._y = value;
+    this.translate(0, ty);
   }
 
   get scaleX() {
@@ -67,17 +75,17 @@ export class Group implements Renderable {
   }
 
   get width() {
-    return this.aabb.width;
+    return this._width;
   }
   set width(value: number) {
-    this.scale(value / this.aabb.width, 1);
+    this._width = value;
   }
 
   get height() {
-    return this.aabb.height;
+    return this._height;
   }
   set height(value: number) {
-    this.scale(1, value / this.aabb.height);
+    this._height = value;
   }
 
   get angle() {
@@ -92,11 +100,15 @@ export class Group implements Renderable {
   constructor(init: GroupInit) {
     this.children = init.children ?? [];
 
-    this._scaleX = init.scaleX ?? 1;
-    this._scaleY = init.scaleY ?? 1;
-    this._angle = init.angle ?? 0;
-
     this.aabb = new BoundingBox();
+    this.updateAABB();
+
+    if (init.scaleX) this.scaleX = init.scaleX;
+    if (init.scaleY) this.scaleY = init.scaleY;
+    if (init.angle) this.angle = init.angle;
+    if (init.x) this.x = init.x;
+    if (init.y) this.y = init.y;
+
     this.update();
   }
 
@@ -133,11 +145,15 @@ export class Group implements Renderable {
   }
 
   update(): void {
+    for (const child of this.children) child.update();
+    this.updateAABB();
+  }
+
+  private updateAABB() {
     this.aabb.min.put(Infinity);
     this.aabb.max.put(-Infinity);
 
     for (const child of this.children) {
-      child.update();
       this.aabb.merge(child.aabb);
     }
   }
