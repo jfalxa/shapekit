@@ -11,14 +11,11 @@ export class Image extends Shape {
   constructor(init: ImageInit) {
     super(init);
 
-    this.width = init.width ?? this.bb.width;
-    this.height = init.height ?? this.bb.height;
-
     this.image = new window.Image(this.width, this.height);
     this.image.src = init.src;
 
     this.image.onload = () => {
-      if (!this.width && !this.height) {
+      if (this.path.length === 0) {
         this.width = this.image.naturalWidth;
         this.height = this.image.naturalHeight;
         this.image.width = this.width;

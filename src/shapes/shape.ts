@@ -1,11 +1,12 @@
 import { Vec2 } from "../math/vec2";
-import { Matrix3 } from "../math/mat3";
-import { BoundingBox } from "../utils/bounding-box";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
 import { doPolylinesOverlap } from "../utils/polyline-overlap";
 import { rect, Path, toPath2D, toPoints } from "../path";
+import { Renderable } from "./renderable";
+import { Matrix3 } from "../math/mat3";
+import { BoundingBox } from "../utils/bounding-box";
 
 export interface ShapeInit {
   path?: Path;
@@ -29,7 +30,17 @@ export interface ShapeInit {
   shadowOffsetY?: number;
 }
 
-export class Shape {
+export class Shape implements Renderable {
+  path: Path;
+
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scaleX: number;
+  scaleY: number;
+  angle: number;
+
   fill?: string;
   stroke?: string;
   lineWidth?: number;
@@ -44,51 +55,39 @@ export class Shape {
 
   transformation = new Matrix3();
 
-  path: Path;
-  hull: Vec2[];
-  aabb: BoundingBox;
-  bb: BoundingBox;
-
   path2D!: Path2D;
   points!: Vec2[];
+  hull: Vec2[];
+  aabb: BoundingBox;
 
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  scaleX: number;
-  scaleY: number;
-  angle: number;
+  constructor(init: ShapeInit) {
+    this.path = init.path ?? [];
 
-  constructor(shapeInit: ShapeInit) {
-    this.path = shapeInit.path ?? [];
+    this.x = init.x ?? 0;
+    this.y = init.y ?? 0;
+    this.width = init.width ?? 0;
+    this.height = init.height ?? 0;
+    this.scaleX = init.scaleX ?? 1;
+    this.scaleY = init.scaleY ?? 1;
+    this.angle = init.angle ?? 0;
 
-    this.x = shapeInit.x ?? 0;
-    this.y = shapeInit.y ?? 0;
-    this.width = shapeInit.width ?? 0;
-    this.height = shapeInit.height ?? 0;
-    this.scaleX = shapeInit.scaleX ?? 1;
-    this.scaleY = shapeInit.scaleY ?? 1;
-    this.angle = shapeInit.angle ?? 0;
+    this.fill = init.fill;
+    this.stroke = init.stroke;
+    this.lineWidth = init.lineWidth;
+    this.lineCap = init.lineCap;
+    this.lineJoin = init.lineJoin;
+    this.lineDashOffset = init.lineDashOffset;
+    this.miterLimit = init.miterLimit;
+    this.shadowBlur = init.shadowBlur;
+    this.shadowColor = init.shadowColor;
+    this.shadowOffsetX = init.shadowOffsetX;
+    this.shadowOffsetY = init.shadowOffsetY;
 
-    this.fill = shapeInit.fill;
-    this.stroke = shapeInit.stroke;
-    this.lineWidth = shapeInit.lineWidth;
-    this.lineCap = shapeInit.lineCap;
-    this.lineJoin = shapeInit.lineJoin;
-    this.lineDashOffset = shapeInit.lineDashOffset;
-    this.miterLimit = shapeInit.miterLimit;
-    this.shadowBlur = shapeInit.shadowBlur;
-    this.shadowColor = shapeInit.shadowColor;
-    this.shadowOffsetX = shapeInit.shadowOffsetX;
-    this.shadowOffsetY = shapeInit.shadowOffsetY;
-
-    this.bb = new BoundingBox();
-    this.aabb = new BoundingBox();
     this.hull = new Array();
+    this.aabb = new BoundingBox();
 
     // by default, create a centered rect of width x height
-    if (!shapeInit.path) {
+    if (!init.path) {
       if (this.width && this.height) {
         this.path = rect(0, 0, this.width, this.height);
       }
@@ -120,17 +119,16 @@ export class Shape {
   build() {
     this.path2D = toPath2D(this.path);
     this.points = toPoints(this.path);
-    this.bb.update(this.points);
+    this.aabb.update(this.points);
+    this.width = this.aabb.width;
+    this.height = this.aabb.height;
     this.update();
   }
 
   update() {
-    const ratioX = this.width ? this.width / this.bb.width : 1;
-    const ratioY = this.height ? this.height / this.bb.height : 1;
-
     this.transformation
       .identity()
-      .scale(this.scaleX * ratioX, this.scaleY * ratioY)
+      .scale(this.scaleX, this.scaleY)
       .rotate(this.angle)
       .translate(this.x, this.y);
 
@@ -143,5 +141,47 @@ export class Shape {
     }
 
     this.aabb.update(this.hull);
+  }
+
+  translate(tx: number, ty: number) {
+    this.x += tx;
+    this.y += ty;
+  }
+
+  scale(sx: number, sy: number, from = this.aabb.center) {
+    if (from) {
+      this.x -= from.x;
+      this.y -= from.y;
+    }
+
+    this.x *= sx;
+    this.y *= sy;
+    this.scaleX *= sx;
+    this.scaleY *= sy;
+
+    if (from) {
+      this.x += from.x;
+      this.y += from.y;
+    }
+  }
+
+  rotate(angle: number, from = this.aabb.center) {
+    if (from) {
+      this.x -= from.x;
+      this.y -= from.y;
+    }
+
+    const { x, y } = this;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    this.x = cos * x - sin * y;
+    this.y = sin * x + cos * y;
+    this.angle += angle;
+
+    if (from) {
+      this.x += from.x;
+      this.y += from.y;
+    }
   }
 }
