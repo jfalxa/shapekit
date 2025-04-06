@@ -5,6 +5,7 @@ import tree from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
 import { bezier3, move, bezier2, roundedRect, corner, line, arc } from "./path";
+import { Group } from "./shapes/group";
 
 function rand(min: number = 0, max: number = 1) {
   return min + Math.random() * (max - min);
@@ -29,8 +30,8 @@ class App extends Loop {
   image = new Image({
     x: 400,
     y: 450,
-    width: 100,
-    height: 50,
+    // width: 100,
+    // height: 50,
     // fill: "green",
     shadowBlur: 1,
     shadowOffsetX: 3,
@@ -143,12 +144,27 @@ class App extends Loop {
     ],
   });
 
-  circle = new Shape({
-    x: 600,
-    y: 300,
-    stroke: "hotpink",
-    lineWidth: 5,
-    path: [arc(0, 0, 0, 2 * Math.PI, 50)],
+  group = new Group({
+    children: [
+      new Shape({
+        stroke: "hotpink",
+        x: 300,
+        y: 300,
+        lineWidth: 5,
+        path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
+      }),
+
+      new Shape({
+        x: 500,
+        y: 300,
+        width: 100,
+        height: 50,
+        fill: "red",
+        stroke: "orange",
+        lineCap: "round",
+        lineJoin: "round",
+      }),
+    ],
   });
 
   mount() {
@@ -165,7 +181,7 @@ class App extends Loop {
     }
 
     // this.renderer.add(this.line);
-    // this.renderer.add(this.image);
+    this.renderer.add(this.image);
     // this.renderer.add(this.rect1);
     // this.renderer.add(this.rect2);
     // this.renderer.add(this.path);
@@ -174,12 +190,16 @@ class App extends Loop {
     // this.renderer.add(this.roundRect);
     // this.renderer.add(this.roundTriangle);
     // this.renderer.add(this.lemon);
-    this.renderer.add(this.circle);
+    this.renderer.add(this.group);
   }
 
+  s = 1;
+
   tick() {
-    // for (const shape of this.renderer.shapes)
-    // shape.angle += this.deltaTime * 0.001;
+    for (const shape of this.renderer.children) {
+      // shape.rotate(0.001 * this.deltaTime);
+      // shape.update();
+    }
 
     if (this.rect1.overlaps(this.rect2)) {
       this.rect1.fill = "lime";
