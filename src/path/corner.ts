@@ -22,10 +22,11 @@ export class Corner extends Segment {
     cx: number,
     cy: number,
     public radius = 0,
-    public segments = 10
+    segments = 10
   ) {
-    super(x, y);
+    super(x, y, segments);
     this.control = new Vec2(cx, cy);
+    this.points.push(new Vec2(0, 0));
   }
 
   apply(path: Path2D) {
@@ -45,7 +46,8 @@ export class Corner extends Segment {
       this.control,
       this.to,
       this.radius,
-      this.segments
+      this.segments,
+      this.points
     );
   }
 
@@ -54,7 +56,8 @@ export class Corner extends Segment {
     p1: Vec2,
     p2: Vec2,
     r: number,
-    segments: number
+    segments = 10,
+    points = new Array<Vec2>(segments + 2)
   ): Vec2[] {
     // Compute unit vectors for the rays from P1 to P0 and from P1 to P2.
     const v0 = v(p0).subtract(p1).normalize();
@@ -81,17 +84,18 @@ export class Corner extends Segment {
     const startAngle = Math.atan2(t0.y - center.y, t0.x - center.x);
     const endAngle = Math.atan2(t1.y - center.y, t1.x - center.x);
 
-    const points = Arc.sampleArc(
+    Arc.sampleArc(
       center.x,
       center.y,
       startAngle,
       endAngle,
       r,
-      segments
+      segments,
+      points
     );
 
-    // put the target point
-    points.push(v2.clone());
+    // save the target point at the last position
+    points[segments + 1].copy(v2);
 
     return points;
   }

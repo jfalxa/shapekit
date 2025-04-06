@@ -29,9 +29,9 @@ export class Arc extends Segment {
     public endAngle: number,
     public radius: number,
     public counterclockwise?: boolean,
-    public segments = 10
+    segments = 10
   ) {
-    super(x, y);
+    super(x, y, segments);
   }
 
   apply(path: Path2D) {
@@ -52,7 +52,8 @@ export class Arc extends Segment {
       this.startAngle,
       this.endAngle,
       this.radius,
-      this.segments
+      this.segments,
+      this.points
     );
   }
 
@@ -62,9 +63,9 @@ export class Arc extends Segment {
     startAngle: number,
     endAngle: number,
     radius: number,
-    segments: number
+    segments = 10,
+    points = new Array<Vec2>(segments + 2)
   ): Vec2[] {
-    const points: Vec2[] = [];
     let angleDiff = endAngle - startAngle;
     if (angleDiff < 0) angleDiff += 2 * Math.PI;
 
@@ -72,7 +73,8 @@ export class Arc extends Segment {
       const angle = startAngle + (angleDiff * i) / segments;
       const px = x + radius * Math.cos(angle);
       const py = y + radius * Math.sin(angle);
-      points.push(new Vec2(px, py));
+      if (!points[i]) points[i] = new Vec2(0, 0);
+      points[i].put(px, py);
     }
 
     return points;
