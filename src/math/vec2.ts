@@ -96,7 +96,7 @@ export class Vec2 extends Float32Array {
 
   normalize() {
     const norm = this.norm();
-    if (norm < 1e-6) return new Vec2(0, 0);
+    if (norm < 1e-6) return this.put(0);
     else return this.scale(1 / norm);
   }
 
@@ -141,14 +141,14 @@ export class Vec2 extends Float32Array {
   }
 
   min(u: Vec2) {
-    this[0] = Math.min(this[0], u[0]);
-    this[1] = Math.min(this[1], u[1]);
+    this[0] = this[0] < u[0] ? this[0] : u[0];
+    this[1] = this[1] < u[1] ? this[1] : u[1];
     return this;
   }
 
   max(u: Vec2) {
-    this[0] = Math.max(this[0], u[0]);
-    this[1] = Math.max(this[1], u[1]);
+    this[0] = this[0] > u[0] ? this[0] : u[0];
+    this[1] = this[1] > u[1] ? this[1] : u[1];
     return this;
   }
 
