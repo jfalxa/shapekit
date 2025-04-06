@@ -4,16 +4,14 @@ export class BoundingBox {
   min = new Vec2(0, 0);
   max = new Vec2(0, 0);
 
+  center = new Vec2(0, 0);
+
   get width() {
     return this.max[0] - this.min[0];
   }
 
   get height() {
     return this.max[1] - this.min[1];
-  }
-
-  center() {
-    return v(this.min).add(this.max).scale(0.5);
   }
 
   equals(other: BoundingBox) {
@@ -23,12 +21,6 @@ export class BoundingBox {
   update(hull: Vec2[]) {
     const { min, max } = this;
 
-    if (hull.length === 0) {
-      min.put(0);
-      max.put(0);
-      return;
-    }
-
     min.put(Infinity);
     max.put(-Infinity);
 
@@ -36,11 +28,14 @@ export class BoundingBox {
       min.min(hull[i]);
       max.max(hull[i]);
     }
+
+    this.center.copy(this.min).add(this.max).scale(0.5);
   }
 
   merge(other: BoundingBox) {
     this.min.min(other.min);
     this.max.max(other.max);
+    this.center.copy(this.min).add(this.max).scale(0.5);
   }
 
   overlaps(other: BoundingBox) {
