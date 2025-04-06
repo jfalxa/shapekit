@@ -1,16 +1,12 @@
 import { Loop } from "vroum";
 import { render } from "./render/canvas2d";
 import { Shape } from "./shapes/shape";
-import tree from "./tree.png";
+import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
 import { bezier3, move, bezier2, roundedRect, corner, line, arc } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
-
-function rand(min: number = 0, max: number = 1) {
-  return min + Math.random() * (max - min);
-}
 
 class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
@@ -30,18 +26,14 @@ class App extends Loop {
     shadowColor: "#ccc",
   });
 
-  image = new Image({
-    x: 400,
-    y: 450,
-    // width: 100,
-    // height: 50,
-    // fill: "green",
-    shadowBlur: 1,
-    shadowOffsetX: 3,
-    shadowOffsetY: 3,
-    shadowColor: "#ccc",
-    src: tree,
-  });
+  // image = new Image({
+  //   x: 400,
+  //   y: 450,
+  //   width: 100,
+  //   height: 50,
+  //   fill: "green",
+  //   image: treeImage,
+  // });
 
   rect2 = new Shape({
     x: 500,
@@ -91,13 +83,13 @@ class App extends Loop {
   });
 
   roundRect = new Text({
+    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
     x: 400,
     y: 300,
     stroke: "blue",
     fill: "yellow",
     lineWidth: 6,
     textFill: "black",
-    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
     padding: 12,
     textAlign: "center",
     textPosition: "middle",
@@ -148,6 +140,10 @@ class App extends Loop {
   });
 
   group = new Group({
+    x: 100,
+    y: 100,
+    angle: Math.PI / 4,
+
     children: [
       new Shape({
         stroke: "hotpink",
@@ -170,43 +166,49 @@ class App extends Loop {
     ],
   });
 
-  mount() {
-    for (let i = 0; i < 1; i++) {
+  async mount() {
+    const treeImage = await Image.load(treeSrc);
+
+    for (let i = 0; i < 0; i++) {
       this.shapes.push(
-        new Shape({
+        // new Shape({
+        //   fill: `rgb(${rand(0, 255)}, ${rand(0, 255)}, ${rand(0, 255)})`,
+        new Image({
+          image: treeImage,
           x: rand(0, 800),
           y: rand(0, 600),
           width: rand(10, 20),
           height: rand(10, 20),
-          fill: `rgb(${rand(0, 255)}, ${rand(0, 255)}, ${rand(0, 255)})`,
         })
       );
     }
 
-    // this.renderer.add(this.line);
-    // this.renderer.add(this.image);
-    // this.renderer.add(this.rect1);
-    // this.renderer.add(this.rect2);
-    // this.renderer.add(this.path);
-    // this.renderer.add(this.path2);
-    // this.renderer.add(this.path3);
-    // this.renderer.add(this.roundRect);
-    // this.renderer.add(this.roundTriangle);
-    // this.renderer.add(this.lemon);
-    // this.renderer.add(this.group);
+    // this.shapes.push(this.line);
+    // this.shapes.push(this.image);
+    // this.shapes.push(this.rect1);
+    // this.shapes.push(this.rect2);
+    // this.shapes.push(this.path);
+    // this.shapes.push(this.path2);
+    // this.shapes.push(this.path3);
+    // this.shapes.push(this.roundRect);
+    // this.shapes.push(this.roundTriangle);
+    // this.shapes.push(this.lemon);
+    this.shapes.push(this.group);
   }
 
   s = 1;
 
   tick() {
-    // let start: number, end: number;
-    // start = performance.now();
+    let start: number, end: number;
+    start = performance.now();
+
     for (const shape of this.shapes) {
-      shape.angle += 0.001 * this.deltaTime;
+      // shape.angle += 0.001 * this.deltaTime;
       // shape.build?.();
-      shape.update();
+      // shape.update();
     }
-    // end = performance.now();
+
+    end = performance.now();
     // console.log("update", `${end - start}ms`);
 
     if (this.rect1.overlaps(this.rect2)) {
@@ -225,6 +227,10 @@ class App extends Loop {
 
     render(this.ctx, this.shapes);
   }
+}
+
+function rand(min: number = 0, max: number = 1) {
+  return min + Math.random() * (max - min);
 }
 
 // @ts-ignore
