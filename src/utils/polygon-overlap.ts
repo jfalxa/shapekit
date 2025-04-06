@@ -1,8 +1,6 @@
 import { Shape } from "../shapes/shape";
 import { Vec2 } from "../math/vec2";
 
-const axis = new Vec2(0, 0);
-
 // separating axis theorem
 export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
   for (const polygon of [a.hull, b.hull]) {
@@ -14,8 +12,7 @@ export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
       const p2 = polygon[(i + 1) % len];
 
       // Compute the perpendicular axis (normal of the edge).
-      axis[0] = p2[1] - p1[1];
-      axis[1] = -(p2[0] - p1[0]);
+      const axis = new Vec2(p2[1] - p1[1], -(p2[0] - p1[0]));
 
       // Project both polygons onto the axis.
       const [minA, maxA] = projectPolygon(a.hull, axis);
@@ -31,8 +28,6 @@ export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
   return true;
 }
 
-const couple: [number, number] = [0, 0];
-
 function projectPolygon(points: Vec2[], axis: Vec2): [number, number] {
   let min = Infinity;
   let max = -Infinity;
@@ -44,7 +39,5 @@ function projectPolygon(points: Vec2[], axis: Vec2): [number, number] {
     if (projection > max) max = projection;
   }
 
-  couple[0] = min;
-  couple[1] = max;
-  return couple;
+  return [min, max];
 }

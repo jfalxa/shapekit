@@ -19,8 +19,6 @@ export function isPointInPolyline(point: Vec2, polyline: Shape): boolean {
   return false;
 }
 
-const projection = new Vec2(0, 0);
-
 export function pointToSegmentDistance(p: Vec2, a: Vec2, b: Vec2): number {
   const l2 = squaredDistance(a, b);
 
@@ -32,7 +30,7 @@ export function pointToSegmentDistance(p: Vec2, a: Vec2, b: Vec2): number {
   let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2;
   t = Math.max(0, Math.min(1, t));
 
-  projection.put(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y));
+  const projection = new Vec2(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y));
   return Math.sqrt(squaredDistance(p, projection));
 }
 

@@ -1,16 +1,13 @@
 import { Shape } from "../shapes/shape";
 
-const pairs: number[] = [];
-
 /**
  * Returns a list of numbers representing couples of indices of shapes inside the passed `shapes` array.
  * Couples listed in the returned array match two shapes with overlapping AABBs.
  * The returned list is flat, so you should visit it two by two: [a1, b1, a2, b2, a3, b3, ...]
  */
 export function sweepAndPrune(shapes: Shape[]): number[] {
+  const pairs: number[] = [];
   const count = shapes.length;
-
-  pairs.length = 0;
 
   // Create an array of indices
   const indices = new Array<number>(shapes.length);
