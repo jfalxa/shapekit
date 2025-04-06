@@ -2,7 +2,7 @@ import { rect } from "../path/rect";
 import { Shape, ShapeInit } from "./shape";
 
 export interface ImageInit extends ShapeInit {
-  src: string;
+  image: HTMLImageElement;
 }
 
 export class Image extends Shape {
@@ -11,18 +11,22 @@ export class Image extends Shape {
   constructor(init: ImageInit) {
     super(init);
 
-    this.image = new window.Image(this.width, this.height);
-    this.image.src = init.src;
+    this.image = init.image;
 
-    this.image.onload = () => {
-      if (this.path.length === 0) {
-        this.width = this.image.naturalWidth;
-        this.height = this.image.naturalHeight;
-        this.image.width = this.width;
-        this.image.height = this.height;
-        this.path = rect(0, 0, this.width, this.height);
-        this.build();
-      }
-    };
+    if (this.path.length === 0) {
+      this.width = this.image.width;
+      this.height = this.image.height;
+      this.path = rect(0, 0, this.width, this.height);
+      this.build();
+    }
+  }
+
+  static load(src: string): Promise<HTMLImageElement> {
+    const image = new window.Image();
+    image.src = src;
+
+    return new Promise((resolve) => {
+      image.onload = () => resolve(image);
+    });
   }
 }
