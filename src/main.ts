@@ -1,11 +1,12 @@
 import { Loop } from "vroum";
-import { Renderer } from "./renderer/canvas2d";
+import { render } from "./render/canvas2d";
 import { Shape } from "./shapes/shape";
 import tree from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
 import { bezier3, move, bezier2, roundedRect, corner, line, arc } from "./path";
 import { Group } from "./shapes/group";
+import { Renderable } from "./shapes/renderable";
 
 function rand(min: number = 0, max: number = 1) {
   return min + Math.random() * (max - min);
@@ -13,7 +14,9 @@ function rand(min: number = 0, max: number = 1) {
 
 class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
-  renderer = new Renderer(this.canvas, this);
+  ctx = this.canvas.getContext("2d")!;
+
+  shapes: Renderable[] = [];
 
   rect1 = new Shape({
     x: 400,
@@ -168,8 +171,8 @@ class App extends Loop {
   });
 
   mount() {
-    for (let i = 0; i < 0; i++) {
-      this.renderer.add(
+    for (let i = 0; i < 1; i++) {
+      this.shapes.push(
         new Shape({
           x: rand(0, 800),
           y: rand(0, 600),
@@ -181,7 +184,7 @@ class App extends Loop {
     }
 
     // this.renderer.add(this.line);
-    this.renderer.add(this.image);
+    // this.renderer.add(this.image);
     // this.renderer.add(this.rect1);
     // this.renderer.add(this.rect2);
     // this.renderer.add(this.path);
@@ -190,16 +193,21 @@ class App extends Loop {
     // this.renderer.add(this.roundRect);
     // this.renderer.add(this.roundTriangle);
     // this.renderer.add(this.lemon);
-    this.renderer.add(this.group);
+    // this.renderer.add(this.group);
   }
 
   s = 1;
 
   tick() {
-    for (const shape of this.renderer.children) {
-      // shape.rotate(0.001 * this.deltaTime);
-      // shape.update();
+    // let start: number, end: number;
+    // start = performance.now();
+    for (const shape of this.shapes) {
+      shape.angle += 0.001 * this.deltaTime;
+      // shape.build?.();
+      shape.update();
     }
+    // end = performance.now();
+    // console.log("update", `${end - start}ms`);
 
     if (this.rect1.overlaps(this.rect2)) {
       this.rect1.fill = "lime";
@@ -214,6 +222,8 @@ class App extends Loop {
     } else {
       this.path.stroke = "blue";
     }
+
+    render(this.ctx, this.shapes);
   }
 }
 

@@ -1,4 +1,4 @@
-import { v, Vec2 } from "../math/vec2";
+import { Vec2 } from "../math/vec2";
 
 export class BoundingBox {
   min = new Vec2(0, 0);
@@ -18,15 +18,15 @@ export class BoundingBox {
     return this.min.equals(other.min) && this.max.equals(other.max);
   }
 
-  update(hull: Vec2[]) {
+  update(points: Vec2[]) {
     const { min, max } = this;
 
     min.put(Infinity);
     max.put(-Infinity);
 
-    for (let i = 0; i < hull.length; i++) {
-      min.min(hull[i]);
-      max.max(hull[i]);
+    for (let i = 0; i < points.length; i++) {
+      min.min(points[i]);
+      max.max(points[i]);
     }
 
     this.center.copy(this.min).add(this.max).scale(0.5);
