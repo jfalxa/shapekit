@@ -1,8 +1,11 @@
+import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
+import { Group } from "./group";
 import { Shape } from "./shape";
 
 export interface Renderable {
+  parent?: Group;
+
   x: number;
   y: number;
   width: number;
@@ -22,12 +25,9 @@ export interface Renderable {
   shadowOffsetX?: number;
   shadowOffsetY?: number;
 
-  aabb: BoundingBox;
+  transformation: Matrix3;
 
   contains(_shape: Vec2 | Shape): boolean;
   overlaps(_shape: Shape): boolean;
   update(): void;
-  translate(_tx: number, _ty: number): void;
-  scale(_sx: number, _sy: number, _from?: Vec2): void;
-  rotate(_angle: number, _from?: Vec2): void;
 }

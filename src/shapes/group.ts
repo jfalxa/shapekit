@@ -1,5 +1,5 @@
+import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
 import { Renderable } from "./renderable";
 import { Shape } from "./shape";
 
@@ -26,89 +26,31 @@ export interface GroupInit {
 }
 
 export class Group implements Renderable {
+  parent?: Group;
   children: Renderable[];
 
-  private _x: number = 0;
-  private _y: number = 0;
-  private _scaleX: number = 1;
-  private _scaleY: number = 1;
-  private _angle: number = 0;
-  private _width: number = 0;
-  private _height: number = 0;
+  x: number = 0;
+  y: number = 0;
+  width: number = 0;
+  height: number = 0;
+  scaleX: number = 1;
+  scaleY: number = 1;
+  angle: number = 0;
 
-  aabb: BoundingBox;
-
-  get x() {
-    return this._x;
-  }
-  set x(value: number) {
-    const tx = value - this._x;
-    this._x = value;
-    this.translate(tx, 0);
-  }
-
-  get y() {
-    return this._y;
-  }
-  set y(value: number) {
-    const ty = value - this._y;
-    this._y = value;
-    this.translate(0, ty);
-  }
-
-  get scaleX() {
-    return this._scaleX;
-  }
-  set scaleX(value: number) {
-    const oldSX = this._scaleX;
-    this._scaleX = value;
-    this.scale(this._scaleX / oldSX, 1);
-  }
-
-  get scaleY() {
-    return this._scaleY;
-  }
-  set scaleY(value: number) {
-    const oldSY = this._scaleY;
-    this._scaleY = value;
-    this.scale(1, this._scaleY / oldSY);
-  }
-
-  get width() {
-    return this._width;
-  }
-  set width(value: number) {
-    this._width = value;
-  }
-
-  get height() {
-    return this._height;
-  }
-  set height(value: number) {
-    this._height = value;
-  }
-
-  get angle() {
-    return this._angle;
-  }
-  set angle(value: number) {
-    const oldA = this._angle;
-    this._angle = value;
-    this.rotate(this._angle - oldA);
-  }
+  transformation: Matrix3;
 
   constructor(init: GroupInit) {
     this.children = init.children ?? [];
 
-    this.aabb = new BoundingBox();
-    this.updateAABB();
+    this.x = init.x ?? 0;
+    this.y = init.y ?? 0;
+    this.width = init.width ?? 0;
+    this.height = init.height ?? 0;
+    this.scaleX = init.scaleX ?? 1;
+    this.scaleY = init.scaleY ?? 1;
+    this.angle = init.angle ?? 0;
 
-    if (init.scaleX) this.scaleX = init.scaleX;
-    if (init.scaleY) this.scaleY = init.scaleY;
-    if (init.angle) this.angle = init.angle;
-    if (init.x) this.x = init.x;
-    if (init.y) this.y = init.y;
-
+    this.transformation = new Matrix3();
     this.update();
   }
 
@@ -126,35 +68,17 @@ export class Group implements Renderable {
     return false;
   }
 
-  translate(tx: number, ty: number): void {
-    for (const child of this.children) {
-      child.translate(tx, ty);
-    }
-  }
-
-  scale(sx: number, sy: number, from = this.aabb.center): void {
-    for (const child of this.children) {
-      child.scale(sx, sy, from);
-    }
-  }
-
-  rotate(angle: number, from = this.aabb.center): void {
-    for (const child of this.children) {
-      child.rotate(angle, from);
-    }
-  }
-
   update(): void {
-    for (const child of this.children) child.update();
-    this.updateAABB();
-  }
+    this.transformation.setTransform(this.x, this.y, this.scaleX, this.scaleY, this.angle); // prettier-ignore
 
-  private updateAABB() {
-    this.aabb.min.put(Infinity);
-    this.aabb.max.put(-Infinity);
+    if (this.parent) {
+      const t = this.parent.transformation;
+      this.transformation.multiply(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]); // prettier-ignore
+    }
 
     for (const child of this.children) {
-      this.aabb.merge(child.aabb);
+      child.parent = this;
+      child.update();
     }
   }
 }

@@ -7,6 +7,7 @@ import { doPolygonsOverlap } from "../utils/polygon-overlap";
 import { doPolylinesOverlap } from "../utils/polyline-overlap";
 import { BoundingBox } from "../utils/bounding-box";
 import { Renderable } from "./renderable";
+import { Group } from "./group";
 
 export interface ShapeInit {
   path?: Path;
@@ -31,6 +32,8 @@ export interface ShapeInit {
 }
 
 export class Shape implements Renderable {
+  parent?: Group;
+
   path: Path;
 
   x: number;
@@ -127,13 +130,12 @@ export class Shape implements Renderable {
   }
 
   update() {
-    this.transformation.setTransform(
-      this.x,
-      this.y,
-      this.scaleX,
-      this.scaleY,
-      this.angle
-    );
+    this.transformation.setTransform(this.x, this.y, this.scaleX, this.scaleY, this.angle); // prettier-ignore
+
+    if (this.parent) {
+      const t = this.parent.transformation;
+      this.transformation.multiply(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]); // prettier-ignore
+    }
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
@@ -142,47 +144,5 @@ export class Shape implements Renderable {
     }
 
     this.aabb.update(this.hull);
-  }
-
-  translate(tx: number, ty: number) {
-    this.x += tx;
-    this.y += ty;
-  }
-
-  scale(sx: number, sy: number, from = this.aabb.center) {
-    if (from) {
-      this.x -= from.x;
-      this.y -= from.y;
-    }
-
-    this.x *= sx;
-    this.y *= sy;
-    this.scaleX *= sx;
-    this.scaleY *= sy;
-
-    if (from) {
-      this.x += from.x;
-      this.y += from.y;
-    }
-  }
-
-  rotate(angle: number, from = this.aabb.center) {
-    if (from) {
-      this.x -= from.x;
-      this.y -= from.y;
-    }
-
-    const { x, y } = this;
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-
-    this.x = cos * x - sin * y;
-    this.y = sin * x + cos * y;
-    this.angle += angle;
-
-    if (from) {
-      this.x += from.x;
-      this.y += from.y;
-    }
   }
 }
