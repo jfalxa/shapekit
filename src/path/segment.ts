@@ -8,12 +8,9 @@ export abstract class Segment {
 
   constructor(x: number, y: number, protected segments = 0) {
     this.to = new Vec2(x, y);
+
     this.points = new Array(segments + 1);
-
-    for (let i = 0; i <= segments; i++) {
-      this.points[i] = new Vec2(0, 0);
-    }
-
+    for (let i = 0; i <= segments; i++) this.points[i] = new Vec2(0, 0);
     this.points[0].copy(this.to);
   }
 
