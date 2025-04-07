@@ -140,28 +140,34 @@ class App extends Loop {
   });
 
   group = new Group({
-    x: 100,
-    y: 100,
-    angle: Math.PI / 4,
+    x: 400,
+    y: 300,
+    angle: (-1.5 * Math.PI) / 4,
 
     children: [
-      new Shape({
-        stroke: "hotpink",
-        x: 300,
-        y: 300,
-        lineWidth: 5,
-        path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
-      }),
+      new Group({
+        angle: Math.PI / 4,
+        scaleX: 2,
+        scaleY: 2,
 
-      new Shape({
-        x: 500,
-        y: 300,
-        width: 100,
-        height: 50,
-        fill: "red",
-        stroke: "orange",
-        lineCap: "round",
-        lineJoin: "round",
+        children: [
+          new Shape({
+            x: -100,
+            stroke: "hotpink",
+            lineWidth: 5,
+            path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
+          }),
+
+          new Shape({
+            x: +100,
+            width: 100,
+            height: 50,
+            fill: "red",
+            stroke: "orange",
+            lineCap: "round",
+            lineJoin: "round",
+          }),
+        ],
       }),
     ],
   });
@@ -203,7 +209,7 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      // shape.angle += 0.001 * this.deltaTime;
+      shape.angle += 0.001 * this.deltaTime;
       // shape.build?.();
       // shape.update();
     }
