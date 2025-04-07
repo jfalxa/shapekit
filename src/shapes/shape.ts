@@ -100,6 +100,8 @@ export class Shape implements Renderable {
   }
 
   contains(shape: Vec2 | Shape) {
+    if (!this.aabb.contains(shape)) return false;
+
     if (shape instanceof Vec2) {
       if (this.fill && isPointInPolygon(shape, this)) return true;
       if (this.stroke && isPointInPolyline(shape, this)) return true;
@@ -114,6 +116,7 @@ export class Shape implements Renderable {
   }
 
   overlaps(shape: Shape) {
+    if (!this.aabb.overlaps(shape)) return false;
     if (this.fill && shape.fill && doPolygonsOverlap(this, shape)) return true;
     if (doPolylinesOverlap(this, shape)) return true;
     return this.contains(shape) || shape.contains(this);

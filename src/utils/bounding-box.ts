@@ -1,4 +1,5 @@
 import { Vec2 } from "../math/vec2";
+import { Shape } from "../shapes/shape";
 
 export class BoundingBox {
   min = new Vec2(0, 0);
@@ -38,12 +39,30 @@ export class BoundingBox {
     this.center.copy(this.min).add(this.max).scale(0.5);
   }
 
-  overlaps(other: BoundingBox) {
+  contains(other: Vec2 | Shape) {
+    if (other instanceof Vec2) {
+      return (
+        other[0] > this.min[0] &&
+        other[0] < this.max[0] &&
+        other[1] > this.min[1] &&
+        other[1] < this.max[1]
+      );
+    } else {
+      return (
+        other.aabb.min[0] >= this.min[0] &&
+        other.aabb.max[0] <= this.max[0] &&
+        other.aabb.min[1] >= this.min[1] &&
+        other.aabb.max[1] <= this.max[1]
+      );
+    }
+  }
+
+  overlaps(other: Shape) {
     return (
-      this.min[0] <= other.max[0] &&
-      this.max[0] >= other.min[0] &&
-      this.min[1] <= other.max[1] &&
-      this.max[1] >= other.min[1]
+      this.min[0] <= other.aabb.max[0] &&
+      this.max[0] >= other.aabb.min[0] &&
+      this.min[1] <= other.aabb.max[1] &&
+      this.max[1] >= other.aabb.min[1]
     );
   }
 
