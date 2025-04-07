@@ -13,17 +13,6 @@ export interface Renderable {
   scaleX: number;
   scaleY: number;
   angle: number;
-  fill?: string;
-  stroke?: string;
-  lineWidth?: number;
-  lineCap?: CanvasLineCap;
-  lineJoin?: CanvasLineJoin;
-  lineDashOffset?: number;
-  miterLimit?: number;
-  shadowBlur?: number;
-  shadowColor?: string;
-  shadowOffsetX?: number;
-  shadowOffsetY?: number;
 
   transformation: Matrix3;
 

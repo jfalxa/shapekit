@@ -69,12 +69,7 @@ export class Group implements Renderable {
   }
 
   update(): void {
-    this.transformation.setTransform(this.x, this.y, this.scaleX, this.scaleY, this.angle); // prettier-ignore
-
-    if (this.parent) {
-      const t = this.parent.transformation;
-      this.transformation.multiply(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]); // prettier-ignore
-    }
+    this.transformation.setTransform(this);
 
     for (const child of this.children) {
       child.parent = this;

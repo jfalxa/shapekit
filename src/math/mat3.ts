@@ -1,4 +1,11 @@
-const IDENTITY = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+import { Renderable } from "../shapes/renderable";
+
+// prettier-ignore
+const IDENTITY = [
+  1, 0, 0, 
+  0, 1, 0, 
+  0, 0, 1
+];
 
 export class Matrix3 extends Float32Array {
   constructor() {
@@ -40,14 +47,26 @@ export class Matrix3 extends Float32Array {
     );
   }
 
-  setTransform(tx: number, ty: number, sx: number, sy: number, angle: number) {
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
+  setTransform(renderable: Renderable) {
+    const cos = Math.cos(renderable.angle);
+    const sin = Math.sin(renderable.angle);
 
-    // prettier-ignore
-    this[0] = sx * cos,   this[1] = sx * sin,   this[2] = 0, 
-    this[3] = -sy * sin,  this[4] = sy * cos,   this[5] = 0, 
-    this[6] = tx,         this[7] = ty,         this[8] = 1;
+    this[0] = renderable.scaleX * cos;
+    this[1] = renderable.scaleX * sin;
+    this[2] = 0;
+
+    this[3] = -renderable.scaleY * sin;
+    this[4] = renderable.scaleY * cos;
+    this[5] = 0;
+
+    this[6] = renderable.x;
+    this[7] = renderable.y;
+    this[8] = 1;
+
+    if (renderable.parent) {
+      const t = renderable.parent.transformation;
+      this.multiply(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]);
+    }
 
     return this;
   }

@@ -130,12 +130,7 @@ export class Shape implements Renderable {
   }
 
   update() {
-    this.transformation.setTransform(this.x, this.y, this.scaleX, this.scaleY, this.angle); // prettier-ignore
-
-    if (this.parent) {
-      const t = this.parent.transformation;
-      this.transformation.multiply(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]); // prettier-ignore
-    }
+    this.transformation.setTransform(this);
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
