@@ -1,4 +1,5 @@
-import { fitText } from "../utils/fit-text";
+import { rect } from "../path";
+import { fitText, measureText } from "../utils/text";
 import { Shape, ShapeInit } from "./shape";
 
 export interface TextInit extends ShapeInit {
@@ -63,6 +64,13 @@ export class Text extends Shape {
     this.padding = init.padding;
 
     this.format();
+
+    if (this.path.length === 0) {
+      this.lines = [this.text];
+      [this.width, this.height] = measureText(this);
+      this.path = rect(0, 0, this.width, this.height);
+      this.build();
+    }
   }
 
   update() {
