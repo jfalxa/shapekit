@@ -1,5 +1,6 @@
 import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
+import { BoundingBox } from "../utils/bounding-box";
 import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
@@ -9,12 +10,15 @@ export interface GroupInit extends RenderableInit {
 
 export class Group extends Renderable {
   children: Renderable[];
-  localTransformation: Matrix3;
+
+  private _childTransformation: Matrix3;
+  private _childOBB: BoundingBox;
 
   constructor(init: GroupInit) {
     super(init);
     this.children = init.children ?? [];
-    this.localTransformation = new Matrix3();
+    this._childTransformation = new Matrix3();
+    this._childOBB = new BoundingBox();
     this.update();
   }
 
@@ -40,23 +44,25 @@ export class Group extends Renderable {
   }
 
   update(): void {
-    this.localTransformation.setTransform(this);
-    this.transformation.set(this.localTransformation);
+    this.transformation.setTransform(this);
     if (this.parent) this.transformation.transform(this.parent.transformation);
 
-    this.aabb.min.put(Infinity);
-    this.aabb.max.put(-Infinity);
+    this._obb.min.put(Infinity);
+    this._obb.max.put(-Infinity);
 
     for (const child of this.children) {
       child.parent = this;
       child.update();
-      this.aabb.merge(child.localOBB);
+
+      this._childTransformation.setTransform(child);
+      this._childOBB.copy(child._obb).transform(this._childTransformation);
+
+      this._obb.merge(this._childOBB);
     }
 
-    this.width = this.aabb.width;
-    this.height = this.aabb.height;
+    this.width = this._obb.width;
+    this.height = this._obb.height;
 
-    this.localOBB.copy(this.aabb).transform(this.localTransformation);
-    this.obb.copy(this.aabb).transform(this.transformation);
+    this.obb.copy(this._obb).transform(this.transformation);
   }
 }

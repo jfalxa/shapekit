@@ -27,9 +27,8 @@ export class Renderable {
 
   transformation: Matrix3;
 
-  aabb: BoundingBox; // untransformed AABB
-  obb: BoundingBox; // transformed AABB in global coordinates
-  localOBB: BoundingBox; // transformed AABB in parent coordinates
+  _obb: BoundingBox; // untransformed OBB for reference
+  obb: BoundingBox; // transformed OBB in screen coordinates
 
   constructor(init: RenderableInit) {
     this.x = init.x ?? 0;
@@ -42,19 +41,19 @@ export class Renderable {
 
     this.transformation = new Matrix3();
 
-    this.aabb = new BoundingBox();
+    this._obb = new BoundingBox();
     this.obb = new BoundingBox();
-    this.localOBB = new BoundingBox();
   }
 
   contains(_shape: Point | Shape) {
-    return false;
+    return this.obb.mayContain(_shape);
   }
 
   overlaps(_shape: Shape) {
-    return false;
+    return this.obb.mayOverlap(_shape);
   }
 
   build() {}
+
   update() {}
 }

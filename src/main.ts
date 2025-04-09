@@ -260,7 +260,7 @@ class App extends Loop {
     // }
 
     render(this.ctx, this.shapes);
-    // renderOBB(this.ctx, this.shapes);
+    renderOBB(this.ctx, this.shapes);
 
     end = performance.now();
     console.log(

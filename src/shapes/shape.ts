@@ -87,6 +87,7 @@ export class Shape extends Renderable {
 
     if (this.fill && isPointInPolygon(shape, this)) return true;
     if (this.stroke && isPointInPolyline(shape, this)) return true;
+
     return false;
   }
 
@@ -101,22 +102,17 @@ export class Shape extends Renderable {
     this.path2D = toPath2D(this.path);
     this.points = toPoints(this.path);
     this.hull.length = this.points.length;
-    this.aabb.update(this.points, this.lineWidth);
-    this.width = this.aabb.width;
-    this.height = this.aabb.height;
+    this._obb.update(this.points, this.lineWidth);
+    this.width = this._obb.width;
+    this.height = this._obb.height;
     this.update();
   }
 
   update() {
     this.transformation.setTransform(this);
-    this.localOBB.copy(this.aabb).transform(this.transformation);
+    if (this.parent) this.transformation.transform(this.parent.transformation);
 
-    if (this.parent) {
-      this.transformation.transform(this.parent.transformation);
-      this.obb.copy(this.aabb).transform(this.transformation);
-    } else {
-      this.obb.copy(this.localOBB);
-    }
+    this.obb.copy(this._obb).transform(this.transformation);
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))

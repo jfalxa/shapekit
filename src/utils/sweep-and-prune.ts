@@ -13,7 +13,7 @@ export function sweepAndPrune(shapes: Shape[]): number[] {
   const indices = new Array<number>(shapes.length);
   for (let i = 0; i < shapes.length; i++) indices[i] = i;
   // Sort indices based on each AABB's minX value.
-  indices.sort((i, j) => shapes[i].aabb.min[0] - shapes[j].aabb.min[0]);
+  indices.sort((i, j) => shapes[i].obb.min[0] - shapes[j].obb.min[0]);
 
   // Sweep and prune: for each AABB, only test against subsequent AABBs
   // that might overlap along the X axis.
@@ -24,9 +24,9 @@ export function sweepAndPrune(shapes: Shape[]): number[] {
       const b = shapes[indices[j]];
       // If the next box's minX is greater than the current box's maxX,
       // no further boxes can overlap with 'a' in X.
-      if (b.aabb.min[0] > a.aabb.max[0]) break;
+      if (b.obb.min[0] > a.obb.max[0]) break;
       // Quick Y-axis overlap check.
-      if (b.aabb.max[1] < a.aabb.min[1] || b.aabb.min[1] > a.aabb.max[1]) continue; // prettier-ignore
+      if (b.obb.max[1] < a.obb.min[1] || b.obb.min[1] > a.obb.max[1]) continue; // prettier-ignore
       // If both X and Y intervals overlap, add the pair for further SAT test.
       pairs.push(indices[i], indices[j]);
     }
