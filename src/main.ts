@@ -4,7 +4,7 @@ import { Shape } from "./shapes/shape";
 import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
-import { bezier3, move, bezier2, roundedRect, corner, line, arc } from "./path";
+import { bezier3, move, arc } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
 import { renderOBB } from "./utils/debug";
@@ -234,16 +234,16 @@ class App extends Loop {
   s = 1;
 
   tick() {
-    let start: number, end: number;
-    start = performance.now();
+    // let start: number, end: number;
+    // start = performance.now();
 
-    for (const shape of this.shapes) {
-      // shape.build?.();
-      // shape.angle += 0.001 * this.deltaTime;
-      // shape.update();
-    }
+    // for (const shape of this.shapes) {
+    // shape.build?.();
+    // shape.angle += 0.001 * this.deltaTime;
+    // shape.update();
+    // }
 
-    end = performance.now();
+    // end = performance.now();
     // console.log("update", `${end - start}ms`);
 
     // if (this.rect1.overlaps(this.rect2)) {

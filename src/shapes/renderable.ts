@@ -1,5 +1,5 @@
 import { Matrix3 } from "../math/mat3";
-import { Vec2 } from "../math/vec2";
+import { Point } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Group } from "./group";
 import { Shape } from "./shape";
@@ -47,7 +47,7 @@ export class Renderable {
     this.localOBB = new BoundingBox();
   }
 
-  contains(_shape: Vec2 | Shape) {
+  contains(_shape: Point | Shape) {
     return false;
   }
 

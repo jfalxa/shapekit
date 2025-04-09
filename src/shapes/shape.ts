@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { rect, Path, toPath2D, toPoints } from "../path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
@@ -75,20 +75,19 @@ export class Shape extends Renderable {
     this.build();
   }
 
-  contains(shape: Vec2 | Shape) {
+  contains(shape: Point | Shape) {
     if (!this.obb.mayContain(shape)) return false;
 
-    if (shape instanceof Vec2) {
-      if (this.fill && isPointInPolygon(shape, this)) return true;
-      if (this.stroke && isPointInPolyline(shape, this)) return true;
-      return false;
+    if (shape instanceof Shape) {
+      for (const point of shape.hull) {
+        if (!this.contains(point)) return false;
+      }
+      return true;
     }
 
-    for (const point of shape.hull) {
-      if (!this.contains(point)) return false;
-    }
-
-    return true;
+    if (this.fill && isPointInPolygon(shape, this)) return true;
+    if (this.stroke && isPointInPolyline(shape, this)) return true;
+    return false;
   }
 
   overlaps(shape: Shape) {

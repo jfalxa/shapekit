@@ -1,6 +1,6 @@
 import { Matrix3 } from "../math/mat3";
-import { Vec2 } from "../math/vec2";
-import { Shape } from "../shapes/shape";
+import { Point, Vec2 } from "../math/vec2";
+import { Renderable } from "../shapes/renderable";
 
 export class BoundingBox {
   static EMPTY = new BoundingBox();
@@ -87,25 +87,25 @@ export class BoundingBox {
     this.center.copy(this.min).add(this.max).scale(0.5);
   }
 
-  mayContain(other: Vec2 | Shape) {
-    if (other instanceof Vec2) {
-      return (
-        other[0] > this.min[0] &&
-        other[0] < this.max[0] &&
-        other[1] > this.min[1] &&
-        other[1] < this.max[1]
-      );
-    } else {
+  mayContain(other: Point | Renderable) {
+    if (other instanceof Renderable) {
       return (
         other.obb.min[0] >= this.min[0] &&
         other.obb.max[0] <= this.max[0] &&
         other.obb.min[1] >= this.min[1] &&
         other.obb.max[1] <= this.max[1]
       );
+    } else {
+      return (
+        other.x > this.min[0] &&
+        other.x < this.max[0] &&
+        other.y > this.min[1] &&
+        other.y < this.max[1]
+      );
     }
   }
 
-  mayOverlap(other: Shape) {
+  mayOverlap(other: Renderable) {
     return (
       this.min[0] <= other.obb.max[0] &&
       this.max[0] >= other.obb.min[0] &&

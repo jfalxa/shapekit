@@ -1,7 +1,7 @@
 import { Shape } from "../shapes/shape";
-import { Vec2 } from "../math/vec2";
+import { Point } from "../math/vec2";
 
-export function isPointInPolyline(point: Vec2, polyline: Shape): boolean {
+export function isPointInPolyline(point: Point, polyline: Shape): boolean {
   const radius = polyline.stroke ? (polyline.lineWidth ?? 1) / 2 : 0;
   const threshold = radius;
 
@@ -19,7 +19,7 @@ export function isPointInPolyline(point: Vec2, polyline: Shape): boolean {
   return false;
 }
 
-export function pointToSegmentDistance(p: Vec2, a: Vec2, b: Vec2): number {
+export function pointToSegmentDistance(p: Point, a: Point, b: Point): number {
   const l2 = squaredDistance(a, b);
 
   // a and b are the same point
@@ -30,11 +30,15 @@ export function pointToSegmentDistance(p: Vec2, a: Vec2, b: Vec2): number {
   let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2;
   t = Math.max(0, Math.min(1, t));
 
-  const projection = new Vec2(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y));
+  const projection = {
+    x: a.x + t * (b.x - a.x),
+    y: a.y + t * (b.y - a.y),
+  };
+
   return Math.sqrt(squaredDistance(p, projection));
 }
 
-function squaredDistance(p1: Vec2, p2: Vec2): number {
+function squaredDistance(p1: Point, p2: Point): number {
   const dx = p1.x - p2.x;
   const dy = p1.y - p2.y;
   return dx * dx + dy * dy;
