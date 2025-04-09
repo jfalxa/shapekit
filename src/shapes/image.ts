@@ -1,4 +1,3 @@
-import { rect } from "../path/rect";
 import { Shape, ShapeInit } from "./shape";
 
 export interface ImageInit extends ShapeInit {
@@ -9,16 +8,14 @@ export class Image extends Shape {
   image: HTMLImageElement;
 
   constructor(init: ImageInit) {
+    if (!init.width && !init.height) {
+      init.width = init.image.naturalWidth;
+      init.height = init.image.naturalHeight;
+    }
+
     super(init);
 
     this.image = init.image;
-
-    if (this.path.length === 0) {
-      this.width = this.image.width;
-      this.height = this.image.height;
-      this.path = rect(0, 0, this.width, this.height);
-      this.build();
-    }
   }
 
   static load(src: string): Promise<HTMLImageElement> {
