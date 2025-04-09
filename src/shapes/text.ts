@@ -44,6 +44,10 @@ export class Text extends Shape {
   lines!: string[];
 
   constructor(init: TextInit) {
+    if (!init.width && !init.height) {
+      [init.width, init.height] = measureText(init);
+    }
+
     super(init);
 
     this.text = init.text;
@@ -62,15 +66,6 @@ export class Text extends Shape {
     this.textPosition = init.textPosition;
     this.direction = init.direction;
     this.padding = init.padding;
-
-    this.format();
-
-    if (this.path.length === 0) {
-      this.lines = [this.text];
-      [this.width, this.height] = measureText(this);
-      this.path = rect(0, 0, this.width, this.height);
-      this.build();
-    }
   }
 
   update() {
@@ -79,21 +74,21 @@ export class Text extends Shape {
   }
 
   format() {
+    this.font = Text.getFont(this);
+    this.lines = fitText(this);
+  }
+
+  static getFont(style: TextInit) {
     const {
       fontSize = 12,
       fontFamily = "serif",
       fontStyle = "normal",
       fontVariant = "normal",
       fontWeight = "normal",
-    } = this;
+    } = style;
 
-    const _fontSize = fontSize + "px";
-
-    this.font =
-      `${fontStyle} ${fontVariant} ${fontWeight} ${_fontSize} ${fontFamily}`
-        .replaceAll(/\s+/g, " ")
-        .trim();
-
-    this.lines = fitText(this);
+    return `${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px ${fontFamily}`
+      .replaceAll(/\s+/g, " ")
+      .trim();
   }
 }
