@@ -12,5 +12,6 @@ export function rect(x: number, y: number, width: number, height: number) {
     new Vec2(right, top),
     new Vec2(right, bottom),
     new Vec2(left, bottom), //
+    new Vec2(left, top), //
   ];
 }

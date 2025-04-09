@@ -15,7 +15,7 @@ export function resize(path: Path, sx: number, sy: number, angle: number) {
   }
 }
 
-export function toPath2D(path: Path, closed: any = false) {
+export function toPath2D(path: Path) {
   const path2D = new Path2D();
 
   let prevPoint = new Vec2(0, 0);
@@ -35,10 +35,6 @@ export function toPath2D(path: Path, closed: any = false) {
       prevPoint = segment.getEndPoint();
       prevControl = segment.getSharedControl();
     }
-  }
-
-  if (closed) {
-    path2D.closePath();
   }
 
   return path2D;

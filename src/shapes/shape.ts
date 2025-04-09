@@ -98,7 +98,7 @@ export class Shape extends Renderable {
   }
 
   build() {
-    this.path2D = toPath2D(this.path, this.fill);
+    this.path2D = toPath2D(this.path);
     this.points = toPoints(this.path);
     this.hull.length = this.points.length;
     this.aabb.update(this.points, this.lineWidth);

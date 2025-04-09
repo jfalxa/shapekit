@@ -206,10 +206,10 @@ class App extends Loop {
 
     for (let i = 0; i < 0; i++) {
       this.shapes.push(
-        // new Shape({
-        //   fill: `rgb(${rand(0, 255)}, ${rand(0, 255)}, ${rand(0, 255)})`,
-        new Image({
-          image: treeImage,
+        new Shape({
+          fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
+          // new Image({
+          // image: treeImage,
           x: rand(0, 800),
           y: rand(0, 600),
           width: rand(10, 20),
@@ -234,17 +234,16 @@ class App extends Loop {
   s = 1;
 
   tick() {
-    // let start: number, end: number;
-    // start = performance.now();
+    let start: number, mid: number, end: number;
+    start = performance.now();
 
-    // for (const shape of this.shapes) {
-    // shape.build?.();
-    // shape.angle += 0.001 * this.deltaTime;
-    // shape.update();
-    // }
+    for (const shape of this.shapes) {
+      // shape.build?.();
+      shape.angle += 0.001 * this.deltaTime;
+      shape.update();
+    }
 
-    // end = performance.now();
-    // console.log("update", `${end - start}ms`);
+    mid = performance.now();
 
     // if (this.rect1.overlaps(this.rect2)) {
     //   this.rect1.fill = "lime";
@@ -261,12 +260,28 @@ class App extends Loop {
     // }
 
     render(this.ctx, this.shapes);
-    renderOBB(this.ctx, this.shapes);
+    // renderOBB(this.ctx, this.shapes);
+
+    end = performance.now();
+    console.log(
+      `total = ${end - start}ms, update = ${mid - start}ms, render = ${
+        end - mid
+      }ms`
+    );
   }
 }
 
 function rand(min: number = 0, max: number = 1) {
   return min + Math.random() * (max - min);
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+  return (
+    "#" +
+    Math.floor(r).toString(16).padStart(2, "0") +
+    Math.floor(g).toString(16).padStart(2, "0") +
+    Math.floor(b).toString(16).padStart(2, "0")
+  );
 }
 
 // @ts-ignore
