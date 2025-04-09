@@ -47,6 +47,10 @@ export class Matrix3 extends Float32Array {
     );
   }
 
+  transform(m: Matrix3) {
+    this.multiply(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+  }
+
   setTransform(renderable: Renderable) {
     const cos = Math.cos(renderable.angle);
     const sin = Math.sin(renderable.angle);
@@ -62,11 +66,6 @@ export class Matrix3 extends Float32Array {
     this[6] = renderable.x;
     this[7] = renderable.y;
     this[8] = 1;
-
-    if (renderable.parent) {
-      const t = renderable.parent.transformation;
-      this.multiply(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]);
-    }
 
     return this;
   }

@@ -1,10 +1,15 @@
 import { Matrix3 } from "./mat3";
 
-export function v(point: Vec2) {
-  return new Vec2(point[0], point[1]);
+export interface Point {
+  x: number;
+  y: number;
 }
 
-export class Vec2 extends Float32Array {
+export function v(point: Point) {
+  return new Vec2(point.x, point.y);
+}
+
+export class Vec2 extends Float32Array implements Point {
   static ZERO = new Vec2(0, 0);
 
   get x() {

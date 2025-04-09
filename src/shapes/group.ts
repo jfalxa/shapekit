@@ -1,56 +1,20 @@
 import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
-import { Renderable } from "./renderable";
+import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
-export interface GroupInit {
+export interface GroupInit extends RenderableInit {
   children?: Renderable[];
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  scaleX?: number;
-  scaleY?: number;
-  angle?: number;
-  fill?: string;
-  stroke?: string;
-  lineWidth?: number;
-  lineCap?: CanvasLineCap;
-  lineJoin?: CanvasLineJoin;
-  lineDashOffset?: number;
-  miterLimit?: number;
-  shadowBlur?: number;
-  shadowColor?: string;
-  shadowOffsetX?: number;
-  shadowOffsetY?: number;
 }
 
-export class Group implements Renderable {
-  parent?: Group;
+export class Group extends Renderable {
   children: Renderable[];
-
-  x: number = 0;
-  y: number = 0;
-  width: number = 0;
-  height: number = 0;
-  scaleX: number = 1;
-  scaleY: number = 1;
-  angle: number = 0;
-
-  transformation: Matrix3;
+  localTransformation: Matrix3;
 
   constructor(init: GroupInit) {
+    super(init);
     this.children = init.children ?? [];
-
-    this.x = init.x ?? 0;
-    this.y = init.y ?? 0;
-    this.width = init.width ?? 0;
-    this.height = init.height ?? 0;
-    this.scaleX = init.scaleX ?? 1;
-    this.scaleY = init.scaleY ?? 1;
-    this.angle = init.angle ?? 0;
-
-    this.transformation = new Matrix3();
+    this.localTransformation = new Matrix3();
     this.update();
   }
 
@@ -68,12 +32,31 @@ export class Group implements Renderable {
     return false;
   }
 
+  build(): void {
+    for (const child of this.children) {
+      child.parent = this;
+      child.build();
+    }
+  }
+
   update(): void {
-    this.transformation.setTransform(this);
+    this.localTransformation.setTransform(this);
+    this.transformation.set(this.localTransformation);
+    if (this.parent) this.transformation.transform(this.parent.transformation);
+
+    this.aabb.min.put(Infinity);
+    this.aabb.max.put(-Infinity);
 
     for (const child of this.children) {
       child.parent = this;
       child.update();
+      this.aabb.merge(child.localOBB);
     }
+
+    this.width = this.aabb.width;
+    this.height = this.aabb.height;
+
+    this.localOBB.copy(this.aabb).transform(this.localTransformation);
+    this.obb.copy(this.aabb).transform(this.transformation);
   }
 }

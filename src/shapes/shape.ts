@@ -1,23 +1,13 @@
 import { Vec2 } from "../math/vec2";
-import { Matrix3 } from "../math/mat3";
 import { rect, Path, toPath2D, toPoints } from "../path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
 import { doPolylinesOverlap } from "../utils/polyline-overlap";
-import { BoundingBox } from "../utils/bounding-box";
-import { Renderable } from "./renderable";
-import { Group } from "./group";
+import { Renderable, RenderableInit } from "./renderable";
 
-export interface ShapeInit {
+export interface ShapeInit extends RenderableInit {
   path?: Path;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  scaleX?: number;
-  scaleY?: number;
-  angle?: number;
   fill?: string;
   stroke?: string;
   lineWidth?: number;
@@ -31,18 +21,8 @@ export interface ShapeInit {
   shadowOffsetY?: number;
 }
 
-export class Shape implements Renderable {
-  parent?: Group;
-
+export class Shape extends Renderable {
   path: Path;
-
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  scaleX: number;
-  scaleY: number;
-  angle: number;
 
   fill?: string;
   stroke?: string;
@@ -56,14 +36,18 @@ export class Shape implements Renderable {
   shadowOffsetX?: number;
   shadowOffsetY?: number;
 
-  transformation = new Matrix3();
-
   path2D!: Path2D;
   points!: Vec2[];
   hull: Vec2[];
-  aabb: BoundingBox;
 
   constructor(init: ShapeInit) {
+    // by default, create a centered rect of width x height
+    if (!init.path && init.width && init.height) {
+      init.path = rect(0, 0, init.width, init.height);
+    }
+
+    super(init);
+
     this.path = init.path ?? [];
 
     this.x = init.x ?? 0;
@@ -87,20 +71,12 @@ export class Shape implements Renderable {
     this.shadowOffsetY = init.shadowOffsetY;
 
     this.hull = new Array();
-    this.aabb = new BoundingBox();
-
-    // by default, create a centered rect of width x height
-    if (!init.path) {
-      if (this.width && this.height) {
-        this.path = rect(0, 0, this.width, this.height);
-      }
-    }
 
     this.build();
   }
 
   contains(shape: Vec2 | Shape) {
-    if (!this.aabb.contains(shape)) return false;
+    if (!this.obb.mayContain(shape)) return false;
 
     if (shape instanceof Vec2) {
       if (this.fill && isPointInPolygon(shape, this)) return true;
@@ -116,17 +92,17 @@ export class Shape implements Renderable {
   }
 
   overlaps(shape: Shape) {
-    if (!this.aabb.overlaps(shape)) return false;
+    if (!this.obb.mayOverlap(shape)) return false;
     if (this.fill && shape.fill && doPolygonsOverlap(this, shape)) return true;
     if (doPolylinesOverlap(this, shape)) return true;
     return this.contains(shape) || shape.contains(this);
   }
 
   build() {
-    this.path2D = toPath2D(this.path);
+    this.path2D = toPath2D(this.path, this.fill);
     this.points = toPoints(this.path);
     this.hull.length = this.points.length;
-    this.aabb.update(this.points);
+    this.aabb.update(this.points, this.lineWidth);
     this.width = this.aabb.width;
     this.height = this.aabb.height;
     this.update();
@@ -134,13 +110,19 @@ export class Shape implements Renderable {
 
   update() {
     this.transformation.setTransform(this);
+    this.localOBB.copy(this.aabb).transform(this.transformation);
+
+    if (this.parent) {
+      this.transformation.transform(this.parent.transformation);
+      this.obb.copy(this.aabb).transform(this.transformation);
+    } else {
+      this.obb.copy(this.localOBB);
+    }
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
         .copy(this.points[i])
         .transform(this.transformation);
     }
-
-    this.aabb.update(this.hull);
   }
 }
