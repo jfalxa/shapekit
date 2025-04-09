@@ -74,7 +74,7 @@ export class Bezier3 extends Segment {
   }
 
   transform(matrix: Matrix3): void {
-    super.transform(matrix);
+    this.to.transform(matrix);
     this.start?.transform(matrix);
     this.end.transform(matrix);
   }

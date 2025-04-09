@@ -44,7 +44,7 @@ export class Bezier2 extends Segment {
   }
 
   transform(matrix: Matrix3): void {
-    super.transform(matrix);
+    this.to.transform(matrix);
     this.control?.transform(matrix);
   }
 

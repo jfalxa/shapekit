@@ -1,3 +1,4 @@
+import { Matrix3 } from "../math/mat3";
 import { v, Vec2 } from "../math/vec2";
 import { Arc } from "./arc";
 import { Segment } from "./segment";
@@ -49,6 +50,11 @@ export class Corner extends Segment {
       this.segments,
       this.points
     );
+  }
+
+  transform(matrix: Matrix3): void {
+    this.to.transform(matrix);
+    this.control.transform(matrix);
   }
 
   static sample(

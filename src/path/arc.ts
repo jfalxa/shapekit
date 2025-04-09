@@ -1,3 +1,4 @@
+import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
 import { Segment } from "./segment";
 
@@ -55,6 +56,23 @@ export class Arc extends Segment {
       this.segments,
       this.points
     );
+  }
+
+  transform(matrix: Matrix3): void {
+    this.to.transform(matrix);
+
+    // Calculate the rotation component (assumes uniform scaling)
+    const rotationOffset = Math.atan2(matrix[1], matrix[0]);
+
+    // Calculate the scale factor (assumes uniform scaling)
+    const scaleFactor = Math.sqrt(
+      matrix[0] * matrix[0] + matrix[1] * matrix[1]
+    );
+
+    // Update angles and radius
+    this.startAngle += rotationOffset;
+    this.endAngle += rotationOffset;
+    this.radius *= scaleFactor;
   }
 
   static sampleArc(

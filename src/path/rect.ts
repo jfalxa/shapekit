@@ -12,6 +12,5 @@ export function rect(x: number, y: number, width: number, height: number) {
     line(right, top),
     line(right, bottom),
     line(left, bottom),
-    line(left, top),
   ];
 }

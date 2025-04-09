@@ -10,13 +10,16 @@ export abstract class Segment {
     this.to = new Vec2(x, y);
 
     this.points = new Array(segments + 1);
-    for (let i = 0; i <= segments; i++) this.points[i] = new Vec2(0, 0);
-    this.points[0].copy(this.to);
+
+    for (let i = 0; i <= segments; i++) {
+      this.points[i] = new Vec2(0, 0);
+    }
   }
 
   abstract apply(path: Path2D, control: Vec2 | undefined): void;
 
   sample(_: Vec2, __: Vec2 | undefined) {
+    this.points[0].copy(this.to);
     return this.points;
   }
 
