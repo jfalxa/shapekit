@@ -7,6 +7,7 @@ import { Image } from "./shapes/image";
 import { bezier3, move, bezier2, roundedRect, corner, line, arc } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
+import { renderOBB } from "./utils/debug";
 
 class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
@@ -14,17 +15,19 @@ class App extends Loop {
 
   shapes: Renderable[] = [];
 
-  rect1 = new Shape({
-    x: 400,
-    y: 300,
-    width: 100,
-    height: 50,
-    fill: "green",
-    shadowBlur: 1,
-    shadowOffsetX: 3,
-    shadowOffsetY: 3,
-    shadowColor: "#ccc",
-  });
+  // rect1 = new Shape({
+  //   x: 400,
+  //   y: 300,
+  //   width: 100,
+  //   height: 50,
+  //   fill: "green",
+  //   stroke: "red",
+  //   lineWidth: 10,
+  //   // shadowBlur: 1,
+  //   // shadowOffsetX: 3,
+  //   // shadowOffsetY: 3,
+  //   // shadowColor: "#ccc",
+  // });
 
   // image = new Image({
   //   x: 400,
@@ -35,145 +38,171 @@ class App extends Loop {
   //   image: treeImage,
   // });
 
-  rect2 = new Shape({
-    x: 500,
-    y: 300,
-    width: 100,
-    height: 50,
-    fill: "red",
-    stroke: "orange",
-  });
+  // rect2 = new Shape({
+  //   x: 500,
+  //   y: 300,
+  //   width: 100,
+  //   height: 50,
+  //   fill: "red",
+  //   stroke: "orange",
+  // });
 
-  path = new Shape({
-    x: 200,
-    y: 200,
-    stroke: "blue",
-    lineWidth: 50,
-    lineCap: "round",
-    path: [
-      move(10, 80),
-      bezier3(95, 80, 40, 10, 65, 10),
-      bezier3(180, 80, 150, 150),
-    ],
-  });
+  // path = new Shape({
+  //   x: 200,
+  //   y: 200,
+  //   stroke: "blue",
+  //   lineWidth: 50,
+  //   lineCap: "round",
+  //   path: [
+  //     move(10, 80),
+  //     bezier3(95, 80, 40, 10, 65, 10),
+  //     bezier3(180, 80, 150, 150),
+  //   ],
+  // });
 
-  path3 = new Shape({
-    x: 300,
-    y: 200,
-    stroke: "yellow",
-    // lineCap: "round",
-    path: [
-      move(10, 80),
-      bezier3(95, 80, 40, 10, 65, 10),
-      bezier3(180, 80, 150, 150),
-    ],
-  });
+  // path2 = new Shape({
+  //   x: 300,
+  //   y: 200,
+  //   stroke: "blue",
+  //   lineWidth: 50,
+  //   lineCap: "round",
+  //   path: [
+  //     move(10, 80),
+  //     bezier2(95, 80, 52.5, 10),
+  //     bezier2(180, 80), //
+  //   ],
+  // });
 
-  path2 = new Shape({
-    x: 300,
-    y: 200,
-    stroke: "blue",
-    lineWidth: 50,
-    lineCap: "round",
-    path: [
-      move(10, 80),
-      bezier2(95, 80, 52.5, 10),
-      bezier2(180, 80), //
-    ],
-  });
+  // path3 = new Shape({
+  //   x: 300,
+  //   y: 200,
+  //   stroke: "yellow",
+  //   lineCap: "round",
+  //   path: [
+  //     move(10, 80),
+  //     bezier3(95, 80, 40, 10, 65, 10),
+  //     bezier3(180, 80, 150, 150),
+  //   ],
+  // });
 
-  roundRect = new Text({
-    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-    x: 400,
-    y: 300,
-    stroke: "blue",
-    fill: "yellow",
-    lineWidth: 6,
-    textFill: "black",
-    padding: 12,
-    textAlign: "center",
-    textPosition: "middle",
-    fontWeight: "bold",
-    fontStyle: "italic",
-    path: roundedRect(0, 0, 200, 100, 25),
-  });
+  // roundRect = new Text({
+  //   text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+  //   x: 400,
+  //   y: 300,
+  //   stroke: "blue",
+  //   fill: "yellow",
+  //   lineWidth: 6,
+  //   textFill: "black",
+  //   padding: 12,
+  //   textAlign: "center",
+  //   textPosition: "middle",
+  //   fontWeight: "bold",
+  //   fontStyle: "italic",
+  //   path: roundedRect(0, 0, 200, 100, 25),
+  // });
 
-  lemon = new Shape({
-    x: 400,
-    y: 300,
-    stroke: "red",
-    fill: "yellow",
-    lineWidth: 5,
-    lineCap: "square",
-    path: [
-      move(-50, 0),
-      corner(50, 0, 0, -50, 50),
-      corner(-50, 0, 0, 50, 50), //
-    ],
-  });
+  // lemon = new Shape({
+  //   x: 400,
+  //   y: 300,
+  //   stroke: "red",
+  //   fill: "yellow",
+  //   lineWidth: 5,
+  //   lineCap: "square",
+  //   path: [
+  //     move(-50, 0),
+  //     corner(50, 0, 0, -50, 50),
+  //     corner(-50, 0, 0, 50, 50), //
+  //   ],
+  // });
 
-  roundTriangle = new Shape({
-    x: 400,
-    y: 300,
-    stroke: "red",
-    fill: "yellow",
-    lineWidth: 3,
-    path: [
-      move(0, 50),
-      corner(-50, -50, -100, 50, 10),
-      corner(50, -50, 0, -150, 10),
-      corner(0, 50, 100, 50, 10),
-    ],
-  });
+  // roundTriangle = new Shape({
+  //   x: 400,
+  //   y: 300,
+  //   stroke: "red",
+  //   fill: "yellow",
+  //   lineWidth: 3,
+  //   path: [
+  //     move(0, 50),
+  //     corner(-50, -50, -100, 50, 10),
+  //     corner(50, -50, 0, -150, 10),
+  //     corner(0, 50, 100, 50, 10),
+  //   ],
+  // });
 
-  line = new Shape({
-    x: 400,
-    y: 300,
-    stroke: "yellow",
-    lineWidth: 100,
-    path: [
-      move(-50, 0),
-      line(50, 0),
-      line(50, 100),
-      line(100, 150), //
-    ],
-  });
+  // line = new Shape({
+  //   x: 400,
+  //   y: 300,
+  //   stroke: "yellow",
+  //   lineWidth: 100,
+  //   path: [
+  //     move(-50, 0),
+  //     line(50, 0),
+  //     line(50, 100),
+  //     line(100, 150), //
+  //   ],
+  // });
 
-  group = new Group({
-    x: 400,
-    y: 300,
-    angle: (-1.5 * Math.PI) / 4,
-
-    children: [
-      new Group({
-        angle: Math.PI / 4,
-        scaleX: 2,
-        scaleY: 2,
-
-        children: [
-          new Shape({
-            x: -100,
-            stroke: "hotpink",
-            lineWidth: 5,
-            path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
-          }),
-
-          new Shape({
-            x: +100,
-            width: 100,
-            height: 50,
-            fill: "red",
-            stroke: "orange",
-            lineCap: "round",
-            lineJoin: "round",
-          }),
-        ],
-      }),
-    ],
-  });
+  group?: Group;
 
   async mount() {
     const treeImage = await Image.load(treeSrc);
+
+    this.group = new Group({
+      x: 400,
+      y: 300,
+
+      children: [
+        new Group({
+          angle: Math.PI / 4,
+          // scaleX: 2,
+          // scaleY: 2,
+
+          children: [
+            new Shape({
+              x: -100,
+              stroke: "hotpink",
+              lineWidth: 5,
+              angle: Math.PI / 4,
+              path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
+            }),
+
+            new Shape({
+              x: -100,
+              y: 100,
+              stroke: "blue",
+              lineWidth: 50,
+              lineCap: "round",
+              path: [
+                move(10, 80),
+                bezier3(95, 80, 40, 10, 65, 10),
+                bezier3(180, 80, 150, 150),
+              ],
+            }),
+
+            new Image({
+              x: +100,
+              width: 100,
+              height: 50,
+              stroke: "orange",
+              image: treeImage,
+            }),
+
+            new Text({
+              y: 75,
+              // width: 50,
+              // height: 200,
+              stroke: "black",
+              text: "A centered title",
+              textFill: "blue",
+              textAlign: "center",
+              fontSize: 16,
+              lineHeight: 24,
+              padding: 8,
+            }),
+          ],
+        }),
+      ],
+    });
 
     for (let i = 0; i < 0; i++) {
       this.shapes.push(
@@ -209,29 +238,30 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      shape.angle += 0.001 * this.deltaTime;
       // shape.build?.();
+      // shape.angle += 0.001 * this.deltaTime;
       // shape.update();
     }
 
     end = performance.now();
     // console.log("update", `${end - start}ms`);
 
-    if (this.rect1.overlaps(this.rect2)) {
-      this.rect1.fill = "lime";
-      this.rect2.fill = "orange";
-    } else {
-      this.rect1.fill = "green";
-      this.rect2.fill = "red";
-    }
+    // if (this.rect1.overlaps(this.rect2)) {
+    //   this.rect1.fill = "lime";
+    //   this.rect2.fill = "orange";
+    // } else {
+    //   this.rect1.fill = "green";
+    //   this.rect2.fill = "red";
+    // }
 
-    if (this.rect1.overlaps(this.path)) {
-      this.path.stroke = "red";
-    } else {
-      this.path.stroke = "blue";
-    }
+    // if (this.rect1.overlaps(this.path)) {
+    //   this.path.stroke = "red";
+    // } else {
+    //   this.path.stroke = "blue";
+    // }
 
     render(this.ctx, this.shapes);
+    renderOBB(this.ctx, this.shapes);
   }
 }
 

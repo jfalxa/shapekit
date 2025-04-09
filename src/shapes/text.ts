@@ -1,4 +1,3 @@
-import { rect } from "../path";
 import { fitText, measureText } from "../utils/text";
 import { Shape, ShapeInit } from "./shape";
 

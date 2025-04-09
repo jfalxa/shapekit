@@ -92,7 +92,7 @@ function renderText(ctx: Canvas2D, text: Text) {
   const {
     lines,
     font,
-    fontSize = 16,
+    fontSize = 12,
     lineHeight = fontSize,
     textFill,
     textStroke,
