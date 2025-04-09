@@ -1,4 +1,4 @@
-import { line } from "./line";
+import { Vec2 } from "../math/vec2";
 import { move } from "./move";
 
 export function rect(x: number, y: number, width: number, height: number) {
@@ -9,8 +9,8 @@ export function rect(x: number, y: number, width: number, height: number) {
 
   return [
     move(left, top),
-    line(right, top),
-    line(right, bottom),
-    line(left, bottom),
+    new Vec2(right, top),
+    new Vec2(right, bottom),
+    new Vec2(left, bottom), //
   ];
 }

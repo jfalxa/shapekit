@@ -1,11 +1,5 @@
-import { Segment } from "./segment";
+import { Vec2 } from "../math/vec2";
 
 export function line(x: number, y: number) {
-  return new Line(x, y);
-}
-
-export class Line extends Segment {
-  apply(path: Path2D): void {
-    path.lineTo(this.to.x, this.to.y);
-  }
+  return new Vec2(x, y);
 }
