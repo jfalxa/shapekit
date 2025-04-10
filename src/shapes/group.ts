@@ -23,6 +23,7 @@ export class Group extends Renderable {
   }
 
   contains(shape: Vec2 | Shape): boolean {
+    if (!this.obb.mayContain(shape)) return false;
     for (const child of this.children) {
       if (child.contains(shape)) return true;
     }
@@ -30,20 +31,14 @@ export class Group extends Renderable {
   }
 
   overlaps(shape: Shape): boolean {
+    if (!this.obb.mayOverlap(shape)) return false;
     for (const child of this.children) {
       if (child.overlaps(shape)) return true;
     }
     return false;
   }
 
-  build(): void {
-    for (const child of this.children) {
-      child.parent = this;
-      child.build();
-    }
-  }
-
-  update(): void {
+  update(rebuild = false): void {
     this.transformation.setTransform(this);
     if (this.parent) this.transformation.transform(this.parent.transformation);
 
@@ -52,7 +47,7 @@ export class Group extends Renderable {
 
     for (const child of this.children) {
       child.parent = this;
-      child.update();
+      child.update(rebuild);
 
       this._childTransformation.setTransform(child);
       this._childOBB.copy(child._obb).transform(this._childTransformation);

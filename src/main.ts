@@ -15,19 +15,20 @@ class App extends Loop {
 
   shapes: Renderable[] = [];
 
-  // rect1 = new Shape({
-  //   x: 400,
-  //   y: 300,
-  //   width: 100,
-  //   height: 50,
-  //   fill: "green",
-  //   stroke: "red",
-  //   lineWidth: 10,
-  //   // shadowBlur: 1,
-  //   // shadowOffsetX: 3,
-  //   // shadowOffsetY: 3,
-  //   // shadowColor: "#ccc",
-  // });
+  rect1 = new Shape({
+    x: 400,
+    y: 300,
+    width: 100,
+    height: 50,
+    fill: "green",
+    stroke: "red",
+    lineWidth: 10,
+    lineCap: "square",
+    // shadowBlur: 1,
+    // shadowOffsetX: 3,
+    // shadowOffsetY: 3,
+    // shadowColor: "#ccc",
+  });
 
   // image = new Image({
   //   x: 400,
@@ -220,7 +221,7 @@ class App extends Loop {
 
     // this.shapes.push(this.line);
     // this.shapes.push(this.image);
-    // this.shapes.push(this.rect1);
+    this.shapes.push(this.rect1);
     // this.shapes.push(this.rect2);
     // this.shapes.push(this.path);
     // this.shapes.push(this.path2);
@@ -228,7 +229,7 @@ class App extends Loop {
     // this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    this.shapes.push(this.group);
+    // this.shapes.push(this.group);
   }
 
   s = 1;
@@ -239,8 +240,8 @@ class App extends Loop {
 
     for (const shape of this.shapes) {
       // shape.build?.();
-      shape.angle += 0.001 * this.deltaTime;
-      shape.update();
+      // shape.angle += 0.001 * this.deltaTime;
+      // shape.update();
     }
 
     mid = performance.now();
@@ -263,11 +264,12 @@ class App extends Loop {
     renderOBB(this.ctx, this.shapes);
 
     end = performance.now();
-    console.log(
-      `total = ${end - start}ms, update = ${mid - start}ms, render = ${
-        end - mid
-      }ms`
-    );
+
+    // console.log(
+    //   `total = ${end - start}ms, update = ${mid - start}ms, render = ${
+    //     end - mid
+    //   }ms`
+    // );
   }
 }
 

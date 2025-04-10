@@ -29,7 +29,7 @@ export class BoundingBox {
     return this.min.equals(other.min) && this.max.equals(other.max);
   }
 
-  update(points: Vec2[], lineWidth: number | undefined) {
+  fit(points: Vec2[], lineWidth: number | undefined) {
     const { min, max } = this;
 
     if (points.length === 0) {

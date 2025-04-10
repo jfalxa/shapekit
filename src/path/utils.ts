@@ -4,11 +4,12 @@ import { Segment } from "./segment";
 
 export type Path = (Segment | Vec2)[];
 
-export function resize(path: Path, sx: number, sy: number, angle: number) {
-  const transformation = new Matrix3()
-    .rotate(angle)
-    .scale(sx, sy)
-    .rotate(-angle);
+export function resize(path: Path, sx: number, sy: number, angle = 0) {
+  const transformation = new Matrix3();
+
+  if (angle) transformation.rotate(angle);
+  transformation.scale(sx, sy);
+  if (angle) transformation.rotate(-angle);
 
   for (const segment of path) {
     segment.transform(transformation);

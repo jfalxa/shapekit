@@ -1,5 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
-import { rect, Path, toPath2D, toPoints } from "../path";
+import { rect, Path, toPath2D, toPoints, resize } from "../path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
@@ -72,7 +72,7 @@ export class Shape extends Renderable {
 
     this.hull = new Array();
 
-    this.build();
+    this.update(true);
   }
 
   contains(shape: Point | Shape) {
@@ -93,22 +93,31 @@ export class Shape extends Renderable {
 
   overlaps(shape: Shape) {
     if (!this.obb.mayOverlap(shape)) return false;
-    if (this.fill && shape.fill && doPolygonsOverlap(this, shape)) return true;
-    if (doPolylinesOverlap(this, shape)) return true;
-    return this.contains(shape) || shape.contains(this);
+    if (this.fill && shape.fill && doPolygonsOverlap(shape, this)) return true;
+    if (doPolylinesOverlap(shape, this)) return true;
+    return shape.contains(this) || this.contains(shape);
   }
 
-  build() {
-    this.path2D = toPath2D(this.path);
-    this.points = toPoints(this.path);
-    this.hull.length = this.points.length;
-    this._obb.update(this.points, this.lineWidth);
-    this.width = this._obb.width;
-    this.height = this._obb.height;
-    this.update();
-  }
+  update(rebuild = false) {
+    if (rebuild) {
+      const { width, height, _obb: box, lineWidth: lw = 0 } = this;
 
-  update() {
+      if (width && height && box.width && box.height) {
+        if (width !== box.width || height !== box.height) {
+          const sx = (width - lw) / (box.width - lw);
+          const sy = (height - lw) / (box.height - lw);
+          resize(this.path, sx, sy);
+        }
+      }
+
+      this.path2D = toPath2D(this.path);
+      this.points = toPoints(this.path);
+      this.hull.length = this.points.length;
+      this._obb.fit(this.points, this.lineWidth);
+      this.width = this._obb.width;
+      this.height = this._obb.height;
+    }
+
     this.transformation.setTransform(this);
     if (this.parent) this.transformation.transform(this.parent.transformation);
 

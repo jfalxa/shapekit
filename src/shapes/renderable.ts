@@ -45,15 +45,13 @@ export class Renderable {
     this.obb = new BoundingBox();
   }
 
-  contains(_shape: Point | Shape) {
-    return this.obb.mayContain(_shape);
+  contains(shape: Point | Shape) {
+    return this.obb.mayContain(shape);
   }
 
-  overlaps(_shape: Shape) {
-    return this.obb.mayOverlap(_shape);
+  overlaps(shape: Shape) {
+    return this.obb.mayOverlap(shape);
   }
 
-  build() {}
-
-  update() {}
+  update(_rebuild?: boolean) {}
 }
