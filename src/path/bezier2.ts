@@ -1,4 +1,3 @@
-import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
 import { Segment } from "./segment";
 
