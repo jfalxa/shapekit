@@ -76,17 +76,17 @@ class App extends Loop {
   //   ],
   // });
 
-  // path3 = new Shape({
-  //   x: 300,
-  //   y: 200,
-  //   stroke: "yellow",
-  //   lineCap: "round",
-  //   path: [
-  //     move(10, 80),
-  //     bezier3(95, 80, 40, 10, 65, 10),
-  //     bezier3(180, 80, 150, 150),
-  //   ],
-  // });
+  path3 = new Shape({
+    x: 300,
+    y: 200,
+    stroke: "blue",
+    lineCap: "round",
+    path: [
+      move(10, 80),
+      bezier3(95, 80, 40, 10, 65, 10),
+      bezier3(180, 80, 150, 150),
+    ],
+  });
 
   // roundRect = new Text({
   //   text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
@@ -194,9 +194,9 @@ class App extends Loop {
 
     children: [
       new Group({
+        x: 73.3623046875,
+        y: -58.7176513671875,
         angle: Math.PI / 4,
-        x: -57.06230926513672,
-        y: -73.20842742919922,
 
         children: [
           new Shape({
@@ -211,7 +211,7 @@ class App extends Loop {
             x: -100,
             y: 100,
             stroke: "blue",
-            // lineWidth: 50,
+            lineWidth: 50,
             lineCap: "round",
             path: [
               move(10, 80),
@@ -327,10 +327,10 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      // shape.build?.();
       // shape.angle += 0.001 * this.deltaTime;
+      // shape.update();
       // shape.width -= 0.001 * this.deltaTime;
-      shape.update(true);
+      // shape.update(true);
     }
 
     mid = performance.now();

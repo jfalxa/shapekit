@@ -145,7 +145,3 @@ export class Matrix3 extends Float32Array {
     return this;
   }
 }
-
-function round(num: number, precision: number) {
-  return Math.round(num / precision) * precision;
-}
