@@ -59,5 +59,9 @@ export class Renderable {
     return this.obb.mayOverlap(shape);
   }
 
-  update(_rebuild?: boolean) {}
+  update(
+    _rebuild?: boolean,
+    _updateParent?: boolean,
+    _updateChildren?: boolean
+  ) {}
 }

@@ -20,7 +20,7 @@ export class Group extends Renderable {
     this._childTransformation = new Matrix3();
     this._childOBB = new BoundingBox();
 
-    this.update(true);
+    this.update(true, true);
   }
 
   contains(shape: Vec2 | Shape): boolean {
@@ -39,7 +39,7 @@ export class Group extends Renderable {
     return false;
   }
 
-  update(rebuild = false): void {
+  update(rebuild = false, updateParent = true, updateChildren = true): void {
     if (rebuild) {
       const { width, height, _obb: box } = this;
 
@@ -66,7 +66,7 @@ export class Group extends Renderable {
 
     for (const child of this.children) {
       child.parent = this;
-      child.update(rebuild);
+      if (updateChildren) child.update(rebuild, false);
 
       this._childTransformation.setTransform(child);
       this._childOBB.copy(child._obb).transform(this._childTransformation);
@@ -78,5 +78,9 @@ export class Group extends Renderable {
     this.height = this._obb.height;
 
     this.obb.copy(this._obb).transform(this.transformation);
+
+    if (updateParent && this.parent) {
+      this.parent.update(false, true, false);
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
-import { rect, Path, toPath2D, toPoints } from "../path";
+import { rect, Path, toPath2D, toPoints, toAABB } from "../path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
@@ -72,7 +72,7 @@ export class Shape extends Renderable {
 
     this.hull = new Array();
 
-    this.update(true);
+    this.update(true, true);
   }
 
   contains(shape: Point | Shape) {
@@ -98,7 +98,7 @@ export class Shape extends Renderable {
     return shape.contains(this) || this.contains(shape);
   }
 
-  update(rebuild = false) {
+  update(rebuild = false, updateParent = true) {
     if (rebuild) {
       const { width, height, _obb: box, lineWidth: lw = 0 } = this;
 
@@ -112,8 +112,8 @@ export class Shape extends Renderable {
 
       this.path2D = toPath2D(this.path);
       this.points = toPoints(this.path);
+      this._obb = toAABB(this.path, this.lineWidth, this._obb);
       this.hull.length = this.points.length;
-      this._obb.fit(this.points, this.lineWidth);
       this.width = this._obb.width;
       this.height = this._obb.height;
     }
@@ -127,6 +127,10 @@ export class Shape extends Renderable {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
         .copy(this.points[i])
         .transform(this.transformation);
+    }
+
+    if (updateParent && this.parent) {
+      this.parent.update(false, true, false);
     }
   }
 }
