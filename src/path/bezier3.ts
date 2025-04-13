@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { Segment } from "./segment";
 
 export function bezier3(
@@ -62,14 +62,15 @@ export class Bezier3 extends Segment {
     const start = this.start ?? control;
     if (!start) throw new Error("Missing start control point");
 
-    return Bezier3.sample(
-      from,
-      start,
-      this.end,
-      this.to,
-      this.segments,
-      this.points
-    );
+    let i = 0;
+    this.points.length = this.segments + 1;
+
+    for (let t = 0; t <= 1; t += 1 / this.segments) {
+      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
+      Bezier3.sample(from, start, this.end, this.to, t, this.points[i++]);
+    }
+
+    return this.points;
   }
 
   scale(sx: number, sy: number): void {
@@ -79,30 +80,25 @@ export class Bezier3 extends Segment {
   }
 
   static sample(
-    p0: Vec2,
-    p1: Vec2,
-    p2: Vec2,
-    p3: Vec2,
-    segments = 10,
-    points = new Array<Vec2>(segments + 2)
+    p0: Point,
+    p1: Point,
+    p2: Point,
+    p3: Point,
+    t: number,
+    out = new Vec2(0, 0)
   ) {
-    let i = 0;
-    for (let t = 0; t <= 1; t += 1 / segments) {
-      const x =
-        (1 - t) ** 3 * p0.x +
-        3 * (1 - t) ** 2 * t * p1.x +
-        3 * (1 - t) * t ** 2 * p2.x +
-        t ** 3 * p3.x;
+    out.x =
+      (1 - t) ** 3 * p0.x +
+      3 * (1 - t) ** 2 * t * p1.x +
+      3 * (1 - t) * t ** 2 * p2.x +
+      t ** 3 * p3.x;
 
-      const y =
-        (1 - t) ** 3 * p0.y +
-        3 * (1 - t) ** 2 * t * p1.y +
-        3 * (1 - t) * t ** 2 * p2.y +
-        t ** 3 * p3.y;
+    out.y =
+      (1 - t) ** 3 * p0.y +
+      3 * (1 - t) ** 2 * t * p1.y +
+      3 * (1 - t) * t ** 2 * p2.y +
+      t ** 3 * p3.y;
 
-      if (!points[i]) points[i] = new Vec2(0, 0);
-      points[i++].put(x, y);
-    }
-    return points;
+    return out;
   }
 }

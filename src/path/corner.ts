@@ -89,15 +89,7 @@ export class Corner extends Segment {
     const startAngle = Math.atan2(t0.y - center.y, t0.x - center.x);
     const endAngle = Math.atan2(t1.y - center.y, t1.x - center.x);
 
-    Arc.sampleArc(
-      center.x,
-      center.y,
-      startAngle,
-      endAngle,
-      r,
-      segments,
-      points
-    );
+    Arc.sample(center.x, center.y, startAngle, endAngle, r, segments, points);
 
     // save the target point at the last position
     points[segments + 1].copy(v2);

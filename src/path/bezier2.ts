@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { Segment } from "./segment";
 
 export function bezier2(
@@ -39,7 +39,16 @@ export class Bezier2 extends Segment {
   sample(from: Vec2, control?: Vec2): Vec2[] {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Missing control point");
-    return Bezier2.sample(from, _control, this.to, this.segments, this.points);
+
+    let i = 0;
+    this.points.length = this.segments + 1;
+
+    for (let t = 0; t <= 1; t += 1 / this.segments) {
+      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
+      Bezier2.sample(from, _control, this.to, this.segments, this.points[i++]);
+    }
+
+    return this.points;
   }
 
   scale(sx: number, sy: number): void {
@@ -48,21 +57,14 @@ export class Bezier2 extends Segment {
   }
 
   static sample(
-    p0: Vec2,
-    p1: Vec2,
-    p2: Vec2,
-    segments = 10,
-    points = new Array<Vec2>(segments + 2)
-  ): Vec2[] {
-    let i = 0;
-    for (let t = 0; t <= 1; t += 1 / segments) {
-      const x =
-        (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * p1.x + t * t * p2.x;
-      const y =
-        (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * p1.y + t * t * p2.y;
-      if (!points[i]) points[i] = new Vec2(0, 0);
-      points[i++].put(x, y);
-    }
-    return points;
+    p0: Point,
+    p1: Point,
+    p2: Point,
+    t: number,
+    out = new Vec2(0, 0)
+  ) {
+    out.x = (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * p1.x + t * t * p2.x;
+    out.y = (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * p1.y + t * t * p2.y;
+    return out;
   }
 }

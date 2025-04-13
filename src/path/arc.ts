@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { Segment } from "./segment";
 
 export function arc(
@@ -46,15 +46,14 @@ export class Arc extends Segment {
   }
 
   sample(): Vec2[] {
-    return Arc.sampleArc(
-      this.to.x,
-      this.to.y,
-      this.startAngle,
-      this.endAngle,
-      this.radius,
-      this.segments,
-      this.points
-    );
+    this.points.length = this.segments + 1;
+
+    for (let i = 0; i <= this.segments; i++) {
+      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
+      Arc.sample(this.to, this.radius, this.startAngle, this.endAngle, i / this.segments, this.points[i]); // prettier-ignore
+    }
+
+    return this.points;
   }
 
   scale(sx: number, sy: number): void {
@@ -62,26 +61,19 @@ export class Arc extends Segment {
     this.radius *= Math.min(sx, sy);
   }
 
-  static sampleArc(
-    x: number,
-    y: number,
+  static sample(
+    center: Point,
+    radius: number,
     startAngle: number,
     endAngle: number,
-    radius: number,
-    segments = 10,
-    points = new Array<Vec2>(segments + 2)
-  ): Vec2[] {
+    t: number,
+    out = new Vec2(0, 0)
+  ) {
     let angleDiff = endAngle - startAngle;
     if (angleDiff < 0) angleDiff += 2 * Math.PI;
-
-    for (let i = 0; i <= segments; i++) {
-      const angle = startAngle + (angleDiff * i) / segments;
-      const px = x + radius * Math.cos(angle);
-      const py = y + radius * Math.sin(angle);
-      if (!points[i]) points[i] = new Vec2(0, 0);
-      points[i].put(px, py);
-    }
-
-    return points;
+    const angle = startAngle + angleDiff * t;
+    out.x = center.x + radius * Math.cos(angle);
+    out.y = center.y + radius * Math.sin(angle);
+    return out;
   }
 }
