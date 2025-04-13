@@ -8,6 +8,8 @@ import { bezier3, move, arc } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
 import { renderOBB } from "./utils/debug";
+import { Matrix3 } from "./math/mat3";
+import { Vec2 } from "./math/vec2";
 
 class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
@@ -22,7 +24,7 @@ class App extends Loop {
     height: 50,
     fill: "green",
     stroke: "red",
-    lineWidth: 10,
+    // lineWidth: 10,
     lineCap: "square",
     // shadowBlur: 1,
     // shadowOffsetX: 3,
@@ -143,67 +145,151 @@ class App extends Loop {
   //   ],
   // });
 
-  group?: Group;
+  skewed = new Group({
+    x: 400,
+    y: 300,
+
+    // scaleX: 0.5,
+
+    children: [
+      new Text({
+        text: "Skewed",
+        width: 100,
+        height: 100,
+        fill: "#ff0000",
+        textFill: "#000000",
+        fontSize: 18,
+        padding: 8,
+        angle: Math.PI / 3,
+
+        scaleX: 2,
+        // scaleY: 1.5,
+        // skewX: Math.PI / 6,
+        // skewY: Math.PI / 6,
+      }),
+
+      new Text({
+        x: 200,
+        text: "Skewed",
+        width: 100,
+        height: 100,
+        fill: "#ff0000",
+        textFill: "#000000",
+        fontSize: 18,
+        padding: 8,
+        stroke: "green",
+        lineWidth: 5,
+
+        // scaleX: 2,
+        // scaleY: 1.5,
+        // skewX: Math.PI / 6,
+        // skewY: Math.PI / 6,
+      }),
+    ],
+  });
+
+  group = new Group({
+    x: 400,
+    y: 300,
+
+    children: [
+      new Group({
+        angle: Math.PI / 4,
+        x: -57.06230926513672,
+        y: -73.20842742919922,
+
+        children: [
+          new Shape({
+            x: -100,
+            stroke: "hotpink",
+            // lineWidth: 5,
+            angle: Math.PI / 4,
+            path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
+          }),
+
+          new Shape({
+            x: -100,
+            y: 100,
+            stroke: "blue",
+            // lineWidth: 50,
+            lineCap: "round",
+            path: [
+              move(10, 80),
+              bezier3(95, 80, 40, 10, 65, 10),
+              bezier3(180, 80, 150, 150),
+            ],
+          }),
+
+          new Text({
+            y: 75,
+            // width: 50,
+            // height: 200,
+            stroke: "black",
+            lineWidth: 5,
+            text: "A centered title",
+            textFill: "blue",
+            textAlign: "center",
+            fontSize: 16,
+            lineHeight: 24,
+            padding: 8,
+          }),
+        ],
+      }),
+    ],
+  });
+
+  group2 = new Group({
+    x: 400,
+    y: 300,
+
+    children: [
+      new Shape({
+        x: -100,
+        y: -100,
+        width: 100,
+        height: 50,
+        fill: "red",
+        angle: Math.PI / 4,
+      }),
+      new Shape({
+        x: 100,
+        y: -100,
+        width: 100,
+        height: 50,
+        fill: "green",
+      }),
+      new Shape({
+        x: 100,
+        y: 100,
+        width: 100,
+        height: 50,
+        fill: "blue",
+        angle: Math.PI / 4,
+      }),
+      new Shape({
+        x: -100,
+        y: 100,
+        width: 100,
+        height: 50,
+        fill: "yellow",
+      }),
+    ],
+  });
 
   async mount() {
     const treeImage = await Image.load(treeSrc);
 
-    this.group = new Group({
-      x: 400,
-      y: 300,
+    (this.group.children[0] as Group).children.push(
+      new Image({
+        x: +100,
+        width: 100,
+        height: 50,
+        stroke: "orange",
+        image: treeImage,
+      })
+    );
 
-      children: [
-        new Group({
-          angle: Math.PI / 4,
-          // scaleX: 2,
-          // scaleY: 2,
-
-          children: [
-            new Shape({
-              x: -100,
-              stroke: "hotpink",
-              lineWidth: 5,
-              angle: Math.PI / 4,
-              path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
-            }),
-
-            new Shape({
-              x: -100,
-              y: 100,
-              stroke: "blue",
-              lineWidth: 50,
-              lineCap: "round",
-              path: [
-                move(10, 80),
-                bezier3(95, 80, 40, 10, 65, 10),
-                bezier3(180, 80, 150, 150),
-              ],
-            }),
-
-            new Image({
-              x: +100,
-              width: 100,
-              height: 50,
-              stroke: "orange",
-              image: treeImage,
-            }),
-
-            new Text({
-              y: 75,
-              // width: 50,
-              // height: 200,
-              stroke: "black",
-              text: "A centered title",
-              textFill: "blue",
-              textAlign: "center",
-              fontSize: 16,
-              lineHeight: 24,
-              padding: 8,
-            }),
-          ],
-        }),
-      ],
-    });
+    this.group.update();
 
     for (let i = 0; i < 0; i++) {
       this.shapes.push(
@@ -221,7 +307,7 @@ class App extends Loop {
 
     // this.shapes.push(this.line);
     // this.shapes.push(this.image);
-    this.shapes.push(this.rect1);
+    // this.shapes.push(this.rect1);
     // this.shapes.push(this.rect2);
     // this.shapes.push(this.path);
     // this.shapes.push(this.path2);
@@ -229,7 +315,9 @@ class App extends Loop {
     // this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    // this.shapes.push(this.group);
+    this.shapes.push(this.group);
+    // this.shapes.push(this.group2);
+    // this.shapes.push(this.skewed);
   }
 
   s = 1;
@@ -241,7 +329,8 @@ class App extends Loop {
     for (const shape of this.shapes) {
       // shape.build?.();
       // shape.angle += 0.001 * this.deltaTime;
-      // shape.update();
+      // shape.width -= 0.001 * this.deltaTime;
+      shape.update(true);
     }
 
     mid = performance.now();
@@ -288,3 +377,8 @@ function rgbToHex(r: number, g: number, b: number) {
 
 // @ts-ignore
 window.app = new App();
+
+// @ts-ignore
+window.Matrix3 = Matrix3;
+// @ts-ignore
+window.Vec2 = Vec2;

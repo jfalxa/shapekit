@@ -41,7 +41,7 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
 export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.strokeStyle = "orange";
   ctx.lineCap = "square";
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 1;
 
   ctx.shadowBlur = 0;
   ctx.shadowColor = "#000000";
