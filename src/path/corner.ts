@@ -1,4 +1,5 @@
 import { v, Vec2 } from "../math/vec2";
+import { BoundingBox } from "../utils/bounding-box";
 import { Arc } from "./arc";
 import { Segment } from "./segment";
 
@@ -43,6 +44,16 @@ export class Corner extends Segment {
       this.radius
     );
     path.lineTo(this.to.x, this.to.y);
+  }
+
+  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
+    this.min.put(Infinity);
+    this.max.put(-Infinity);
+
+    this.min.min(from).min(this.to).min(this.control);
+    this.max.max(from).max(this.to).max(this.control);
+
+    aabb.merge(this);
   }
 
   sample(from: Vec2) {

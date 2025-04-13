@@ -1,4 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
+import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
 export function arc(
@@ -48,6 +49,12 @@ export class Arc extends Segment {
       this.endAngle,
       this.counterclockwise
     );
+  }
+
+  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
+    this.min.copy(this.to).translate(-this.radius).min(from);
+    this.max.copy(this.to).translate(this.radius).max(from);
+    aabb.merge(this);
   }
 
   sample(): Vec2[] {

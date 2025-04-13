@@ -2,6 +2,11 @@ import { Matrix3 } from "../math/mat3";
 import { Point, Vec2 } from "../math/vec2";
 import { Renderable } from "../shapes/renderable";
 
+export interface AABB {
+  min: Vec2;
+  max: Vec2;
+}
+
 export class BoundingBox {
   static EMPTY = new BoundingBox();
 
@@ -29,7 +34,7 @@ export class BoundingBox {
     return this.min.equals(other.min) && this.max.equals(other.max);
   }
 
-  fit(points: Vec2[], lineWidth: number | undefined) {
+  fit(points: Vec2[]) {
     const { min, max } = this;
 
     if (points.length === 0) {
@@ -44,12 +49,6 @@ export class BoundingBox {
     for (let i = 0; i < points.length; i++) {
       min.min(points[i]);
       max.max(points[i]);
-    }
-
-    if (lineWidth) {
-      const halfWidth = lineWidth / 2;
-      min.translate(-halfWidth, -halfWidth);
-      max.translate(halfWidth, halfWidth);
     }
 
     this.a.copy(min);
@@ -75,7 +74,7 @@ export class BoundingBox {
     this.center.copy(this.min).add(this.max).scale(0.5);
   }
 
-  merge(other: BoundingBox) {
+  merge(other: AABB) {
     this.min.min(other.min);
     this.max.max(other.max);
 

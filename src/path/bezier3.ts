@@ -1,4 +1,6 @@
 import { Point, Vec2 } from "../math/vec2";
+import { BoundingBox } from "../utils/bounding-box";
+import { solveQuadratic } from "../utils/quadratic";
 import { Segment } from "./segment";
 
 export function bezier3(
@@ -64,14 +66,57 @@ export class Bezier3 extends Segment {
     );
   }
 
+  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined): void {
+    const p0 = from;
+    const p1 = this.start ?? _control;
+    if (!p1) throw new Error("Missing start control point");
+    const p2 = this.end;
+    const p3 = this.to;
+
+    this.min.put(Infinity);
+    this.max.put(-Infinity);
+
+    this.min.min(p0).min(p3);
+    this.max.max(p0).max(p3);
+
+    const point = new Vec2(0, 0);
+
+    const ax = -p0.x + 3 * p1.x - 3 * p2.x + p3.x;
+    const bx = 2 * (p0.x - 2 * p1.x + p2.x);
+    const cx = -p0.x + p1.x;
+
+    for (const t of solveQuadratic(ax, bx, cx)) {
+      if (t > 0 && t < 1) {
+        Bezier3.sample(p0, p1, p2, p3, t, point);
+        this.min.min(point);
+        this.max.max(point);
+      }
+    }
+
+    const ay = -p0.y + 3 * p1.y - 3 * p2.y + p3.y;
+    const by = 2 * (p0.y - 2 * p1.y + p2.y);
+    const cy = -p0.y + p1.y;
+
+    for (const t of solveQuadratic(ay, by, cy)) {
+      if (t > 0 && t < 1) {
+        Bezier3.sample(p0, p1, p2, p3, t, point);
+        this.min.min(point);
+        this.max.max(point);
+      }
+    }
+
+    aabb.merge(this);
+  }
+
   sample(from: Vec2, control?: Vec2): Vec2[] {
     const start = this.start ?? control;
     if (!start) throw new Error("Missing start control point");
 
     let i = 0;
+    const step = 1 / this.segments;
     this.points.length = this.segments + 1;
 
-    for (let t = 0; t <= 1; t += 1 / this.segments) {
+    for (let t = 0; t <= 1; t += step) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
       Bezier3.sample(from, start, this.end, this.to, t, this.points[i++]);
     }

@@ -1,4 +1,5 @@
 import { v, Vec2 } from "../math/vec2";
+import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
 export type Path = (Segment | Vec2)[];
@@ -52,6 +53,47 @@ export function toPoints(path: Path) {
   }
 
   return points;
+}
+
+export function toAABB(path: Path, lineWidth = 0, out = new BoundingBox()) {
+  out.min.put(Infinity);
+  out.max.put(-Infinity);
+
+  let prevPoint = new Vec2(0, 0);
+  let prevControl: Vec2 | undefined;
+
+  const bbox = { min: new Vec2(0, 0), max: new Vec2(0, 0) };
+
+  for (const segment of path) {
+    if (segment instanceof Vec2) {
+      bbox.min.copy(prevPoint).min(segment);
+      bbox.max.copy(prevPoint).max(segment);
+      out.merge(bbox);
+      prevPoint = segment;
+      prevControl = segment;
+    } else {
+      let control = segment.getOptionalControl();
+      if (!control) control = mirrorControl(prevPoint, prevControl);
+
+      segment.join(out, prevPoint, control);
+
+      prevPoint = segment.getEndPoint();
+      prevControl = segment.getSharedControl();
+    }
+  }
+
+  if (lineWidth) {
+    const halfWidth = lineWidth / 2;
+    out.min.translate(-halfWidth, -halfWidth);
+    out.max.translate(halfWidth, halfWidth);
+
+    out.a.copy(out.min);
+    out.b.put(out.max[0], out.min[1]);
+    out.c.copy(out.max);
+    out.d.put(out.min[0], out.max[1]);
+  }
+
+  return out;
 }
 
 export function mirrorControl(
