@@ -5,7 +5,7 @@ export abstract class Segment {
 
   protected points: Vec2[];
 
-  constructor(x: number, y: number, protected segments = 0) {
+  constructor(x: number, y: number, public segments = 0) {
     this.to = new Vec2(x, y);
 
     this.points = new Array(segments + 1);

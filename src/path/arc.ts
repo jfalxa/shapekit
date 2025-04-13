@@ -34,6 +34,11 @@ export class Arc extends Segment {
     super(x, y, segments);
   }
 
+  scale(sx: number, sy: number): void {
+    this.to.scale(sx, sy);
+    this.radius *= Math.min(sx, sy);
+  }
+
   apply(path: Path2D) {
     path.arc(
       this.to.x,
@@ -54,11 +59,6 @@ export class Arc extends Segment {
     }
 
     return this.points;
-  }
-
-  scale(sx: number, sy: number): void {
-    this.to.scale(sx, sy);
-    this.radius *= Math.min(sx, sy);
   }
 
   static sample(

@@ -30,6 +30,11 @@ export class Bezier2 extends Segment {
     return this.control;
   }
 
+  scale(sx: number, sy: number): void {
+    this.to.scale(sx, sy);
+    this.control?.scale(sx, sy);
+  }
+
   apply(path: Path2D, control?: Vec2): void {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Missing control point");
@@ -49,11 +54,6 @@ export class Bezier2 extends Segment {
     }
 
     return this.points;
-  }
-
-  scale(sx: number, sy: number): void {
-    this.to.scale(sx, sy);
-    this.control?.scale(sx, sy);
   }
 
   static sample(

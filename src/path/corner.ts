@@ -29,6 +29,11 @@ export class Corner extends Segment {
     this.points.push(new Vec2(0, 0));
   }
 
+  scale(sx: number, sy: number): void {
+    this.to.scale(sx, sy);
+    this.control.scale(sx, sy);
+  }
+
   apply(path: Path2D) {
     path.arcTo(
       this.control.x,
@@ -41,29 +46,15 @@ export class Corner extends Segment {
   }
 
   sample(from: Vec2) {
-    return Corner.sample(
-      from,
-      this.control,
-      this.to,
-      this.radius,
-      this.segments,
-      this.points
-    );
-  }
+    const p0 = from;
+    const p1 = this.control;
+    const p2 = this.to;
+    const r = this.radius;
+    const segments = 10;
+    const points = this.points;
 
-  scale(sx: number, sy: number): void {
-    this.to.scale(sx, sy);
-    this.control.scale(sx, sy);
-  }
+    this.points.length = segments + 2;
 
-  static sample(
-    p0: Vec2,
-    p1: Vec2,
-    p2: Vec2,
-    r: number,
-    segments = 10,
-    points = new Array<Vec2>(segments + 2)
-  ): Vec2[] {
     // Compute unit vectors for the rays from P1 to P0 and from P1 to P2.
     const v0 = v(p0).subtract(p1).normalize();
     const v2 = v(p2).subtract(p1).normalize();
@@ -89,10 +80,13 @@ export class Corner extends Segment {
     const startAngle = Math.atan2(t0.y - center.y, t0.x - center.x);
     const endAngle = Math.atan2(t1.y - center.y, t1.x - center.x);
 
-    Arc.sample(center.x, center.y, startAngle, endAngle, r, segments, points);
+    for (let i = 0; i <= segments; i++) {
+      if (!points[i]) points[i] = new Vec2(0, 0);
+      Arc.sample(center, r, startAngle, endAngle, i / this.segments, this.points[i]); // prettier-ignore
+    }
 
     // save the target point at the last position
-    points[segments + 1].copy(v2);
+    points[segments + 1].copy(p2);
 
     return points;
   }

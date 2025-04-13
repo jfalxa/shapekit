@@ -37,6 +37,8 @@ export function toPoints(path: Path) {
   for (const segment of path) {
     if (segment instanceof Vec2) {
       points.push(segment);
+      prevPoint = segment;
+      prevControl = segment;
     } else {
       let control = segment.getOptionalControl();
       if (!control) control = mirrorControl(prevPoint, prevControl);
