@@ -39,11 +39,11 @@ export class Text extends Shape {
   lineHeight?: number;
   padding?: number;
 
-  font!: string;
-  lines!: string[];
+  declare font: string;
+  declare lines: string[];
 
   constructor(init: TextInit) {
-    if (!init.width && !init.height) {
+    if (init.width === undefined && init.height === undefined) {
       [init.width, init.height] = measureText(init);
     }
 
@@ -65,6 +65,8 @@ export class Text extends Shape {
     this.textPosition = init.textPosition;
     this.direction = init.direction;
     this.padding = init.padding;
+
+    this.format();
   }
 
   update(rebuild = false) {

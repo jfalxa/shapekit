@@ -8,7 +8,7 @@ export class Image extends Shape {
   image: HTMLImageElement;
 
   constructor(init: ImageInit) {
-    if (!init.width && !init.height) {
+    if (init.width === undefined && init.height === undefined) {
       init.width = init.image.naturalWidth;
       init.height = init.image.naturalHeight;
     }

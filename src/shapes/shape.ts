@@ -42,7 +42,7 @@ export class Shape extends Renderable {
 
   constructor(init: ShapeInit) {
     // by default, create a centered rect of width x height
-    if (!init.path && init.width && init.height) {
+    if (!init.path && init.width !== undefined && init.height !== undefined) {
       init.path = rect(0, 0, init.width, init.height);
     }
 
