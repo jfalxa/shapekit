@@ -58,21 +58,9 @@ export class Arc extends Segment {
     );
   }
 
-  transform(matrix: Matrix3): void {
-    this.to.transform(matrix);
-
-    // Calculate the rotation component (assumes uniform scaling)
-    const rotationOffset = Math.atan2(matrix[1], matrix[0]);
-
-    // Calculate the scale factor (assumes uniform scaling)
-    const scaleFactor = Math.sqrt(
-      matrix[0] * matrix[0] + matrix[1] * matrix[1]
-    );
-
-    // Update angles and radius
-    this.startAngle += rotationOffset;
-    this.endAngle += rotationOffset;
-    this.radius *= scaleFactor;
+  scale(sx: number, sy: number): void {
+    this.to.scale(sx, sy);
+    this.radius *= Math.min(sx, sy);
   }
 
   static sampleArc(

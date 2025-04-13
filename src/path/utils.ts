@@ -1,20 +1,7 @@
-import { Matrix3 } from "../math/mat3";
 import { v, Vec2 } from "../math/vec2";
 import { Segment } from "./segment";
 
 export type Path = (Segment | Vec2)[];
-
-export function resize(path: Path, sx: number, sy: number, angle = 0) {
-  const transformation = new Matrix3();
-
-  if (angle) transformation.rotate(angle);
-  transformation.scale(sx, sy);
-  if (angle) transformation.rotate(-angle);
-
-  for (const segment of path) {
-    segment.transform(transformation);
-  }
-}
 
 export function toPath2D(path: Path) {
   const path2D = new Path2D();

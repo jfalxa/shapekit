@@ -73,10 +73,10 @@ export class Bezier3 extends Segment {
     );
   }
 
-  transform(matrix: Matrix3): void {
-    this.to.transform(matrix);
-    this.start?.transform(matrix);
-    this.end.transform(matrix);
+  scale(sx: number, sy: number): void {
+    this.to.scale(sx, sy);
+    this.start?.scale(sx, sy);
+    this.end.scale(sx, sy);
   }
 
   static sample(

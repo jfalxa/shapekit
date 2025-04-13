@@ -52,9 +52,9 @@ export class Corner extends Segment {
     );
   }
 
-  transform(matrix: Matrix3): void {
-    this.to.transform(matrix);
-    this.control.transform(matrix);
+  scale(sx: number, sy: number): void {
+    this.to.scale(sx, sy);
+    this.control.scale(sx, sy);
   }
 
   static sample(

@@ -43,9 +43,9 @@ export class Bezier2 extends Segment {
     return Bezier2.sample(from, _control, this.to, this.segments, this.points);
   }
 
-  transform(matrix: Matrix3): void {
-    this.to.transform(matrix);
-    this.control?.transform(matrix);
+  scale(sx: number, sy: number): void {
+    this.to.scale(sx, sy);
+    this.control?.scale(sx, sy);
   }
 
   static sample(

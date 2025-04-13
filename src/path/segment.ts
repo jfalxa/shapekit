@@ -1,4 +1,3 @@
-import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
 
 export abstract class Segment {
@@ -23,8 +22,8 @@ export abstract class Segment {
     return this.points;
   }
 
-  transform(matrix: Matrix3): void {
-    this.to.transform(matrix);
+  scale(sx: number, sy: number): void {
+    this.to.scale(sx, sy);
   }
 
   getEndPoint(): Vec2 {
