@@ -7,10 +7,6 @@ textCanvas.height = 1024;
 const textCtx = textCanvas.getContext("2d")!;
 
 export function fitText(text: Text): string[] {
-  if (!text.width) {
-    return [text.text];
-  }
-
   const lines: string[] = [];
   const words = (text.text ?? "").split(" ");
 

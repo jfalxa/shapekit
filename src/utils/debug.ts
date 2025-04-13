@@ -8,7 +8,7 @@ type Canvas2D = CanvasRenderingContext2D;
 export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.resetTransform();
 
-  ctx.strokeStyle = "orange";
+  ctx.strokeStyle = "lime";
   ctx.lineCap = "square";
   ctx.lineWidth = 3;
 
@@ -17,9 +17,7 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
 
-  for (let i = 0; i < renderables.length; i++) {
-    const shape = renderables[i];
-
+  for (const shape of flattenRenderables(renderables)) {
     if (!(shape instanceof Shape)) continue;
     if (shape.path.length === 0 || shape.hull.length === 0) continue;
 
@@ -39,6 +37,8 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
 }
 
 export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
+  ctx.resetTransform();
+
   ctx.strokeStyle = "orange";
   ctx.lineCap = "square";
   ctx.lineWidth = 1;
@@ -48,11 +48,7 @@ export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
 
-  ctx.resetTransform();
-
-  for (let i = 0; i < renderables.length; i++) {
-    const shape = renderables[i];
-
+  for (const shape of flattenRenderables(renderables)) {
     if (shape instanceof Group) {
       renderOBB(ctx, shape.children);
     }
@@ -66,4 +62,15 @@ export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
 
     ctx.stroke();
   }
+}
+
+function flattenRenderables(renderables: Renderable[]) {
+  const flat: Renderable[] = [];
+  for (const renderable of renderables) {
+    flat.push(renderable);
+    if (renderable instanceof Group) {
+      flat.push(...flattenRenderables(renderable.children));
+    }
+  }
+  return flat;
 }
