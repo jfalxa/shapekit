@@ -67,8 +67,8 @@ export class Text extends Shape {
     this.padding = init.padding;
   }
 
-  update() {
-    super.update();
+  update(rebuild = false) {
+    super.update(rebuild);
     this.format();
   }
 

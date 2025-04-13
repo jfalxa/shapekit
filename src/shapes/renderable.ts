@@ -11,6 +11,8 @@ export interface RenderableInit {
   height?: number;
   scaleX?: number;
   scaleY?: number;
+  skewX?: number;
+  skewY?: number;
   angle?: number;
 }
 
@@ -23,7 +25,9 @@ export class Renderable {
   height: number;
   scaleX: number;
   scaleY: number;
-  angle: number;
+  skewX: number; // in radians
+  skewY: number; // in radians
+  angle: number; // in radians
 
   transformation: Matrix3;
 
@@ -37,6 +41,8 @@ export class Renderable {
     this.height = init.height ?? 0;
     this.scaleX = init.scaleX ?? 1;
     this.scaleY = init.scaleY ?? 1;
+    this.skewX = init.skewX ?? 0;
+    this.skewY = init.skewY ?? 0;
     this.angle = init.angle ?? 0;
 
     this.transformation = new Matrix3();

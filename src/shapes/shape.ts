@@ -1,5 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
-import { rect, Path, toPath2D, toPoints, resize } from "../path";
+import { rect, Path, toPath2D, toPoints } from "../path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
@@ -106,7 +106,7 @@ export class Shape extends Renderable {
         if (width !== box.width || height !== box.height) {
           const sx = (width - lw) / (box.width - lw);
           const sy = (height - lw) / (box.height - lw);
-          resize(this.path, sx, sy);
+          for (const segment of this.path) segment.scale(sx, sy);
         }
       }
 

@@ -1,4 +1,4 @@
-import { Renderable } from "../shapes/renderable";
+import { RenderableInit } from "../shapes/renderable";
 
 // prettier-ignore
 const IDENTITY = [
@@ -47,27 +47,74 @@ export class Matrix3 extends Float32Array {
     );
   }
 
+  skew(ax: number, ay: number) {
+    const tanx = Math.tan(ax);
+    const tany = Math.tan(ay);
+    // prettier-ignore
+    return this.multiply(
+      1, tany, 0, 
+      tanx, 1, 0, 
+      0, 0, 1
+    );
+  }
+
   transform(m: Matrix3) {
     this.multiply(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
   }
 
-  setTransform(renderable: Renderable) {
-    const cos = Math.cos(renderable.angle);
-    const sin = Math.sin(renderable.angle);
+  setTransform(renderable: RenderableInit) {
+    const {
+      x = 0,
+      y = 0,
+      scaleX = 1,
+      scaleY = 1,
+      skewX = 0,
+      skewY = 0,
+      angle = 0,
+    } = renderable;
 
-    this[0] = renderable.scaleX * cos;
-    this[1] = renderable.scaleX * sin;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    const tanSkewX = Math.tan(skewX);
+    const tanSkewY = Math.tan(skewY);
+
+    this[0] = scaleX * (cos - sin * tanSkewY);
+    this[1] = scaleX * (sin + cos * tanSkewY);
     this[2] = 0;
 
-    this[3] = -renderable.scaleY * sin;
-    this[4] = renderable.scaleY * cos;
+    this[3] = scaleY * (cos * tanSkewX - sin);
+    this[4] = scaleY * (sin * tanSkewX + cos);
     this[5] = 0;
 
-    this[6] = renderable.x;
-    this[7] = renderable.y;
+    this[6] = x;
+    this[7] = y;
     this[8] = 1;
 
     return this;
+  }
+
+  decompose(out: RenderableInit = {}) {
+    const [a, b, , c, d, , e, f] = this;
+
+    out.x = e;
+    out.y = f;
+
+    out.angle = Math.atan(b / a);
+
+    const cos = Math.cos(out.angle);
+    const sin = Math.sin(out.angle);
+
+    const scaleX = Math.hypot(a, b);
+    const scaleY = -c * sin + d * cos;
+
+    out.skewX = Math.atan((cos * c + sin * d) / scaleY);
+    out.skewY = 0;
+
+    out.width = (out.width ?? 0) * (scaleX / (out.scaleX ?? 1));
+    out.height = (out.height ?? 0) * (scaleY / (out.scaleY ?? 1));
+
+    return out;
   }
 
   multiply(
@@ -97,4 +144,8 @@ export class Matrix3 extends Float32Array {
 
     return this;
   }
+}
+
+function round(num: number, precision: number) {
+  return Math.round(num / precision) * precision;
 }
