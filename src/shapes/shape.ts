@@ -1,5 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
-import { rect, Path, toPath2D, toPoints, toAABB } from "../path";
+import { rect, Path, parse } from "../path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
@@ -40,6 +40,9 @@ export class Shape extends Renderable {
   points!: Vec2[];
   hull: Vec2[];
 
+  baseWidth = 0;
+  baseHeight = 0;
+
   constructor(init: ShapeInit) {
     // by default, create a centered rect of width x height
     if (!init.path && init.width !== undefined && init.height !== undefined) {
@@ -72,7 +75,7 @@ export class Shape extends Renderable {
 
     this.hull = new Array();
 
-    this.update(true, true);
+    this.update(true);
   }
 
   contains(shape: Point | Shape) {
@@ -98,28 +101,41 @@ export class Shape extends Renderable {
     return shape.contains(this) || this.contains(shape);
   }
 
-  update(rebuild = false, updateParent = true) {
-    if (rebuild) {
-      const { width, height, _obb: box, lineWidth: lw = 0 } = this;
+  build() {
+    const { width, height, baseWidth, baseHeight } = this;
 
-      if (width && height && box.width && box.height) {
-        if (width !== box.width || height !== box.height) {
-          const sx = (width - lw) / (box.width - lw);
-          const sy = (height - lw) / (box.height - lw);
-          for (const segment of this.path) segment.scale(sx, sy);
-        }
-      }
+    let sx = 1;
+    let sy = 1;
 
-      this.path2D = toPath2D(this.path);
-      this.points = toPoints(this.path);
-      this._obb = toAABB(this.path, this.lineWidth, this._obb);
-      this.hull.length = this.points.length;
-      this.width = this._obb.width;
-      this.height = this._obb.height;
+    if (width && height && baseWidth && baseHeight) {
+      sx = width / baseWidth;
+      sy = height / baseHeight;
     }
 
-    this.transformation.setTransform(this);
-    if (this.parent) this.transformation.transform(this.parent.transformation);
+    [this.path2D, this.points, this._obb] = parse(this.path, sx, sy);
+
+    this.baseWidth = this._obb.width;
+    this.baseHeight = this._obb.height;
+
+    this._obb.min.scale(sx, sy);
+    this._obb.max.scale(sx, sy);
+
+    this._obb.a.copy(this._obb.min);
+    this._obb.b.put(this._obb.max[0], this._obb.min[1]);
+    this._obb.c.copy(this._obb.max);
+    this._obb.d.put(this._obb.min[0], this._obb.max[1]);
+
+    this.hull.length = this.points.length;
+    this.width = this._obb.width;
+    this.height = this._obb.height;
+  }
+
+  update(rebuild = false) {
+    if (rebuild) {
+      this.build();
+    }
+
+    super.update();
 
     this.obb.copy(this._obb).transform(this.transformation);
 
@@ -127,10 +143,6 @@ export class Shape extends Renderable {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
         .copy(this.points[i])
         .transform(this.transformation);
-    }
-
-    if (updateParent && this.parent) {
-      this.parent.update(false, true, false);
     }
   }
 }

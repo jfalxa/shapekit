@@ -20,7 +20,7 @@ export class Group extends Renderable {
     this._childTransformation = new Matrix3();
     this._childOBB = new BoundingBox();
 
-    this.update(true, true);
+    this.update(true);
   }
 
   contains(shape: Vec2 | Shape): boolean {
@@ -39,34 +39,37 @@ export class Group extends Renderable {
     return false;
   }
 
-  update(rebuild = false, updateParent = true, updateChildren = true): void {
-    if (rebuild) {
-      const { width, height, _obb: box } = this;
+  build() {
+    const { width, height, _obb } = this;
 
-      if (width && height && box.width && box.height) {
-        if (width !== box.width || height !== box.height) {
-          const sx = width / box.width;
-          const sy = height / box.height;
+    if (width && height && _obb.width && _obb.height) {
+      if (width !== _obb.width || height !== _obb.height) {
+        const sx = width / _obb.width;
+        const sy = height / _obb.height;
 
-          for (const child of this.children) {
-            this._childTransformation
-              .setTransform(child)
-              .scale(sx, sy)
-              .decompose(child);
-          }
+        for (const child of this.children) {
+          this._childTransformation
+            .setTransform(child)
+            .scale(sx, sy)
+            .decompose(child);
         }
       }
     }
+  }
 
-    this.transformation.setTransform(this);
-    if (this.parent) this.transformation.transform(this.parent.transformation);
+  update(rebuild = false): void {
+    if (rebuild) {
+      this.build();
+    }
+
+    super.update();
 
     this._obb.min.put(Infinity);
     this._obb.max.put(-Infinity);
 
     for (const child of this.children) {
       child.parent = this;
-      if (updateChildren) child.update(rebuild, false);
+      child.update(rebuild);
 
       this._childTransformation.setTransform(child);
       this._childOBB.copy(child._obb).transform(this._childTransformation);
@@ -78,9 +81,5 @@ export class Group extends Renderable {
     this.height = this._obb.height;
 
     this.obb.copy(this._obb).transform(this.transformation);
-
-    if (updateParent && this.parent) {
-      this.parent.update(false, true, false);
-    }
   }
 }
