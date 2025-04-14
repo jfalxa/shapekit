@@ -20,6 +20,7 @@ export class Bezier3 extends Segment {
   static #P1 = new Vec2(0, 0);
   static #P2 = new Vec2(0, 0);
   static #P3 = new Vec2(0, 0);
+  static #POINT = new Vec2(0, 0);
 
   start: Vec2 | undefined;
   end: Vec2;
@@ -101,7 +102,7 @@ export class Bezier3 extends Segment {
     this.min.min(p0).min(p3);
     this.max.max(p0).max(p3);
 
-    const point = new Vec2(0, 0);
+    const point = Bezier3.#POINT;
 
     const ax = -p0.x + 3 * p1.x - 3 * p2.x + p3.x;
     const bx = 2 * (p0.x - 2 * p1.x + p2.x);

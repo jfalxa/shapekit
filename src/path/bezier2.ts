@@ -16,6 +16,7 @@ export class Bezier2 extends Segment {
   static #P0 = new Vec2(0, 0);
   static #P1 = new Vec2(0, 0);
   static #P2 = new Vec2(0, 0);
+  static #POINT = new Vec2(0, 0);
 
   control: Vec2 | undefined;
 
@@ -79,7 +80,7 @@ export class Bezier2 extends Segment {
     this.min.min(p0).min(p2);
     this.max.max(p0).max(p2);
 
-    const point = new Vec2(0, 0);
+    const point = Bezier2.#POINT;
 
     const denomX = p2.x - 2 * p1.x + p0.x;
     if (denomX !== 0) {

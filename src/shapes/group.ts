@@ -9,11 +9,11 @@ export interface GroupInit extends RenderableInit {
 }
 
 export class Group extends Renderable {
+  static #MATRIX = new Matrix3();
+  static #OBB = new BoundingBox();
+
   children: Renderable[];
   invertTransform: Matrix3;
-
-  private static matrix = new Matrix3();
-  private static obb = new BoundingBox();
 
   constructor(init: GroupInit) {
     super(init);
@@ -48,7 +48,7 @@ export class Group extends Renderable {
         const sy = height / baseHeight;
 
         for (const child of this.children) {
-          Group.matrix.setTransform(child).scale(sx, sy).decompose(child);
+          Group.#MATRIX.setTransform(child).scale(sx, sy).decompose(child);
         }
       }
     }
@@ -67,8 +67,8 @@ export class Group extends Renderable {
       child.parent = this;
       child.update(rebuild);
 
-      Group.obb.copy(child.obb).transform(this.invertTransform);
-      this.obb.merge(Group.obb);
+      Group.#OBB.copy(child.obb).transform(this.invertTransform);
+      this.obb.merge(Group.#OBB);
     }
 
     this.baseWidth = this.obb.width;
