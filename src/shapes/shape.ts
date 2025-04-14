@@ -1,5 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
-import { rect, Path, parse } from "../path";
+import { rect, Path, buildPath } from "../path";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
@@ -37,7 +37,7 @@ export class Shape extends Renderable {
   shadowOffsetY?: number;
 
   path2D!: Path2D;
-  points!: Vec2[];
+  points: Vec2[];
   hull: Vec2[];
 
   constructor(init: ShapeInit) {
@@ -70,6 +70,7 @@ export class Shape extends Renderable {
     this.shadowOffsetX = init.shadowOffsetX;
     this.shadowOffsetY = init.shadowOffsetY;
 
+    this.points = new Array();
     this.hull = new Array();
 
     this.update(true);
@@ -99,25 +100,7 @@ export class Shape extends Renderable {
   }
 
   build() {
-    const { width, height, baseWidth, baseHeight } = this;
-
-    let sw = 1;
-    let sh = 1;
-
-    if (width && height && baseWidth && baseHeight) {
-      sw = width / baseWidth;
-      sh = height / baseHeight;
-    }
-
-    [this.path2D, this.points, this.obb] = parse(this.path, sw, sh);
-
-    this.baseWidth = this.obb.width;
-    this.baseHeight = this.obb.height;
-
-    this.obb.scale(sw, sh);
-    this.width = this.obb.width;
-    this.height = this.obb.height;
-
+    buildPath(this);
     this.hull.length = this.points.length;
   }
 
