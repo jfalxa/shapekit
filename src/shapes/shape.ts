@@ -104,30 +104,24 @@ export class Shape extends Renderable {
   build() {
     const { width, height, baseWidth, baseHeight } = this;
 
-    let sx = 1;
-    let sy = 1;
+    let sw = 1;
+    let sh = 1;
 
     if (width && height && baseWidth && baseHeight) {
-      sx = width / baseWidth;
-      sy = height / baseHeight;
+      sw = width / baseWidth;
+      sh = height / baseHeight;
     }
 
-    [this.path2D, this.points, this._obb] = parse(this.path, sx, sy);
+    [this.path2D, this.points, this._obb] = parse(this.path, sw, sh);
 
     this.baseWidth = this._obb.width;
     this.baseHeight = this._obb.height;
 
-    this._obb.min.scale(sx, sy);
-    this._obb.max.scale(sx, sy);
-
-    this._obb.a.copy(this._obb.min);
-    this._obb.b.put(this._obb.max[0], this._obb.min[1]);
-    this._obb.c.copy(this._obb.max);
-    this._obb.d.put(this._obb.min[0], this._obb.max[1]);
-
-    this.hull.length = this.points.length;
+    this._obb.scale(sw, sh);
     this.width = this._obb.width;
     this.height = this._obb.height;
+
+    this.hull.length = this.points.length;
   }
 
   update(rebuild = false) {

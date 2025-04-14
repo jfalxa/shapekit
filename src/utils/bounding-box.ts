@@ -34,27 +34,14 @@ export class BoundingBox {
     return this.min.equals(other.min) && this.max.equals(other.max);
   }
 
-  fit(points: Vec2[]) {
-    const { min, max } = this;
+  scale(sx: number, sy: number) {
+    this.a.scale(sx, sy);
+    this.b.scale(sx, sy);
+    this.c.scale(sx, sy);
+    this.d.scale(sx, sy);
 
-    if (points.length === 0) {
-      min.put(0);
-      max.put(0);
-      return;
-    }
-
-    min.put(Infinity);
-    max.put(-Infinity);
-
-    for (let i = 0; i < points.length; i++) {
-      min.min(points[i]);
-      max.max(points[i]);
-    }
-
-    this.a.copy(min);
-    this.b.put(max[0], min[1]);
-    this.c.copy(max);
-    this.d.put(min[0], max[1]);
+    this.min.copy(this.a).min(this.b).min(this.c).min(this.d);
+    this.max.copy(this.a).max(this.b).max(this.c).max(this.d);
 
     this.center.copy(this.min).add(this.max).scale(0.5);
   }
@@ -65,11 +52,8 @@ export class BoundingBox {
     this.c.transform(matrix);
     this.d.transform(matrix);
 
-    this.min.put(Infinity);
-    this.max.put(-Infinity);
-
-    this.min.min(this.a).min(this.b).min(this.c).min(this.d);
-    this.max.max(this.a).max(this.b).max(this.c).max(this.d);
+    this.min.copy(this.a).min(this.b).min(this.c).min(this.d);
+    this.max.copy(this.a).max(this.b).max(this.c).max(this.d);
 
     this.center.copy(this.min).add(this.max).scale(0.5);
   }
