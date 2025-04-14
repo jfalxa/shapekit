@@ -280,10 +280,9 @@ class App extends Loop {
       new Image({
         id: "IMAGE",
         x: +100,
-        width: 100,
-        height: 50,
         stroke: "orange",
         image: treeImage,
+        path: roundedRect(0, 0, 100, 50, 15),
       })
     );
 
