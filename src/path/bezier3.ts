@@ -46,15 +46,37 @@ export class Bezier3 extends Segment {
     return this.end;
   }
 
-  apply(path: Path2D, control?: Vec2) {
+  apply(path: Path2D, control: Vec2 | undefined, sx: number, sy: number) {
     const _control = this.start ?? control;
     if (!_control) throw new Error("Missing start control point");
 
-    const to = v(this.to).scale(this.sx, this.sy);
-    const start = v(_control).scale(this.sx, this.sy);
-    const end = v(this.end).scale(this.sx, this.sy);
+    const to = v(this.to).scale(sx, sy);
+    const start = v(_control).scale(sx, sy);
+    const end = v(this.end).scale(sx, sy);
 
     path.bezierCurveTo(start.x, start.y, end.x, end.y, to.x, to.y);
+  }
+
+  sample(
+    from: Vec2,
+    control: Vec2 | undefined,
+    sx: number,
+    sy: number
+  ): Vec2[] {
+    const start = this.start ?? control;
+    if (!start) throw new Error("Missing start control point");
+
+    let i = 0;
+    const step = 1 / this.segments;
+    this.points.length = this.segments + 1;
+
+    for (let t = 0; t <= 1; t += step) {
+      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
+      Bezier3.sample(from, start, this.end, this.to, t, this.points[i]);
+      this.points[i++].scale(sx, sy);
+    }
+
+    return this.points;
   }
 
   join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined): void {
@@ -97,23 +119,6 @@ export class Bezier3 extends Segment {
     }
 
     aabb.merge(this);
-  }
-
-  sample(from: Vec2, control?: Vec2): Vec2[] {
-    const start = this.start ?? control;
-    if (!start) throw new Error("Missing start control point");
-
-    let i = 0;
-    const step = 1 / this.segments;
-    this.points.length = this.segments + 1;
-
-    for (let t = 0; t <= 1; t += step) {
-      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Bezier3.sample(from, start, this.end, this.to, t, this.points[i]);
-      this.points[i++].scale(this.sx, this.sy);
-    }
-
-    return this.points;
   }
 
   static sample(

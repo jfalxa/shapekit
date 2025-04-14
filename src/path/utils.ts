@@ -44,9 +44,8 @@ export function parse(
       let control = segment.getOptionalControl();
       if (!control) control = mirrorControl(prevPoint, prevControl);
 
-      segment.scale(sx, sy);
-      segment.apply(path2D, control);
-      points.push(...segment.sample(prevPoint, control));
+      segment.apply(path2D, control, sx, sy);
+      points.push(...segment.sample(prevPoint, control, sx, sy));
       segment.join(aabb, prevPoint, control);
 
       prevPoint = segment.getEndPoint();

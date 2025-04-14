@@ -35,9 +35,9 @@ export class Arc extends Segment {
     super(x, y, segments);
   }
 
-  apply(path: Path2D) {
-    const to = v(this.to).scale(this.sx, this.sy);
-    const radius = this.radius * Math.min(this.sx, this.sy);
+  apply(path: Path2D, _control: Vec2, sx: number, sy: number) {
+    const to = v(this.to).scale(sx, sy);
+    const radius = this.radius * Math.min(sx, sy);
 
     path.arc(
       to.x,
@@ -49,22 +49,22 @@ export class Arc extends Segment {
     );
   }
 
-  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined) {
-    this.min.copy(this.to).translate(-this.radius);
-    this.max.copy(this.to).translate(this.radius);
-    aabb.merge(this);
-  }
-
-  sample(): Vec2[] {
+  sample(_from: any, _control: any, sx: number, sy: number): Vec2[] {
     this.points.length = this.segments + 1;
 
     for (let i = 0; i <= this.segments; i++) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
       Arc.sample(this.to, this.radius, this.startAngle, this.endAngle, i / this.segments, this.points[i]); // prettier-ignore
-      this.points[i].scale(this.sx, this.sy);
+      this.points[i].scale(sx, sy);
     }
 
     return this.points;
+  }
+
+  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined) {
+    this.min.copy(this.to).translate(-this.radius);
+    this.max.copy(this.to).translate(this.radius);
+    aabb.merge(this);
   }
 
   static sample(

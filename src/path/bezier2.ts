@@ -31,12 +31,33 @@ export class Bezier2 extends Segment {
     return this.control;
   }
 
-  apply(path: Path2D, control?: Vec2): void {
+  apply(path: Path2D, control: Vec2 | undefined, sx: number, sy: number): void {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Missing control point");
-    const to = v(this.to).scale(this.sx, this.sy);
-    const ct = v(_control).scale(this.sx, this.sy);
+    const to = v(this.to).scale(sx, sy);
+    const ct = v(_control).scale(sx, sy);
     path.quadraticCurveTo(ct.x, ct.y, to.x, to.y);
+  }
+
+  sample(
+    from: Vec2,
+    control: Vec2 | undefined,
+    sx: number,
+    sy: number
+  ): Vec2[] {
+    const _control = this.control ?? control;
+    if (!_control) throw new Error("Missing control point");
+
+    let i = 0;
+    this.points.length = this.segments + 1;
+
+    for (let t = 0; t <= 1; t += 1 / this.segments) {
+      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
+      Bezier2.sample(from, _control, this.to, this.segments, this.points[i]);
+      this.points[i++].scale(sx, sy);
+    }
+
+    return this.points;
   }
 
   join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
@@ -74,22 +95,6 @@ export class Bezier2 extends Segment {
     }
 
     aabb.merge(this);
-  }
-
-  sample(from: Vec2, control?: Vec2): Vec2[] {
-    const _control = this.control ?? control;
-    if (!_control) throw new Error("Missing control point");
-
-    let i = 0;
-    this.points.length = this.segments + 1;
-
-    for (let t = 0; t <= 1; t += 1 / this.segments) {
-      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Bezier2.sample(from, _control, this.to, this.segments, this.points[i]);
-      this.points[i++].scale(this.sx, this.sy);
-    }
-
-    return this.points;
   }
 
   static sample(
