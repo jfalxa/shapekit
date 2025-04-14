@@ -117,6 +117,24 @@ export class Matrix3 extends Float32Array {
     return out;
   }
 
+  invert() {
+    const [a, b, , c, d, , e, f] = this;
+
+    const det = a * d - b * c;
+    if (det === 0) throw new Error("Matrix is not invertible.");
+    const invDet = 1 / det;
+
+    this[0] = d * invDet;
+    this[1] = -b * invDet;
+    this[3] = -c * invDet;
+    this[4] = a * invDet;
+
+    this[6] = (b * f - d * e) * invDet;
+    this[7] = (c * e - a * f) * invDet;
+
+    return this;
+  }
+
   multiply(
     a: number,
     b: number,
@@ -143,5 +161,11 @@ export class Matrix3 extends Float32Array {
     this[8] = _g * c + _h * f + _i * i;
 
     return this;
+  }
+
+  clone() {
+    const clone = new Matrix3();
+    clone.set(this);
+    return clone;
   }
 }
