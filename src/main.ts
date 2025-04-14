@@ -4,7 +4,7 @@ import { Shape } from "./shapes/shape";
 import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
-import { bezier3, move, arc } from "./path";
+import { bezier3, move, arc, roundedRect } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
 import { renderHulls, renderOBB } from "./utils/debug";
@@ -50,18 +50,18 @@ class App extends Loop {
   //   stroke: "orange",
   // });
 
-  // path = new Shape({
-  //   x: 200,
-  //   y: 200,
-  //   stroke: "blue",
-  //   lineWidth: 50,
-  //   lineCap: "round",
-  //   path: [
-  //     move(10, 80),
-  //     bezier3(95, 80, 40, 10, 65, 10),
-  //     bezier3(180, 80, 150, 150),
-  //   ],
-  // });
+  path = new Shape({
+    x: 200,
+    y: 200,
+    stroke: "blue",
+    lineWidth: 50,
+    lineCap: "round",
+    path: [
+      move(10, 80),
+      bezier3(95, 80, 40, 10, 65, 10),
+      bezier3(180, 80, 150, 150),
+    ],
+  });
 
   // path2 = new Shape({
   //   x: 300,
@@ -88,21 +88,21 @@ class App extends Loop {
     ],
   });
 
-  // roundRect = new Text({
-  //   text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-  //   x: 400,
-  //   y: 300,
-  //   stroke: "blue",
-  //   fill: "yellow",
-  //   lineWidth: 6,
-  //   textFill: "black",
-  //   padding: 12,
-  //   textAlign: "center",
-  //   textPosition: "middle",
-  //   fontWeight: "bold",
-  //   fontStyle: "italic",
-  //   path: roundedRect(0, 0, 200, 100, 25),
-  // });
+  roundRect = new Text({
+    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+    x: 400,
+    y: 300,
+    stroke: "blue",
+    fill: "yellow",
+    lineWidth: 6,
+    textFill: "black",
+    padding: 12,
+    textAlign: "center",
+    textPosition: "middle",
+    fontWeight: "bold",
+    fontStyle: "italic",
+    path: roundedRect(0, 0, 200, 100, 25),
+  });
 
   // lemon = new Shape({
   //   x: 400,
@@ -145,6 +145,15 @@ class App extends Loop {
   //   ],
   // });
 
+  circle = new Shape({
+    x: 400,
+    y: 300,
+    stroke: "hotpink",
+    // lineWidth: 5,
+    angle: Math.PI / 4,
+    path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
+  });
+
   skewed = new Group({
     x: 400,
     y: 300,
@@ -174,8 +183,8 @@ class App extends Loop {
 
     children: [
       new Group({
-        // x: 73.3623046875,
-        // y: -58.7176513671875,
+        x: 73.3623046875,
+        y: -58.7176513671875,
         angle: Math.PI / 4,
 
         children: [
@@ -183,7 +192,7 @@ class App extends Loop {
             x: -100,
             stroke: "hotpink",
             // lineWidth: 5,
-            angle: Math.PI / 4,
+            angle: Math.PI / 3,
             path: [arc(0, 0, 0, 1.75 * Math.PI, 50)],
           }),
 
@@ -295,12 +304,13 @@ class App extends Loop {
     // this.shapes.push(this.path);
     // this.shapes.push(this.path2);
     // this.shapes.push(this.path3);
-    // this.shapes.push(this.roundRect);
+    this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    this.shapes.push(this.group);
+    // this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
+    // this.shapes.push(this.circle);
   }
 
   s = 1;
