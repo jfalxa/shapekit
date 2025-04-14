@@ -97,22 +97,54 @@ export class Matrix3 extends Float32Array {
   decompose(out: RenderableInit = {}) {
     const [a, b, , c, d, , e, f] = this;
 
-    out.x = e;
-    out.y = f;
+    const _width = out.width || 0;
+    const _height = out.height || 0;
+    const _scaleX = out.scaleX ?? 1;
+    const _scaleY = out.scaleY ?? 1;
 
-    out.angle = Math.atan(b / a);
-
-    const cos = Math.cos(out.angle);
-    const sin = Math.sin(out.angle);
+    const angle = Math.atan2(b, a);
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
 
     const scaleX = Math.hypot(a, b);
-    const scaleY = -c * sin + d * cos;
+    const scaleY = d * cos - c * sin;
 
-    out.skewX = Math.atan((cos * c + sin * d) / scaleY);
+    out.x = e;
+    out.y = f;
+    out.angle = angle;
+    out.skewX = 0;
     out.skewY = 0;
+    out.width = _width * (scaleX / _scaleX);
+    out.height = _height * (scaleY / _scaleY);
 
-    out.width = (out.width ?? 0) * (scaleX / (out.scaleX ?? 1));
-    out.height = (out.height ?? 0) * (scaleY / (out.scaleY ?? 1));
+    if (Math.abs(cos) > 1e-6) {
+      out.skewX = Math.atan((c / scaleY + sin) / cos);
+    } else {
+      out.skewX = Math.atan((d / scaleY - cos) / sin);
+    }
+
+    return out;
+  }
+
+  decompose2(out: RenderableInit = {}) {
+    const [a, b, , c, d, , e, f] = this;
+
+    const _width = out.width || 0;
+    const _height = out.height || 0;
+    const _scaleX = out.scaleX ?? 1;
+    const _scaleY = out.scaleY ?? 1;
+
+    const scaleX = Math.hypot(a, b);
+    const shear = (a * c + b * d) / (scaleX * scaleX);
+    const scaleY = Math.hypot(c - shear * a, d - shear * b);
+
+    out.x = e;
+    out.y = f;
+    out.angle = Math.atan2(b, a);
+    out.skewX = Math.atan(shear);
+    out.skewY = 0;
+    out.width = _width * (scaleX / _scaleX);
+    out.height = _height * (scaleY / _scaleY);
 
     return out;
   }
