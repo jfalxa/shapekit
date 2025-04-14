@@ -5,6 +5,7 @@ import { Group } from "./group";
 import { Shape } from "./shape";
 
 export interface RenderableInit {
+  id?: string;
   x?: number;
   y?: number;
   width?: number;
@@ -16,7 +17,8 @@ export interface RenderableInit {
   angle?: number;
 }
 
-export class Renderable {
+export abstract class Renderable {
+  id?: string;
   parent?: Group;
 
   x: number;
@@ -29,15 +31,15 @@ export class Renderable {
   skewY: number; // in radians
   angle: number; // in radians
 
-  transformation: Matrix3;
-
-  _obb: BoundingBox; // untransformed OBB for reference
+  transform: Matrix3;
   obb: BoundingBox; // transformed OBB in screen coordinates
 
   baseWidth;
   baseHeight;
 
   constructor(init: RenderableInit) {
+    this.id = init.id;
+
     this.x = init.x ?? 0;
     this.y = init.y ?? 0;
     this.width = init.width ?? 0;
@@ -48,25 +50,20 @@ export class Renderable {
     this.skewY = init.skewY ?? 0;
     this.angle = init.angle ?? 0;
 
-    this.transformation = new Matrix3();
-
-    this._obb = new BoundingBox();
+    this.transform = new Matrix3();
     this.obb = new BoundingBox();
 
     this.baseWidth = 0;
     this.baseHeight = 0;
   }
 
-  contains(shape: Point | Shape) {
-    return this.obb.mayContain(shape);
-  }
+  abstract contains(shape: Point | Shape): boolean;
+  abstract overlaps(shape: Shape): boolean;
+  abstract build(): void;
 
-  overlaps(shape: Shape) {
-    return this.obb.mayOverlap(shape);
-  }
-
-  update(_rebuild?: boolean) {
-    this.transformation.setTransform(this);
-    if (this.parent) this.transformation.transform(this.parent.transformation);
+  update(rebuild = false) {
+    if (rebuild) this.build();
+    this.transform.setTransform(this);
+    if (this.parent) this.transform.transform(this.parent.transform);
   }
 }

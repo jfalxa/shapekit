@@ -22,12 +22,12 @@ function renderRenderable(ctx: Canvas2D, renderable: Renderable) {
 
   if (renderable instanceof Shape) {
     ctx.setTransform(
-      renderable.transformation[0],
-      renderable.transformation[1],
-      renderable.transformation[3],
-      renderable.transformation[4],
-      renderable.transformation[6],
-      renderable.transformation[7]
+      renderable.transform[0],
+      renderable.transform[1],
+      renderable.transform[3],
+      renderable.transform[4],
+      renderable.transform[6],
+      renderable.transform[7]
     );
 
     renderShadows(ctx, renderable);

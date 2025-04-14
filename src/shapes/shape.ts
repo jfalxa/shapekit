@@ -109,31 +109,27 @@ export class Shape extends Renderable {
       sh = height / baseHeight;
     }
 
-    [this.path2D, this.points, this._obb] = parse(this.path, sw, sh);
+    [this.path2D, this.points, this.obb] = parse(this.path, sw, sh);
 
-    this.baseWidth = this._obb.width;
-    this.baseHeight = this._obb.height;
+    this.baseWidth = this.obb.width;
+    this.baseHeight = this.obb.height;
 
-    this._obb.scale(sw, sh);
-    this.width = this._obb.width;
-    this.height = this._obb.height;
+    this.obb.scale(sw, sh);
+    this.width = this.obb.width;
+    this.height = this.obb.height;
 
     this.hull.length = this.points.length;
   }
 
   update(rebuild = false) {
-    if (rebuild) {
-      this.build();
-    }
+    super.update(rebuild);
 
-    super.update();
-
-    this.obb.copy(this._obb).transform(this.transformation);
+    this.obb.transform(this.transform);
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
         .copy(this.points[i])
-        .transform(this.transformation);
+        .transform(this.transform);
     }
   }
 }

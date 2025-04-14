@@ -12,13 +12,13 @@ export class Group extends Renderable {
   children: Renderable[];
 
   private _matrix: Matrix3;
-  private _childOBB: BoundingBox;
+  private _obb: BoundingBox;
 
   constructor(init: GroupInit) {
     super(init);
     this.children = init.children ?? [];
     this._matrix = new Matrix3();
-    this._childOBB = new BoundingBox();
+    this._obb = new BoundingBox();
 
     this.update(true);
   }
@@ -55,13 +55,9 @@ export class Group extends Renderable {
   }
 
   update(rebuild = false): void {
-    if (rebuild) {
-      this.build();
-    }
+    super.update(rebuild);
 
-    super.update();
-
-    this._matrix.set(this.transformation);
+    this._matrix.set(this.transform);
     this._matrix.invert();
 
     this.obb.min.put(Infinity);
@@ -71,8 +67,8 @@ export class Group extends Renderable {
       child.parent = this;
       child.update(rebuild);
 
-      this._childOBB.copy(child.obb).transform(this._matrix);
-      this.obb.merge(this._childOBB);
+      this._obb.copy(child.obb).transform(this._matrix);
+      this.obb.merge(this._obb);
     }
 
     this.baseWidth = this.obb.width;
@@ -80,6 +76,6 @@ export class Group extends Renderable {
     this.width = this.obb.width;
     this.height = this.obb.height;
 
-    this.obb.transform(this.transformation);
+    this.obb.transform(this.transform);
   }
 }
