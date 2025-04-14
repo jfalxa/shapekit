@@ -7,7 +7,7 @@ import { Image } from "./shapes/image";
 import { bezier3, move, arc } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
-import { renderOBB } from "./utils/debug";
+import { renderHulls, renderOBB } from "./utils/debug";
 import { Matrix3 } from "./math/mat3";
 import { Vec2 } from "./math/vec2";
 
@@ -161,26 +161,6 @@ class App extends Loop {
         fontSize: 18,
         padding: 8,
         angle: Math.PI / 3,
-
-        scaleX: 2,
-        // scaleY: 1.5,
-        // skewX: Math.PI / 6,
-        // skewY: Math.PI / 6,
-      }),
-
-      new Text({
-        x: 200,
-        text: "Skewed",
-        width: 100,
-        height: 100,
-        fill: "#ff0000",
-        textFill: "#000000",
-        fontSize: 18,
-        padding: 8,
-        stroke: "green",
-        lineWidth: 5,
-
-        // scaleX: 2,
         // scaleY: 1.5,
         // skewX: Math.PI / 6,
         // skewY: Math.PI / 6,
@@ -194,8 +174,8 @@ class App extends Loop {
 
     children: [
       new Group({
-        x: 73.3623046875,
-        y: -58.7176513671875,
+        // x: 73.3623046875,
+        // y: -58.7176513671875,
         angle: Math.PI / 4,
 
         children: [
@@ -210,6 +190,9 @@ class App extends Loop {
           new Shape({
             x: -100,
             y: 100,
+            // x: -85,
+            // y: -52.5,
+
             stroke: "blue",
             lineWidth: 50,
             lineCap: "round",
@@ -351,6 +334,7 @@ class App extends Loop {
 
     render(this.ctx, this.shapes);
     renderOBB(this.ctx, this.shapes);
+    renderHulls(this.ctx, this.shapes);
 
     end = performance.now();
 

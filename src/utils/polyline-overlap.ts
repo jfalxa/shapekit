@@ -3,9 +3,9 @@ import { Vec2 } from "../math/vec2";
 import { pointToSegmentDistance } from "./point-in-polyline";
 
 export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
-  const radius1 = a.stroke ? (a.lineWidth ?? 1) / 2 : 0;
-  const radius2 = b.stroke ? (b.lineWidth ?? 1) / 2 : 0;
-  const threshold = radius1 + radius2;
+  const radiusA = a.stroke ? (a.lineWidth ?? 1) / 2 : 0;
+  const radiusB = b.stroke ? (b.lineWidth ?? 1) / 2 : 0;
+  const threshold = radiusA + radiusB;
 
   const aLen = a.hull.length;
   const bLen = b.hull.length;

@@ -41,7 +41,7 @@ export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
 
   ctx.strokeStyle = "orange";
   ctx.lineCap = "square";
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 4;
 
   ctx.shadowBlur = 0;
   ctx.shadowColor = "#000000";
