@@ -23,6 +23,8 @@ export function arc(
 }
 
 export class Arc extends Segment {
+  static #p = new Vec2(0, 0);
+
   constructor(
     x: number,
     y: number,
@@ -36,7 +38,7 @@ export class Arc extends Segment {
   }
 
   apply(path: Path2D, _control: Vec2, sx: number, sy: number) {
-    const to = v(this.to).scale(sx, sy);
+    const to = Arc.#p.copy(this.to).scale(sx, sy);
     const radius = this.radius * Math.min(sx, sy);
 
     path.arc(
@@ -50,7 +52,7 @@ export class Arc extends Segment {
   }
 
   sample(_from: any, _control: any, sx: number, sy: number): Vec2[] {
-    const to = v(this.to).scale(sx, sy);
+    const to = Arc.#p.copy(this.to).scale(sx, sy);
     const radius = this.radius * Math.min(sx, sy);
 
     this.points.length = this.segments + 1;

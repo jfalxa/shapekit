@@ -6,13 +6,15 @@ export function move(x: number, y: number) {
 }
 
 export class Move extends Segment {
+  static #p = new Vec2(0, 0);
+
   apply(
     path: Path2D,
     _control: Vec2 | undefined,
     sx: number,
     sy: number
   ): void {
-    const to = v(this.to).scale(sx, sy);
+    const to = Move.#p.copy(this.to).scale(sx, sy);
     path.moveTo(to.x, to.y);
   }
 }

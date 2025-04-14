@@ -12,8 +12,8 @@ export class Group extends Renderable {
   children: Renderable[];
   invertTransform: Matrix3;
 
-  private static _matrix = new Matrix3();
-  private static _obb = new BoundingBox();
+  private static matrix = new Matrix3();
+  private static obb = new BoundingBox();
 
   constructor(init: GroupInit) {
     super(init);
@@ -48,7 +48,7 @@ export class Group extends Renderable {
         const sy = height / baseHeight;
 
         for (const child of this.children) {
-          Group._matrix.setTransform(child).scale(sx, sy).decompose(child);
+          Group.matrix.setTransform(child).scale(sx, sy).decompose(child);
         }
       }
     }
@@ -67,8 +67,8 @@ export class Group extends Renderable {
       child.parent = this;
       child.update(rebuild);
 
-      Group._obb.copy(child.obb).transform(this.invertTransform);
-      this.obb.merge(Group._obb);
+      Group.obb.copy(child.obb).transform(this.invertTransform);
+      this.obb.merge(Group.obb);
     }
 
     this.baseWidth = this.obb.width;
