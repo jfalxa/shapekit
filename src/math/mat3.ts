@@ -121,7 +121,7 @@ export class Matrix3 extends Float32Array {
     const [a, b, , c, d, , e, f] = this;
 
     const det = a * d - b * c;
-    if (det === 0) throw new Error("Matrix is not invertible.");
+    if (det === 0) throw new Error("Matrix is not invertible");
     const invDet = 1 / det;
 
     this[0] = d * invDet;
@@ -129,8 +129,8 @@ export class Matrix3 extends Float32Array {
     this[3] = -c * invDet;
     this[4] = a * invDet;
 
-    this[6] = (b * f - d * e) * invDet;
-    this[7] = (c * e - a * f) * invDet;
+    this[6] = -(e * this[0] + f * this[3]);
+    this[7] = -(e * this[1] + f * this[4]);
 
     return this;
   }
