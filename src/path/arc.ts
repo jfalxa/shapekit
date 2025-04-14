@@ -1,4 +1,4 @@
-import { Point, v, Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
@@ -23,7 +23,7 @@ export function arc(
 }
 
 export class Arc extends Segment {
-  static #p = new Vec2(0, 0);
+  static #P = new Vec2(0, 0);
 
   constructor(
     x: number,
@@ -38,7 +38,7 @@ export class Arc extends Segment {
   }
 
   apply(path: Path2D, _control: Vec2, sx: number, sy: number) {
-    const to = Arc.#p.copy(this.to).scale(sx, sy);
+    const to = Arc.#P.copy(this.to).scale(sx, sy);
     const radius = this.radius * Math.min(sx, sy);
 
     path.arc(
@@ -52,14 +52,21 @@ export class Arc extends Segment {
   }
 
   sample(_from: any, _control: any, sx: number, sy: number): Vec2[] {
-    const to = Arc.#p.copy(this.to).scale(sx, sy);
+    const to = Arc.#P.copy(this.to).scale(sx, sy);
     const radius = this.radius * Math.min(sx, sy);
 
     this.points.length = this.segments + 1;
 
     for (let i = 0; i <= this.segments; i++) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Arc.sample(to, radius, this.startAngle, this.endAngle, i / this.segments, this.points[i]); // prettier-ignore
+      Arc.sample(
+        to,
+        radius,
+        this.startAngle,
+        this.endAngle,
+        i / this.segments,
+        this.points[i]
+      );
     }
 
     return this.points;

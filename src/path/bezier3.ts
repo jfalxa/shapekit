@@ -1,4 +1,4 @@
-import { Point, v, Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { solveQuadratic } from "../utils/quadratic";
 import { Segment } from "./segment";
@@ -16,13 +16,13 @@ export function bezier3(
 }
 
 export class Bezier3 extends Segment {
+  static #P0 = new Vec2(0, 0);
+  static #P1 = new Vec2(0, 0);
+  static #P2 = new Vec2(0, 0);
+  static #P3 = new Vec2(0, 0);
+
   start: Vec2 | undefined;
   end: Vec2;
-
-  static #p0 = new Vec2(0, 0);
-  static #p1 = new Vec2(0, 0);
-  static #p2 = new Vec2(0, 0);
-  static #p3 = new Vec2(0, 0);
 
   constructor(
     x: number,
@@ -55,9 +55,9 @@ export class Bezier3 extends Segment {
     const _start = this.start ?? control;
     if (!_start) throw new Error("Missing start control point");
 
-    const p1 = Bezier3.#p1.copy(_start).scale(sx, sy);
-    const p2 = Bezier3.#p2.copy(this.end).scale(sx, sy);
-    const p3 = Bezier3.#p3.copy(this.to).scale(sx, sy);
+    const p1 = Bezier3.#P1.copy(_start).scale(sx, sy);
+    const p2 = Bezier3.#P2.copy(this.end).scale(sx, sy);
+    const p3 = Bezier3.#P3.copy(this.to).scale(sx, sy);
 
     path.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
   }
@@ -71,10 +71,10 @@ export class Bezier3 extends Segment {
     const start = this.start ?? control;
     if (!start) throw new Error("Missing start control point");
 
-    const p0 = Bezier3.#p0.copy(from).scale(sx, sy);
-    const p1 = Bezier3.#p1.copy(start).scale(sx, sy);
-    const p2 = Bezier3.#p2.copy(this.end).scale(sx, sy);
-    const p3 = Bezier3.#p3.copy(this.to).scale(sx, sy);
+    const p0 = Bezier3.#P0.copy(from).scale(sx, sy);
+    const p1 = Bezier3.#P1.copy(start).scale(sx, sy);
+    const p2 = Bezier3.#P2.copy(this.end).scale(sx, sy);
+    const p3 = Bezier3.#P3.copy(this.to).scale(sx, sy);
 
     let i = 0;
     const step = 1 / this.segments;

@@ -1,4 +1,4 @@
-import { Point, v, Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
@@ -13,11 +13,11 @@ export function bezier2(
 }
 
 export class Bezier2 extends Segment {
-  control: Vec2 | undefined;
+  static #P0 = new Vec2(0, 0);
+  static #P1 = new Vec2(0, 0);
+  static #P2 = new Vec2(0, 0);
 
-  static #p0 = new Vec2(0, 0);
-  static #p1 = new Vec2(0, 0);
-  static #p2 = new Vec2(0, 0);
+  control: Vec2 | undefined;
 
   constructor(x: number, y: number, cx?: number, cy?: number, segments = 10) {
     super(x, y, segments);
@@ -38,8 +38,8 @@ export class Bezier2 extends Segment {
   apply(path: Path2D, control: Vec2 | undefined, sx: number, sy: number): void {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Missing control point");
-    const p1 = Bezier2.#p1.copy(_control).scale(sx, sy);
-    const p2 = Bezier2.#p2.copy(this.to).scale(sx, sy);
+    const p1 = Bezier2.#P1.copy(_control).scale(sx, sy);
+    const p2 = Bezier2.#P2.copy(this.to).scale(sx, sy);
     path.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
   }
 
@@ -52,9 +52,9 @@ export class Bezier2 extends Segment {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Missing control point");
 
-    const p0 = Bezier2.#p0.copy(from.scale(sx, sy));
-    const p1 = Bezier2.#p1.copy(_control).scale(sx, sy);
-    const p2 = Bezier2.#p2.copy(this.to).scale(sx, sy);
+    const p0 = Bezier2.#P0.copy(from.scale(sx, sy));
+    const p1 = Bezier2.#P1.copy(_control).scale(sx, sy);
+    const p2 = Bezier2.#P2.copy(this.to).scale(sx, sy);
 
     let i = 0;
     this.points.length = this.segments + 1;

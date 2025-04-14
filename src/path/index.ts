@@ -1,3 +1,7 @@
+import { Vec2 } from "../math/vec2";
+import { Shape } from "../shapes/shape";
+import { Segment } from "./segment";
+
 export * from "./arc";
 export * from "./bezier2";
 export * from "./bezier3";
@@ -8,11 +12,11 @@ export * from "./rect";
 export * from "./rounded-rect";
 export * from "./segment";
 
-import { v, Vec2 } from "../math/vec2";
-import { Shape } from "../shapes/shape";
-import { Segment } from "./segment";
-
 export type Path = (Segment | Vec2)[];
+
+const POINT = new Vec2(0, 0);
+const MIRROR_POINT = new Vec2(0, 0);
+const BBOX = { min: new Vec2(0, 0), max: new Vec2(0, 0) };
 
 export function buildPath(shape: Shape) {
   const { width, height, baseWidth, baseHeight, points, obb } = shape;
@@ -38,7 +42,7 @@ export function buildPath(shape: Shape) {
   for (const segment of shape.path) {
     // simple line
     if (segment instanceof Vec2) {
-      const point = v(segment).scale(sw, sh);
+      const point = POINT.copy(segment).scale(sw, sh);
 
       path2D.lineTo(point.x, point.y);
       points.push(point);
@@ -80,15 +84,10 @@ function mirrorControl(
 ) {
   // previous segment is a curve: mirror lastControl by prevPoint
   if (lastPoint && lastControl) {
-    return v(lastPoint).scale(2).subtract(lastControl);
+    return MIRROR_POINT.copy(lastPoint).scale(2).subtract(lastControl);
   } else if (lastPoint) {
     return lastPoint;
   }
 
   throw new Error("Missing control point data");
 }
-
-const BBOX = {
-  min: new Vec2(0, 0),
-  max: new Vec2(0, 0),
-};

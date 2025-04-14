@@ -1,4 +1,4 @@
-import { v, Vec2 } from "../math/vec2";
+import { Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Arc } from "./arc";
 import { Segment } from "./segment";
@@ -15,6 +15,16 @@ export function corner(
 }
 
 export class Corner extends Segment {
+  static #P0 = new Vec2(0, 0);
+  static #P1 = new Vec2(0, 0);
+  static #P2 = new Vec2(0, 0);
+  static #V0 = new Vec2(0, 0);
+  static #V2 = new Vec2(0, 0);
+  static #T0 = new Vec2(0, 0);
+  static #T1 = new Vec2(0, 0);
+  static #BISECTOR = new Vec2(0, 0);
+  static #CENTER = new Vec2(0, 0);
+
   control: Vec2;
 
   constructor(
@@ -31,43 +41,43 @@ export class Corner extends Segment {
   }
 
   apply(path: Path2D, _control: Vec2 | undefined, sx: number, sy: number) {
-    const control = v(this.control).scale(sx, sy);
-    const to = v(this.to).scale(sx, sy);
+    const control = Corner.#P1.copy(this.control).scale(sx, sy);
+    const to = Corner.#P2.copy(this.to).scale(sx, sy);
 
     path.arcTo(control.x, control.y, to.x, to.y, this.radius);
     path.lineTo(to.x, to.y);
   }
 
   sample(from: Vec2, _control: Vec2 | undefined, sx: number, sy: number) {
-    const p0 = v(from).scale(sx, sy);
-    const p1 = v(this.control).scale(sx, sy);
-    const p2 = v(this.to).scale(sx, sy);
+    const p0 = Corner.#P0.copy(from).scale(sx, sy);
+    const p1 = Corner.#P1.copy(this.control).scale(sx, sy);
+    const p2 = Corner.#P2.copy(this.to).scale(sx, sy);
 
-    const r = this.radius;
+    const radius = this.radius;
     const segments = 10;
 
     this.points.length = segments + 2;
 
     // Compute unit vectors for the rays from P1 to P0 and from P1 to P2.
-    const v0 = v(p0).subtract(p1).normalize();
-    const v2 = v(p2).subtract(p1).normalize();
+    const v0 = Corner.#V0.copy(p0).subtract(p1).normalize();
+    const v2 = Corner.#V2.copy(p2).subtract(p1).normalize();
 
     // Angle between the two rays.
     const theta = Math.acos(v0.dot(v2));
 
     // Distance from P1 to tangent points along the rays.
-    const d = r / Math.tan(theta / 2);
+    const d = radius / Math.tan(theta / 2);
 
     // Compute the tangent points T0 and T1.
-    const t0 = v(v0).scale(d).add(p1);
-    const t1 = v(v2).scale(d).add(p1);
+    const t0 = Corner.#T0.copy(v0).scale(d).add(p1);
+    const t1 = Corner.#T1.copy(v2).scale(d).add(p1);
 
     // Compute the angle bisector direction.
-    const bisector = v(v0).add(v2).normalize();
+    const bisector = Corner.#BISECTOR.copy(v0).add(v2).normalize();
 
     // Find the center of the circle along the bisector.
-    const offset = r / Math.sin(theta / 2);
-    const center = v(bisector).scale(offset).add(p1);
+    const offset = radius / Math.sin(theta / 2);
+    const center = Corner.#CENTER.copy(bisector).scale(offset).add(p1);
 
     // Calculate the start and end angles for the arc.
     const startAngle = Math.atan2(t0.y - center.y, t0.x - center.x);
@@ -75,7 +85,14 @@ export class Corner extends Segment {
 
     for (let i = 0; i <= segments; i++) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Arc.sample(center, r, startAngle, endAngle, i / this.segments, this.points[i]); // prettier-ignore
+      Arc.sample(
+        center,
+        radius,
+        startAngle,
+        endAngle,
+        i / this.segments,
+        this.points[i]
+      );
     }
 
     // save the target point at the last position
