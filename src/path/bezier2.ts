@@ -1,4 +1,4 @@
-import { Point, Vec2 } from "../math/vec2";
+import { Point, v, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
@@ -31,15 +31,12 @@ export class Bezier2 extends Segment {
     return this.control;
   }
 
-  scale(sx: number, sy: number): void {
-    this.to.scale(sx, sy);
-    this.control?.scale(sx, sy);
-  }
-
   apply(path: Path2D, control?: Vec2): void {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Missing control point");
-    path.quadraticCurveTo(_control.x, _control.y, this.to.x, this.to.y);
+    const to = v(this.to).scale(this.sx, this.sy);
+    const ct = v(_control).scale(this.sx, this.sy);
+    path.quadraticCurveTo(ct.x, ct.y, to.x, to.y);
   }
 
   join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
@@ -88,7 +85,8 @@ export class Bezier2 extends Segment {
 
     for (let t = 0; t <= 1; t += 1 / this.segments) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Bezier2.sample(from, _control, this.to, this.segments, this.points[i++]);
+      Bezier2.sample(from, _control, this.to, this.segments, this.points[i]);
+      this.points[i++].scale(this.sx, this.sy);
     }
 
     return this.points;

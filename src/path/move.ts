@@ -1,3 +1,4 @@
+import { v } from "../math/vec2";
 import { Segment } from "./segment";
 
 export function move(x: number, y: number) {
@@ -6,6 +7,7 @@ export function move(x: number, y: number) {
 
 export class Move extends Segment {
   apply(path: Path2D): void {
-    path.moveTo(this.to.x, this.to.y);
+    const to = v(this.to).scale(this.sx, this.sy);
+    path.moveTo(to.x, to.y);
   }
 }

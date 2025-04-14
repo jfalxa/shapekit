@@ -4,96 +4,57 @@ import { Segment } from "./segment";
 
 export type Path = (Segment | Vec2)[];
 
-export function toPath2D(path: Path) {
+export function parse(
+  path: Path,
+  sx: number,
+  sy: number
+): [Path2D, Vec2[], BoundingBox] {
   const path2D = new Path2D();
-
-  let prevPoint = new Vec2(0, 0);
-  let prevControl: Vec2 | undefined;
-
-  for (const segment of path) {
-    if (segment instanceof Vec2) {
-      path2D.lineTo(segment[0], segment[1]);
-      prevPoint = segment;
-      prevControl = segment;
-    } else {
-      let control = segment.getOptionalControl();
-      if (!control) control = mirrorControl(prevPoint, prevControl);
-
-      segment.apply(path2D, control);
-
-      prevPoint = segment.getEndPoint();
-      prevControl = segment.getSharedControl();
-    }
-  }
-
-  return path2D;
-}
-
-export function toPoints(path: Path) {
   const points: Vec2[] = [];
+  const aabb = new BoundingBox();
+
+  aabb.min.put(Infinity);
+  aabb.max.put(-Infinity);
 
   let prevPoint = new Vec2(0, 0);
   let prevControl: Vec2 | undefined;
 
+  const bbox = {
+    min: new Vec2(0, 0),
+    max: new Vec2(0, 0),
+  };
+
   for (const segment of path) {
+    // simple line
     if (segment instanceof Vec2) {
-      points.push(segment);
+      const point = v(segment).scale(sx, sy);
+
+      path2D.lineTo(point.x, point.y);
+      points.push(point);
+
+      bbox.min.copy(segment);
+      bbox.max.copy(segment);
+      aabb.merge(bbox);
+
       prevPoint = segment;
       prevControl = segment;
-    } else {
+    }
+    // other segments
+    else {
       let control = segment.getOptionalControl();
       if (!control) control = mirrorControl(prevPoint, prevControl);
 
-      const subpoints = segment.sample(prevPoint, control);
-      points.push(...subpoints);
+      segment.scale(sx, sy);
+      segment.apply(path2D, control);
+      points.push(...segment.sample(prevPoint, control));
+      segment.join(aabb, prevPoint, control);
 
       prevPoint = segment.getEndPoint();
       prevControl = segment.getSharedControl();
     }
   }
 
-  return points;
-}
-
-export function toAABB(path: Path, lineWidth = 0, out = new BoundingBox()) {
-  out.min.put(Infinity);
-  out.max.put(-Infinity);
-
-  let prevPoint = new Vec2(0, 0);
-  let prevControl: Vec2 | undefined;
-
-  const bbox = { min: new Vec2(0, 0), max: new Vec2(0, 0) };
-
-  for (const segment of path) {
-    if (segment instanceof Vec2) {
-      bbox.min.copy(prevPoint).min(segment);
-      bbox.max.copy(prevPoint).max(segment);
-      out.merge(bbox);
-      prevPoint = segment;
-      prevControl = segment;
-    } else {
-      let control = segment.getOptionalControl();
-      if (!control) control = mirrorControl(prevPoint, prevControl);
-
-      segment.join(out, prevPoint, control);
-
-      prevPoint = segment.getEndPoint();
-      prevControl = segment.getSharedControl();
-    }
-  }
-
-  if (lineWidth) {
-    const halfWidth = lineWidth / 2;
-    out.min.translate(-halfWidth, -halfWidth);
-    out.max.translate(halfWidth, halfWidth);
-
-    out.a.copy(out.min);
-    out.b.put(out.max[0], out.min[1]);
-    out.c.copy(out.max);
-    out.d.put(out.min[0], out.max[1]);
-  }
-
-  return out;
+  return [path2D, points, aabb];
 }
 
 export function mirrorControl(

@@ -30,11 +30,6 @@ export class Corner extends Segment {
     this.points.push(new Vec2(0, 0));
   }
 
-  scale(sx: number, sy: number): void {
-    this.to.scale(sx, sy);
-    this.control.scale(sx, sy);
-  }
-
   apply(path: Path2D) {
     path.arcTo(
       this.control.x,

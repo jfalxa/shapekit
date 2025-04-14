@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/vec2";
+import { v, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 
 export abstract class Segment {
@@ -7,12 +7,17 @@ export abstract class Segment {
   min: Vec2;
   max: Vec2;
 
+  protected sx: number;
+  protected sy: number;
+
   protected points: Vec2[];
 
   constructor(x: number, y: number, public segments = 0) {
     this.to = new Vec2(x, y);
-    this.min = this.to.clone();
-    this.max = this.to.clone();
+    this.min = v(this.to);
+    this.max = v(this.to);
+    this.sx = 1;
+    this.sy = 1;
 
     this.points = new Array(segments + 1);
 
@@ -34,12 +39,13 @@ export abstract class Segment {
   }
 
   sample(_from: Vec2, _control: Vec2 | undefined) {
-    this.points[0].copy(this.to);
+    this.points[0].copy(this.to).scale(this.sx, this.sy);
     return this.points;
   }
 
   scale(sx: number, sy: number): void {
-    this.to.scale(sx, sy);
+    this.sx = sx;
+    this.sy = sy;
   }
 
   getEndPoint(): Vec2 {

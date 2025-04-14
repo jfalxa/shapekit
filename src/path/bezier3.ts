@@ -1,4 +1,4 @@
-import { Point, Vec2 } from "../math/vec2";
+import { Point, v, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { solveQuadratic } from "../utils/quadratic";
 import { Segment } from "./segment";
@@ -46,24 +46,15 @@ export class Bezier3 extends Segment {
     return this.end;
   }
 
-  scale(sx: number, sy: number): void {
-    this.to.scale(sx, sy);
-    this.start?.scale(sx, sy);
-    this.end.scale(sx, sy);
-  }
-
   apply(path: Path2D, control?: Vec2) {
-    const start = this.start ?? control;
-    if (!start) throw new Error("Missing start control point");
+    const _control = this.start ?? control;
+    if (!_control) throw new Error("Missing start control point");
 
-    path.bezierCurveTo(
-      start.x,
-      start.y,
-      this.end.x,
-      this.end.y,
-      this.to.x,
-      this.to.y
-    );
+    const to = v(this.to).scale(this.sx, this.sy);
+    const start = v(_control).scale(this.sx, this.sy);
+    const end = v(this.end).scale(this.sx, this.sy);
+
+    path.bezierCurveTo(start.x, start.y, end.x, end.y, to.x, to.y);
   }
 
   join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined): void {
@@ -118,7 +109,8 @@ export class Bezier3 extends Segment {
 
     for (let t = 0; t <= 1; t += step) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Bezier3.sample(from, start, this.end, this.to, t, this.points[i++]);
+      Bezier3.sample(from, start, this.end, this.to, t, this.points[i]);
+      this.points[i++].scale(this.sx, this.sy);
     }
 
     return this.points;
