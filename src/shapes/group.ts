@@ -11,13 +11,13 @@ export interface GroupInit extends RenderableInit {
 export class Group extends Renderable {
   children: Renderable[];
 
-  private _childTransformation: Matrix3;
+  private _matrix: Matrix3;
   private _childOBB: BoundingBox;
 
   constructor(init: GroupInit) {
     super(init);
     this.children = init.children ?? [];
-    this._childTransformation = new Matrix3();
+    this._matrix = new Matrix3();
     this._childOBB = new BoundingBox();
 
     this.update(true);
@@ -40,18 +40,15 @@ export class Group extends Renderable {
   }
 
   build() {
-    const { width, height, _obb } = this;
+    const { width, height, baseWidth, baseHeight } = this;
 
-    if (width && height && _obb.width && _obb.height) {
-      if (width !== _obb.width || height !== _obb.height) {
-        const sx = width / _obb.width;
-        const sy = height / _obb.height;
+    if (width && height && baseWidth && baseHeight) {
+      if (width !== baseWidth || height !== baseHeight) {
+        const sx = width / baseWidth;
+        const sy = height / baseHeight;
 
         for (const child of this.children) {
-          this._childTransformation
-            .setTransform(child)
-            .scale(sx, sy)
-            .decompose(child);
+          this._matrix.setTransform(child).scale(sx, sy).decompose(child);
         }
       }
     }
@@ -64,22 +61,25 @@ export class Group extends Renderable {
 
     super.update();
 
-    this._obb.min.put(Infinity);
-    this._obb.max.put(-Infinity);
+    this._matrix.set(this.transformation);
+    this._matrix.invert();
+
+    this.obb.min.put(Infinity);
+    this.obb.max.put(-Infinity);
 
     for (const child of this.children) {
       child.parent = this;
       child.update(rebuild);
 
-      this._childTransformation.setTransform(child);
-      this._childOBB.copy(child._obb).transform(this._childTransformation);
-
-      this._obb.merge(this._childOBB);
+      this._childOBB.copy(child.obb).transform(this._matrix);
+      this.obb.merge(this._childOBB);
     }
 
-    this.width = this._obb.width;
-    this.height = this._obb.height;
+    this.baseWidth = this.obb.width;
+    this.baseHeight = this.obb.height;
+    this.width = this.obb.width;
+    this.height = this.obb.height;
 
-    this.obb.copy(this._obb).transform(this.transformation);
+    this.obb.transform(this.transformation);
   }
 }

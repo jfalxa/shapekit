@@ -40,9 +40,6 @@ export class Shape extends Renderable {
   points!: Vec2[];
   hull: Vec2[];
 
-  baseWidth = 0;
-  baseHeight = 0;
-
   constructor(init: ShapeInit) {
     // by default, create a centered rect of width x height
     if (!init.path && init.width !== undefined && init.height !== undefined) {

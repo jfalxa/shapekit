@@ -34,6 +34,9 @@ export class Renderable {
   _obb: BoundingBox; // untransformed OBB for reference
   obb: BoundingBox; // transformed OBB in screen coordinates
 
+  baseWidth;
+  baseHeight;
+
   constructor(init: RenderableInit) {
     this.x = init.x ?? 0;
     this.y = init.y ?? 0;
@@ -49,6 +52,9 @@ export class Renderable {
 
     this._obb = new BoundingBox();
     this.obb = new BoundingBox();
+
+    this.baseWidth = 0;
+    this.baseHeight = 0;
   }
 
   contains(shape: Point | Shape) {
