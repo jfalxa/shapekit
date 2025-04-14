@@ -178,17 +178,20 @@ class App extends Loop {
   });
 
   group = new Group({
+    id: "ROOT",
     x: 400,
     y: 300,
 
     children: [
       new Group({
+        id: "GROUP",
         x: 73.3623046875,
         y: -58.7176513671875,
         angle: Math.PI / 4,
 
         children: [
           new Shape({
+            id: "ARC",
             x: -100,
             stroke: "hotpink",
             // lineWidth: 5,
@@ -197,6 +200,7 @@ class App extends Loop {
           }),
 
           new Shape({
+            id: "PATH",
             x: -100,
             y: 100,
             // x: -85,
@@ -213,6 +217,7 @@ class App extends Loop {
           }),
 
           new Text({
+            id: "TEXT",
             y: 75,
             // width: 50,
             // height: 200,
@@ -273,6 +278,7 @@ class App extends Loop {
 
     (this.group.children[0] as Group).children.push(
       new Image({
+        id: "IMAGE",
         x: +100,
         width: 100,
         height: 50,
@@ -281,7 +287,7 @@ class App extends Loop {
       })
     );
 
-    this.group.update();
+    this.group.update(true);
 
     for (let i = 0; i < 0; i++) {
       this.shapes.push(
@@ -304,10 +310,10 @@ class App extends Loop {
     // this.shapes.push(this.path);
     // this.shapes.push(this.path2);
     // this.shapes.push(this.path3);
-    this.shapes.push(this.roundRect);
+    // this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    // this.shapes.push(this.group);
+    this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
     // this.shapes.push(this.circle);
