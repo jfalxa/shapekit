@@ -1,5 +1,5 @@
 import { Vec2 } from "../math/vec2";
-import { Shape } from "../shapes/shape";
+import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
 export * from "./arc";
@@ -14,24 +14,21 @@ export * from "./segment";
 
 export type Path = (Segment | Vec2)[];
 
+const LAST_POINT = new Vec2(0, 0);
 const POINT = new Vec2(0, 0);
 const MIRROR_POINT = new Vec2(0, 0);
 const BBOX = { min: new Vec2(0, 0), max: new Vec2(0, 0) };
 
-export function buildPath(shape: Shape) {
-  const { width, height, baseWidth, baseHeight, points, obb } = shape;
-
-  let sw = 1;
-  let sh = 1;
-
-  if (width && height && baseWidth && baseHeight) {
-    sw = width / baseWidth;
-    sh = height / baseHeight;
-  }
-
+export function buildPath(
+  path: Path,
+  points: Vec2[],
+  obb: BoundingBox,
+  sx: number,
+  sy: number
+): Path2D {
   const path2D = new Path2D();
 
-  let lastPoint = new Vec2(0, 0);
+  let lastPoint = LAST_POINT;
   let lastControl: Vec2 | undefined;
 
   points.length = 0;
@@ -39,10 +36,10 @@ export function buildPath(shape: Shape) {
   obb.min.put(Infinity);
   obb.max.put(-Infinity);
 
-  for (const segment of shape.path) {
+  for (const segment of path) {
     // simple line
     if (segment instanceof Vec2) {
-      const point = POINT.copy(segment).scale(sw, sh);
+      const point = POINT.copy(segment).scale(sx, sy);
 
       path2D.lineTo(point.x, point.y);
       points.push(point);
@@ -59,8 +56,8 @@ export function buildPath(shape: Shape) {
       let control = segment.getOptionalControl();
       if (!control) control = mirrorControl(lastPoint, lastControl);
 
-      segment.apply(path2D, control, sw, sh);
-      points.push(...segment.sample(lastPoint, control, sw, sh));
+      segment.apply(path2D, control, sx, sy);
+      points.push(...segment.sample(lastPoint, control, sx, sy));
       segment.join(obb, lastPoint, control);
 
       lastPoint = segment.getEndPoint();
@@ -68,14 +65,7 @@ export function buildPath(shape: Shape) {
     }
   }
 
-  shape.path2D = path2D;
-
-  shape.baseWidth = shape.obb.width;
-  shape.baseHeight = shape.obb.height;
-
-  shape.obb.scale(sw, sh);
-  shape.width = shape.obb.width;
-  shape.height = shape.obb.height;
+  return path2D;
 }
 
 function mirrorControl(

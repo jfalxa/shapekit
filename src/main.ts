@@ -321,17 +321,17 @@ class App extends Loop {
   s = 1;
 
   tick() {
-    let start: number, mid: number, end: number;
-    start = performance.now();
+    // let start: number, mid: number, end: number;
+    // start = performance.now();
 
     for (const shape of this.shapes) {
-      // shape.angle += 0.001 * this.deltaTime;
-      // shape.update();
+      shape.angle += 0.001 * this.deltaTime;
+      shape.update(true);
       // shape.width -= 0.001 * this.deltaTime;
       // shape.update(true);
     }
 
-    mid = performance.now();
+    // mid = performance.now();
 
     // if (this.rect1.overlaps(this.rect2)) {
     //   this.rect1.fill = "lime";
@@ -351,7 +351,7 @@ class App extends Loop {
     renderOBB(this.ctx, this.shapes);
     renderHulls(this.ctx, this.shapes);
 
-    end = performance.now();
+    // end = performance.now();
 
     // console.log(
     //   `total = ${end - start}ms, update = ${mid - start}ms, render = ${

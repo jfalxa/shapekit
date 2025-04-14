@@ -1,5 +1,6 @@
 import { Point, Vec2 } from "../math/vec2";
 import { rect, Path, buildPath } from "../path";
+import { BoundingBox } from "../utils/bounding-box";
 import { isPointInPolygon } from "../utils/point-in-polygon";
 import { isPointInPolyline } from "../utils/point-in-polyline";
 import { doPolygonsOverlap } from "../utils/polygon-overlap";
@@ -40,6 +41,8 @@ export class Shape extends Renderable {
   points: Vec2[];
   hull: Vec2[];
 
+  _obb: BoundingBox; // local unstransformed OBB
+
   constructor(init: ShapeInit) {
     // by default, create a centered rect of width x height
     if (!init.path && init.width !== undefined && init.height !== undefined) {
@@ -69,6 +72,8 @@ export class Shape extends Renderable {
     this.shadowColor = init.shadowColor;
     this.shadowOffsetX = init.shadowOffsetX;
     this.shadowOffsetY = init.shadowOffsetY;
+
+    this._obb = new BoundingBox();
 
     this.points = new Array();
     this.hull = new Array();
@@ -100,14 +105,32 @@ export class Shape extends Renderable {
   }
 
   build() {
-    buildPath(this);
+    const { width, height, baseWidth, baseHeight } = this;
+
+    let sw = 1;
+    let sh = 1;
+
+    if (width && height && baseWidth && baseHeight) {
+      sw = width / baseWidth;
+      sh = height / baseHeight;
+    }
+
+    this.path2D = buildPath(this.path, this.points, this._obb, sw, sh);
+
+    this.baseWidth = this._obb.width;
+    this.baseHeight = this._obb.height;
+
+    this._obb.scale(sw, sh);
+    this.width = this._obb.width;
+    this.height = this._obb.height;
+
     this.hull.length = this.points.length;
   }
 
   update(rebuild = false) {
     super.update(rebuild);
 
-    this.obb.transform(this.transform);
+    this.obb.copy(this._obb).transform(this.transform);
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))

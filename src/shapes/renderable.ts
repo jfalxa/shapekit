@@ -31,11 +31,11 @@ export abstract class Renderable {
   skewY: number; // in radians
   angle: number; // in radians
 
+  baseWidth: number;
+  baseHeight: number;
+
   transform: Matrix3;
   obb: BoundingBox; // transformed OBB in screen coordinates
-
-  baseWidth;
-  baseHeight;
 
   constructor(init: RenderableInit) {
     this.id = init.id;
