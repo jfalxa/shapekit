@@ -1,10 +1,8 @@
 import { Point, Vec2 } from "../math/vec2";
 import { rect, Path, buildPath } from "../path";
 import { BoundingBox } from "../utils/bounding-box";
-import { isPointInPolygon } from "../utils/point-in-polygon";
-import { isPointInPolyline } from "../utils/point-in-polyline";
-import { doPolygonsOverlap } from "../utils/polygon-overlap";
-import { doPolylinesOverlap } from "../utils/polyline-overlap";
+import { isPointInPolyline, doPolylinesOverlap } from "../utils/polyline";
+import { isPointInPolygon, doPolygonsOverlap } from "../utils/polygon";
 import { Renderable, RenderableInit } from "./renderable";
 
 export interface ShapeInit extends RenderableInit {

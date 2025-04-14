@@ -1,5 +1,5 @@
 import { Loop } from "vroum";
-import { render } from "./render/canvas2d";
+import { renderAll } from "./render/canvas2d";
 import { Shape } from "./shapes/shape";
 import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
@@ -347,7 +347,7 @@ class App extends Loop {
     //   this.path.stroke = "blue";
     // }
 
-    render(this.ctx, this.shapes);
+    renderAll(this.ctx, this.shapes);
     renderOBB(this.ctx, this.shapes);
     renderHulls(this.ctx, this.shapes);
 

@@ -6,16 +6,16 @@ import { Text } from "../shapes/text";
 
 type Canvas2D = CanvasRenderingContext2D;
 
-export function render(ctx: Canvas2D, renderables: Renderable[]) {
+export function renderAll(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.resetTransform();
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   for (let i = 0; i < renderables.length; i++) {
-    renderRenderable(ctx, renderables[i]);
+    render(ctx, renderables[i]);
   }
 }
 
-function renderRenderable(ctx: Canvas2D, renderable: Renderable) {
+export function render(ctx: Canvas2D, renderable: Renderable) {
   if (renderable instanceof Group) {
     renderGroup(ctx, renderable);
   }
@@ -41,7 +41,7 @@ function renderRenderable(ctx: Canvas2D, renderable: Renderable) {
 
 function renderGroup(ctx: Canvas2D, group: Group) {
   for (let i = 0; i < group.children.length; i++) {
-    renderRenderable(ctx, group.children[i]);
+    render(ctx, group.children[i]);
   }
 }
 

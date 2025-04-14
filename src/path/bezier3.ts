@@ -1,6 +1,6 @@
 import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
-import { solveQuadratic } from "../utils/quadratic";
+import { solveQuadratic } from "../math/solver";
 import { Segment } from "./segment";
 
 export function bezier3(
