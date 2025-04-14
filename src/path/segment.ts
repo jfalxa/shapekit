@@ -29,12 +29,8 @@ export abstract class Segment {
   ): void;
 
   join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined) {
-    this.min.put(Infinity);
-    this.max.put(-Infinity);
-
-    this.min.min(this.to);
-    this.max.max(this.to);
-
+    this.min.copy(this.to);
+    this.max.copy(this.to);
     aabb.merge(this);
   }
 

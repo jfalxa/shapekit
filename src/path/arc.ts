@@ -50,12 +50,14 @@ export class Arc extends Segment {
   }
 
   sample(_from: any, _control: any, sx: number, sy: number): Vec2[] {
+    const to = v(this.to).scale(sx, sy);
+    const radius = this.radius * Math.min(sx, sy);
+
     this.points.length = this.segments + 1;
 
     for (let i = 0; i <= this.segments; i++) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Arc.sample(this.to, this.radius, this.startAngle, this.endAngle, i / this.segments, this.points[i]); // prettier-ignore
-      this.points[i].scale(sx, sy);
+      Arc.sample(to, radius, this.startAngle, this.endAngle, i / this.segments, this.points[i]); // prettier-ignore
     }
 
     return this.points;

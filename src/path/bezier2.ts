@@ -48,13 +48,16 @@ export class Bezier2 extends Segment {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Missing control point");
 
+    const p0 = v(from.scale(sx, sy));
+    const p1 = v(_control).scale(sx, sy);
+    const p2 = v(this.to).scale(sx, sy);
+
     let i = 0;
     this.points.length = this.segments + 1;
 
     for (let t = 0; t <= 1; t += 1 / this.segments) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Bezier2.sample(from, _control, this.to, this.segments, this.points[i]);
-      this.points[i++].scale(sx, sy);
+      Bezier2.sample(p0, p1, p2, this.segments, this.points[i++]);
     }
 
     return this.points;

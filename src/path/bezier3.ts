@@ -47,11 +47,11 @@ export class Bezier3 extends Segment {
   }
 
   apply(path: Path2D, control: Vec2 | undefined, sx: number, sy: number) {
-    const _control = this.start ?? control;
-    if (!_control) throw new Error("Missing start control point");
+    const _start = this.start ?? control;
+    if (!_start) throw new Error("Missing start control point");
 
     const to = v(this.to).scale(sx, sy);
-    const start = v(_control).scale(sx, sy);
+    const start = v(_start).scale(sx, sy);
     const end = v(this.end).scale(sx, sy);
 
     path.bezierCurveTo(start.x, start.y, end.x, end.y, to.x, to.y);
@@ -66,14 +66,18 @@ export class Bezier3 extends Segment {
     const start = this.start ?? control;
     if (!start) throw new Error("Missing start control point");
 
+    const p0 = v(from).scale(sx, sy);
+    const p1 = v(start).scale(sx, sy);
+    const p2 = v(this.end).scale(sx, sy);
+    const p3 = v(this.to).scale(sx, sy);
+
     let i = 0;
     const step = 1 / this.segments;
     this.points.length = this.segments + 1;
 
     for (let t = 0; t <= 1; t += step) {
       if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Bezier3.sample(from, start, this.end, this.to, t, this.points[i]);
-      this.points[i++].scale(sx, sy);
+      Bezier3.sample(p0, p1, p2, p3, t, this.points[i++]);
     }
 
     return this.points;

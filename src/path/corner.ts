@@ -33,19 +33,18 @@ export class Corner extends Segment {
   apply(path: Path2D, _control: Vec2 | undefined, sx: number, sy: number) {
     const control = v(this.control).scale(sx, sy);
     const to = v(this.to).scale(sx, sy);
-    const radius = this.radius * Math.min(sx, sy);
 
-    path.arcTo(control.x, control.y, to.x, to.y, radius);
+    path.arcTo(control.x, control.y, to.x, to.y, this.radius);
     path.lineTo(to.x, to.y);
   }
 
   sample(from: Vec2, _control: Vec2 | undefined, sx: number, sy: number) {
-    const p0 = from;
-    const p1 = this.control;
-    const p2 = this.to;
+    const p0 = v(from).scale(sx, sy);
+    const p1 = v(this.control).scale(sx, sy);
+    const p2 = v(this.to).scale(sx, sy);
+
     const r = this.radius;
     const segments = 10;
-    const points = this.points;
 
     this.points.length = segments + 2;
 
@@ -75,15 +74,14 @@ export class Corner extends Segment {
     const endAngle = Math.atan2(t1.y - center.y, t1.x - center.x);
 
     for (let i = 0; i <= segments; i++) {
-      if (!points[i]) points[i] = new Vec2(0, 0);
+      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
       Arc.sample(center, r, startAngle, endAngle, i / this.segments, this.points[i]); // prettier-ignore
-      this.points[i].scale(sx, sy);
     }
 
     // save the target point at the last position
-    points[segments + 1].copy(p2).scale(sx, sy);
+    this.points[segments + 1].copy(p2);
 
-    return points;
+    return this.points;
   }
 
   join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
