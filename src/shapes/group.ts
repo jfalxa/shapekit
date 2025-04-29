@@ -9,9 +9,6 @@ export interface GroupInit extends RenderableInit {
 }
 
 export class Group extends Renderable {
-  static #MATRIX = new Matrix3();
-  static #OBB = new BoundingBox();
-
   children: Renderable[];
   invertTransform: Matrix3;
 
@@ -43,12 +40,14 @@ export class Group extends Renderable {
     const { width, height, baseWidth, baseHeight } = this;
 
     if (width && height && baseWidth && baseHeight) {
+      const childTransform = new Matrix3();
+
       if (width !== baseWidth || height !== baseHeight) {
         const sx = width / baseWidth;
         const sy = height / baseHeight;
 
         for (const child of this.children) {
-          Group.#MATRIX.setTransform(child).scale(sx, sy).decompose(child);
+          childTransform.setTransform(child).scale(sx, sy).decompose(child);
         }
       }
     }
@@ -63,12 +62,14 @@ export class Group extends Renderable {
     this.obb.min.put(Infinity);
     this.obb.max.put(-Infinity);
 
+    const childOBB = new BoundingBox();
+
     for (const child of this.children) {
       child.parent = this;
       child.update(rebuild);
 
-      Group.#OBB.copy(child.obb).transform(this.invertTransform);
-      this.obb.merge(Group.#OBB);
+      childOBB.copy(child.obb).transform(this.invertTransform);
+      this.obb.merge(childOBB);
     }
 
     this.baseWidth = this.obb.width;

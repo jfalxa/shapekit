@@ -1,9 +1,6 @@
 import { Shape } from "../shapes/shape";
 import { Vec2, Point } from "../math/vec2";
 
-const AXIS = new Vec2(0, 0);
-const COUPLE: [number, number] = [0, 0];
-
 // even odd rule algorithm
 export function isPointInPolygon(point: Point, shape: Shape): boolean {
   let inside = false;
@@ -37,6 +34,8 @@ export function isPointInPolygon(point: Point, shape: Shape): boolean {
 
 // separating axis theorem
 export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
+  const axis = new Vec2(0, 0);
+
   for (const polygon of [a.hull, b.hull]) {
     const len = polygon.length;
 
@@ -46,11 +45,11 @@ export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
       const p2 = polygon[(i + 1) % len];
 
       // Compute the perpendicular axis (normal of the edge).
-      AXIS.put(p2[1] - p1[1], -(p2[0] - p1[0]));
+      axis.put(p2[1] - p1[1], -(p2[0] - p1[0]));
 
       // Project both polygons onto the axis.
-      const [minA, maxA] = projectPolygon(a.hull, AXIS);
-      const [minB, maxB] = projectPolygon(b.hull, AXIS);
+      const [minA, maxA] = projectPolygon(a.hull, axis);
+      const [minB, maxB] = projectPolygon(b.hull, axis);
 
       // If there is a gap between the projections, polygons do not overlap.
       if (maxA < minB || maxB < minA) {
@@ -73,7 +72,5 @@ function projectPolygon(points: Vec2[], axis: Vec2): [number, number] {
     if (projection > max) max = projection;
   }
 
-  COUPLE[0] = min;
-  COUPLE[1] = max;
-  return COUPLE;
+  return [min, max];
 }
