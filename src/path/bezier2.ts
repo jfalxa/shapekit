@@ -58,7 +58,6 @@ export class Bezier2 extends Segment {
     const p1 = Bezier2.#P1.copy(_control).scale(sx, sy);
     const p2 = Bezier2.#P2.copy(this.to).scale(sx, sy);
 
-    this.points.length = 0;
     return Bezier2.adaptiveSample(p0, p1, p2, this.tolerance, this.points);
   }
 
@@ -118,10 +117,8 @@ export class Bezier2 extends Segment {
     tolerance: number,
     out: Vec2[] = []
   ) {
-    out.length = 1;
-    out[0] = new Vec2(p0.x, p0.y);
-
-    const stack: { a: Point; b: Point; c: Point }[] = [{ a: p0, b: p1, c: p2 }];
+    let i = 0;
+    const stack = [{ a: p0, b: p1, c: p2 }];
 
     while (stack.length > 0) {
       const { a, b, c } = stack.pop()!;
@@ -129,9 +126,10 @@ export class Bezier2 extends Segment {
       const error = pointToLineDistance(midCurve, a, c);
 
       if (error <= tolerance) {
-        out.push(new Vec2(c.x, c.y));
+        if (!out[i]) out[i] = new Vec2(0, 0);
+        out[i++].put(c.x, c.y);
       } else {
-        // de Casteljau division
+        // de Casteljau subdivision
         const ab = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
         const bc = { x: (b.x + c.x) / 2, y: (b.y + c.y) / 2 };
         const abc = { x: (ab.x + bc.x) / 2, y: (ab.y + bc.y) / 2 };
@@ -141,6 +139,7 @@ export class Bezier2 extends Segment {
       }
     }
 
+    out.length = i;
     return out;
   }
 }
