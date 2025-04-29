@@ -7,7 +7,7 @@ const IDENTITY = [
   0, 0, 1
 ];
 
-export class Matrix3 extends Float32Array {
+export class Matrix3 extends Float64Array {
   constructor() {
     super(9);
     this.set(IDENTITY);

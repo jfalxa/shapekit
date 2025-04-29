@@ -9,7 +9,7 @@ export function v(point: Point) {
   return new Vec2(point.x, point.y);
 }
 
-export class Vec2 extends Float32Array implements Point {
+export class Vec2 extends Float64Array implements Point {
   static ZERO = new Vec2(0, 0);
 
   get x() {
