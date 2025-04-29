@@ -9,16 +9,11 @@ export abstract class Segment {
 
   protected points: Vec2[];
 
-  constructor(x: number, y: number, public segments = 0) {
+  constructor(x: number, y: number, public tolerance = 1) {
     this.to = new Vec2(x, y);
     this.min = this.to.clone();
     this.max = this.to.clone();
-
-    this.points = new Array(segments + 1);
-
-    for (let i = 0; i <= segments; i++) {
-      this.points[i] = new Vec2(0, 0);
-    }
+    this.points = [new Vec2(0, 0)];
   }
 
   abstract apply(

@@ -55,16 +55,15 @@ export class Arc extends Segment {
     const to = Arc.#P.copy(this.to).scale(sx, sy);
     const radius = this.radius * Math.min(sx, sy);
 
-    this.points.length = this.segments + 1;
+    this.points.length = this.tolerance + 1;
 
-    for (let i = 0; i <= this.segments; i++) {
-      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Arc.sample(
+    for (let i = 0; i <= this.tolerance; i++) {
+      this.points[i] = Arc.sample(
         to,
         radius,
         this.startAngle,
         this.endAngle,
-        i / this.segments,
+        i / this.tolerance,
         this.points[i]
       );
     }

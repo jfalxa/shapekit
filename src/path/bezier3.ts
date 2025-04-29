@@ -78,20 +78,19 @@ export class Bezier3 extends Segment {
     const p3 = Bezier3.#P3.copy(this.to).scale(sx, sy);
 
     let i = 0;
-    const step = 1 / this.segments;
-    this.points.length = this.segments + 1;
+    const step = 1 / this.tolerance;
+    this.points.length = this.tolerance + 1;
 
     for (let t = 0; t <= 1; t += step) {
-      if (!this.points[i]) this.points[i] = new Vec2(0, 0);
-      Bezier3.sample(p0, p1, p2, p3, t, this.points[i++]);
+      this.points[i] = Bezier3.sample(p0, p1, p2, p3, t, this.points[i++]);
     }
 
     return this.points;
   }
 
-  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined): void {
+  join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined): void {
     const p0 = from;
-    const p1 = this.start ?? _control;
+    const p1 = this.start ?? control;
     if (!p1) throw new Error("Missing start control point");
     const p2 = this.end;
     const p3 = this.to;
