@@ -11,7 +11,7 @@ export function isPointInPolyline(point: Point, polyline: Shape): boolean {
     const p1 = polyline.hull[i];
     const p2 = polyline.hull[(i + 1) % len] ?? polyline.hull[i];
 
-    if (pointToSegmentDistance(point, p1, p2) <= threshold) {
+    if (pointToLineDistance(point, p1, p2) <= threshold) {
       return true;
     }
   }
@@ -51,10 +51,10 @@ export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
 function segmentsDistance(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2) {
   if (doLinesIntersect(a1, a2, b1, b2)) return 0;
 
-  const d1 = pointToSegmentDistance(a1, b1, b2);
-  const d2 = pointToSegmentDistance(a2, b1, b2);
-  const d3 = pointToSegmentDistance(b1, a1, a2);
-  const d4 = pointToSegmentDistance(b2, a1, a2);
+  const d1 = pointToLineDistance(a1, b1, b2);
+  const d2 = pointToLineDistance(a2, b1, b2);
+  const d3 = pointToLineDistance(b1, a1, a2);
+  const d4 = pointToLineDistance(b2, a1, a2);
 
   return Math.min(d1, d2, d3, d4);
 }
@@ -75,7 +75,7 @@ function doLinesIntersect(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2): boolean {
   return false;
 }
 
-function pointToSegmentDistance(p: Point, a: Point, b: Point): number {
+export function pointToLineDistance(p: Point, a: Point, b: Point): number {
   const l2 = squaredDistance(a, b);
 
   // a and b are the same point
