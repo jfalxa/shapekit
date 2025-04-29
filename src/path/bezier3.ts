@@ -2,6 +2,7 @@ import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { solveQuadratic } from "../math/solver";
 import { Segment } from "./segment";
+import { pointToLineDistance } from "../utils/polyline";
 
 export function bezier3(
   x: number,
@@ -10,9 +11,9 @@ export function bezier3(
   sy: number,
   ex?: number,
   ey?: number,
-  segments = 10
+  tolerance = 1
 ) {
-  return new Bezier3(x, y, sx, sy, ex, ey, segments);
+  return new Bezier3(x, y, sx, sy, ex, ey, tolerance);
 }
 
 export class Bezier3 extends Segment {
@@ -32,9 +33,9 @@ export class Bezier3 extends Segment {
     sy: number,
     ex?: number,
     ey?: number,
-    segments = 10
+    tolerance = 1
   ) {
-    super(x, y, segments);
+    super(x, y, tolerance);
 
     if (ex !== undefined && ey !== undefined) {
       this.start = new Vec2(sx, sy);
@@ -77,15 +78,7 @@ export class Bezier3 extends Segment {
     const p2 = Bezier3.#P2.copy(this.end).scale(sx, sy);
     const p3 = Bezier3.#P3.copy(this.to).scale(sx, sy);
 
-    let i = 0;
-    const step = 1 / this.tolerance;
-    this.points.length = this.tolerance + 1;
-
-    for (let t = 0; t <= 1; t += step) {
-      this.points[i] = Bezier3.sample(p0, p1, p2, p3, t, this.points[i++]);
-    }
-
-    return this.points;
+    return Bezier3.adaptiveSample(p0, p1, p2, p3, this.tolerance);
   }
 
   join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined): void {
@@ -150,6 +143,44 @@ export class Bezier3 extends Segment {
       3 * (1 - t) * t ** 2 * p2.y +
       t ** 3 * p3.y;
 
+    return out;
+  }
+
+  static adaptiveSample(
+    p0: Point,
+    p1: Point,
+    p2: Point,
+    p3: Point,
+    tolerance: number,
+    out: Vec2[] = []
+  ) {
+    let i = 0;
+    const stack = [{ a: p0, b: p1, c: p2, d: p3 }];
+
+    while (stack.length > 0) {
+      const { a, b, c, d } = stack.pop()!;
+
+      const midCurve = Bezier3.sample(a, b, c, d, 0.5);
+      const error = pointToLineDistance(midCurve, a, d);
+
+      if (error <= tolerance) {
+        if (!out[i]) out[i] = new Vec2(0, 0);
+        out[i++].put(d.x, d.y);
+      } else {
+        // de Casteljau subdivision
+        const ab = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        const bc = { x: (b.x + c.x) / 2, y: (b.y + c.y) / 2 };
+        const cd = { x: (c.x + d.x) / 2, y: (c.y + d.y) / 2 };
+        const abc = { x: (ab.x + bc.x) / 2, y: (ab.y + bc.y) / 2 };
+        const bcd = { x: (bc.x + cd.x) / 2, y: (bc.y + cd.y) / 2 };
+        const abcd = { x: (abc.x + bcd.x) / 2, y: (abc.y + bcd.y) / 2 };
+
+        stack.push({ a: abcd, b: bcd, c: cd, d: d });
+        stack.push({ a: a, b: ab, c: abc, d: abcd });
+      }
+    }
+
+    out.length = i;
     return out;
   }
 }
