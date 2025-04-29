@@ -1,28 +1,17 @@
-import { Point, Vec2 } from "../math/vec2";
+import { Point, v, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { pointToLineDistance } from "../utils/polyline";
 import { Segment } from "./segment";
 
-export function bezier2(
-  x: number,
-  y: number,
-  cx?: number,
-  cy?: number,
-  tolerance = 1
-) {
-  return new Bezier2(x, y, cx, cy, tolerance);
+export function bezier2(x: number, y: number, cx?: number, cy?: number) {
+  return new Bezier2(x, y, cx, cy);
 }
 
 export class Bezier2 extends Segment {
-  static #P0 = new Vec2(0, 0);
-  static #P1 = new Vec2(0, 0);
-  static #P2 = new Vec2(0, 0);
-  static #POINT = new Vec2(0, 0);
-
   control: Vec2 | undefined;
 
-  constructor(x: number, y: number, cx?: number, cy?: number, tolerance = 1) {
-    super(x, y, tolerance);
+  constructor(x: number, y: number, cx?: number, cy?: number) {
+    super(x, y);
 
     if (cx !== undefined && cy !== undefined) {
       this.control = new Vec2(cx, cy);
@@ -40,8 +29,8 @@ export class Bezier2 extends Segment {
   apply(path: Path2D, control: Vec2 | undefined, sx: number, sy: number): void {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Control point is missing");
-    const p1 = Bezier2.#P1.copy(_control).scale(sx, sy);
-    const p2 = Bezier2.#P2.copy(this.to).scale(sx, sy);
+    const p1 = v(_control).scale(sx, sy);
+    const p2 = v(this.to).scale(sx, sy);
     path.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
   }
 
@@ -49,16 +38,17 @@ export class Bezier2 extends Segment {
     from: Vec2,
     control: Vec2 | undefined,
     sx: number,
-    sy: number
+    sy: number,
+    quality = 1
   ): Vec2[] {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Control point is missing");
 
-    const p0 = Bezier2.#P0.copy(from.scale(sx, sy));
-    const p1 = Bezier2.#P1.copy(_control).scale(sx, sy);
-    const p2 = Bezier2.#P2.copy(this.to).scale(sx, sy);
+    const p0 = v(from.scale(sx, sy));
+    const p1 = v(_control).scale(sx, sy);
+    const p2 = v(this.to).scale(sx, sy);
 
-    return Bezier2.adaptiveSample(p0, p1, p2, this.tolerance, this.points);
+    return Bezier2.adaptiveSample(p0, p1, p2, quality, this.points);
   }
 
   join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined) {
@@ -73,7 +63,7 @@ export class Bezier2 extends Segment {
     this.min.min(p0).min(p2);
     this.max.max(p0).max(p2);
 
-    const point = Bezier2.#POINT;
+    const point = new Vec2(0, 0);
 
     const denomX = p2.x - 2 * p1.x + p0.x;
     if (denomX !== 0) {
@@ -114,10 +104,11 @@ export class Bezier2 extends Segment {
     p0: Point,
     p1: Point,
     p2: Point,
-    tolerance: number,
+    quality: number,
     out: Vec2[] = []
   ) {
     let i = 0;
+    const tolerance = 1 / quality;
     const stack = [{ a: p0, b: p1, c: p2 }];
 
     while (stack.length > 0) {

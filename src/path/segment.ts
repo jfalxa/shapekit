@@ -9,7 +9,7 @@ export abstract class Segment {
 
   protected points: Vec2[];
 
-  constructor(x: number, y: number, public tolerance = 1) {
+  constructor(x: number, y: number) {
     this.to = new Vec2(x, y);
     this.min = this.to.clone();
     this.max = this.to.clone();
@@ -29,7 +29,13 @@ export abstract class Segment {
     aabb.merge(this);
   }
 
-  sample(_from: Vec2, _control: Vec2 | undefined, sx: number, sy: number) {
+  sample(
+    _from: Vec2,
+    _control: Vec2 | undefined,
+    sx: number,
+    sy: number,
+    _quality: number
+  ) {
     this.points[0].copy(this.to).scale(sx, sy);
     return this.points;
   }

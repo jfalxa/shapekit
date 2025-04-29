@@ -1,4 +1,4 @@
-import { Point, Vec2 } from "../math/vec2";
+import { Point, v, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { pointToLineDistance } from "../utils/polyline";
 import { Segment } from "./segment";
@@ -15,8 +15,6 @@ export function arc(
 }
 
 export class Arc extends Segment {
-  static #P = new Vec2(0, 0);
-
   constructor(
     x: number,
     y: number,
@@ -29,7 +27,7 @@ export class Arc extends Segment {
   }
 
   apply(path: Path2D, _control: Vec2, sx: number, sy: number) {
-    const to = Arc.#P.copy(this.to).scale(sx, sy);
+    const to = v(this.to).scale(sx, sy);
     const radius = this.radius * Math.min(sx, sy);
 
     path.arc(
@@ -47,9 +45,9 @@ export class Arc extends Segment {
     _control: any,
     sx: number,
     sy: number,
-    tolerance: number
+    quality: number
   ): Vec2[] {
-    const to = Arc.#P.copy(this.to).scale(sx, sy);
+    const to = v(this.to).scale(sx, sy);
     const radius = this.radius * Math.min(sx, sy);
 
     return Arc.adaptiveSample(
@@ -57,7 +55,7 @@ export class Arc extends Segment {
       radius,
       this.startAngle,
       this.endAngle,
-      tolerance,
+      quality,
       this.points
     );
   }
@@ -89,7 +87,7 @@ export class Arc extends Segment {
     radius: number,
     startAngle: number,
     endAngle: number,
-    tolerance: number,
+    quality: number,
     out: Vec2[] = []
   ) {
     out[0] = new Vec2(
@@ -98,6 +96,7 @@ export class Arc extends Segment {
     );
 
     let i = 1;
+    const tolerance = 1 / quality;
     const stack = [{ a: startAngle, b: endAngle }];
 
     while (stack.length > 0) {

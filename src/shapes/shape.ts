@@ -18,10 +18,12 @@ export interface ShapeInit extends RenderableInit {
   shadowColor?: string;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
+  quality?: number;
 }
 
 export class Shape extends Renderable {
   path: Path;
+  quality: number;
 
   fill?: string;
   stroke?: string;
@@ -36,9 +38,9 @@ export class Shape extends Renderable {
   shadowOffsetY?: number;
 
   path2D!: Path2D;
-  points: Vec2[];
   hull: Vec2[];
 
+  _hull: Vec2[]; // local unstransformed hull
   _obb: BoundingBox; // local unstransformed OBB
 
   constructor(init: ShapeInit) {
@@ -70,11 +72,12 @@ export class Shape extends Renderable {
     this.shadowColor = init.shadowColor;
     this.shadowOffsetX = init.shadowOffsetX;
     this.shadowOffsetY = init.shadowOffsetY;
+    this.quality = init.quality ?? 1;
+
+    this.hull = new Array();
 
     this._obb = new BoundingBox();
-
-    this.points = new Array();
-    this.hull = new Array();
+    this._hull = new Array();
 
     this.update(true);
   }
@@ -104,6 +107,7 @@ export class Shape extends Renderable {
 
   build() {
     const { width, height, baseWidth, baseHeight } = this;
+    const { path, quality, _hull, _obb } = this;
 
     let sw = 1;
     let sh = 1;
@@ -113,16 +117,17 @@ export class Shape extends Renderable {
       sh = height / baseHeight;
     }
 
-    this.path2D = buildPath(this.path, this.points, this._obb, sw, sh);
+    this.path2D = buildPath(path, _hull, _obb, sw, sh, quality);
 
-    this.baseWidth = this._obb.width;
-    this.baseHeight = this._obb.height;
+    // save untransformed obb base size
+    this.baseWidth = _obb.width;
+    this.baseHeight = _obb.height;
 
-    this._obb.scale(sw, sh);
-    this.width = this._obb.width;
-    this.height = this._obb.height;
+    _obb.scale(sw, sh);
+    this.width = _obb.width;
+    this.height = _obb.height;
 
-    this.hull.length = this.points.length;
+    this.hull.length = _hull.length;
   }
 
   update(rebuild = false) {
@@ -132,7 +137,7 @@ export class Shape extends Renderable {
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
-        .copy(this.points[i])
+        .copy(this._hull[i])
         .transform(this.transform);
     }
   }

@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/vec2";
+import { v, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
@@ -14,39 +14,36 @@ export * from "./segment";
 
 export type Path = (Segment | Vec2)[];
 
-const LAST_POINT = new Vec2(0, 0);
-const POINT = new Vec2(0, 0);
-const MIRROR_POINT = new Vec2(0, 0);
-const BBOX = { min: new Vec2(0, 0), max: new Vec2(0, 0) };
-
 export function buildPath(
   path: Path,
   points: Vec2[],
   obb: BoundingBox,
   sx: number,
-  sy: number
+  sy: number,
+  quality: number
 ): Path2D {
   const path2D = new Path2D();
 
-  let lastPoint = LAST_POINT;
+  let lastPoint = new Vec2(0, 0);
   let lastControl: Vec2 | undefined;
 
   points.length = 0;
 
+  const bbox = { min: new Vec2(0, 0), max: new Vec2(0, 0) };
   obb.min.put(Infinity);
   obb.max.put(-Infinity);
 
   for (const segment of path) {
     // simple line
     if (segment instanceof Vec2) {
-      const point = POINT.copy(segment).scale(sx, sy);
+      const point = v(segment).scale(sx, sy);
 
       path2D.lineTo(point.x, point.y);
       points.push(point);
 
-      BBOX.min.copy(segment);
-      BBOX.max.copy(segment);
-      obb.merge(BBOX);
+      bbox.min.copy(segment);
+      bbox.max.copy(segment);
+      obb.merge(bbox);
 
       lastPoint = segment;
       lastControl = segment;
@@ -57,7 +54,7 @@ export function buildPath(
       if (!control) control = mirrorControl(lastPoint, lastControl);
 
       segment.apply(path2D, control, sx, sy);
-      points.push(...segment.sample(lastPoint, control, sx, sy));
+      points.push(...segment.sample(lastPoint, control, sx, sy, quality));
       segment.join(obb, lastPoint, control);
 
       lastPoint = segment.getEndPoint();
@@ -74,7 +71,7 @@ function mirrorControl(
 ) {
   // previous segment is a curve: mirror lastControl by prevPoint
   if (lastPoint && lastControl) {
-    return MIRROR_POINT.copy(lastPoint).scale(2).subtract(lastControl);
+    return v(lastPoint).scale(2).subtract(lastControl);
   } else if (lastPoint) {
     return lastPoint;
   }
