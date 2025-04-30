@@ -23,9 +23,15 @@ export abstract class Segment {
     sy: number
   ): void;
 
-  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined) {
-    this.min.copy(this.to);
-    this.max.copy(this.to);
+  join(
+    aabb: BoundingBox,
+    _from: Vec2,
+    _control: Vec2 | undefined,
+    sx: number,
+    sy: number
+  ) {
+    this.min.copy(this.to).scale(sx, sy);
+    this.max.copy(this.to).scale(sx, sy);
     aabb.merge(this);
   }
 

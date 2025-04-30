@@ -55,9 +55,15 @@ export class Rect extends Segment {
     return this.points;
   }
 
-  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined): void {
-    this.min.copy(this.to);
-    this.max.copy(this.to).translate(this.width, this.height);
+  join(
+    aabb: BoundingBox,
+    _from: Vec2,
+    _control: Vec2 | undefined,
+    sx: number,
+    sy: number
+  ): void {
+    this.min.copy(this.to).scale(sx, sy);
+    this.max.copy(this.to).translate(this.width, this.height).scale(sx, sy);
     aabb.merge(this);
   }
 }

@@ -51,11 +51,19 @@ export class Bezier2 extends Segment {
     return Bezier2.adaptiveSample(p0, p1, p2, quality, this.points);
   }
 
-  join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined) {
-    const p0 = from;
-    const p1 = this.control ?? control;
-    if (!p1) throw new Error("Control point is missing");
-    const p2 = this.to;
+  join(
+    aabb: BoundingBox,
+    from: Vec2,
+    control: Vec2 | undefined,
+    sx: number,
+    sy: number
+  ) {
+    const _control = this.control ?? control;
+    if (!_control) throw new Error("Control point is missing");
+
+    const p0 = v(from.scale(sx, sy));
+    const p1 = v(_control).scale(sx, sy);
+    const p2 = v(this.to).scale(sx, sy);
 
     this.min.put(Infinity);
     this.max.put(-Infinity);

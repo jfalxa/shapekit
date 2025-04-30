@@ -55,7 +55,7 @@ export function buildPath(
 
       segment.apply(path2D, control, sx, sy);
       points.push(...segment.sample(lastPoint, control, sx, sy, quality));
-      segment.join(obb, lastPoint, control);
+      segment.join(obb, lastPoint, control, sx, sy);
 
       lastPoint = segment.getEndPoint();
       lastControl = segment.getSharedControl();
