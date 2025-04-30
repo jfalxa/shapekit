@@ -9,7 +9,7 @@ export * from "./corner";
 export * from "./line";
 export * from "./move";
 export * from "./rect";
-export * from "./rounded-rect";
+export * from "./round-rect";
 export * from "./segment";
 
 export type Path = (Segment | Vec2)[];
