@@ -4,11 +4,12 @@ import { BoundingBox } from "../utils/bounding-box";
 import { isPointInPolyline, doPolylinesOverlap } from "../utils/polyline";
 import { isPointInPolygon, doPolygonsOverlap } from "../utils/polygon";
 import { Renderable, RenderableInit } from "./renderable";
+import { Gradient } from "../gradients";
 
 export interface ShapeInit extends RenderableInit {
   path?: Path;
-  fill?: string;
-  stroke?: string;
+  fill?: string | Gradient;
+  stroke?: string | Gradient;
   lineWidth?: number;
   lineCap?: CanvasLineCap;
   lineJoin?: CanvasLineJoin;
@@ -25,8 +26,8 @@ export class Shape extends Renderable {
   path: Path;
   quality: number;
 
-  fill?: string;
-  stroke?: string;
+  fill?: string | Gradient;
+  stroke?: string | Gradient;
   lineWidth?: number;
   lineCap?: CanvasLineCap;
   lineJoin?: CanvasLineJoin;

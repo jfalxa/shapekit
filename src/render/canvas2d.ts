@@ -1,3 +1,4 @@
+import { Gradient } from "../gradients";
 import { Group } from "../shapes/group";
 import { Image } from "../shapes/image";
 import { Renderable } from "../shapes/renderable";
@@ -60,7 +61,8 @@ function renderShadows(ctx: Canvas2D, shape: Shape) {
 }
 
 function renderFill(ctx: Canvas2D, shape: Shape) {
-  if (shape.fill !== ctx.fillStyle) ctx.fillStyle = shape.fill!;
+  const fill = resolveColor(ctx, shape.fill);
+  if (ctx.fillStyle !== fill) ctx.fillStyle = fill;
   ctx.fill(shape.path2D);
 }
 
@@ -78,7 +80,9 @@ function renderStroke(ctx: Canvas2D, shape: Shape) {
   if (lineJoin !== ctx.lineJoin) ctx.lineJoin = lineJoin;
   if (lineDashOffset !== ctx.lineDashOffset) ctx.lineDashOffset = lineDashOffset; // prettier-ignore
   if (miterLimit !== ctx.miterLimit) ctx.miterLimit = miterLimit;
-  if (shape.stroke !== ctx.strokeStyle) ctx.strokeStyle = shape.stroke!;
+
+  const stroke = resolveColor(ctx, shape.stroke);
+  if (ctx.strokeStyle !== stroke) ctx.strokeStyle = stroke;
 
   ctx.stroke(shape.path2D);
 }
@@ -140,4 +144,21 @@ function renderText(ctx: Canvas2D, text: Text) {
       ctx.strokeText(line, x, y);
     }
   }
+}
+
+const GRADIENTS = new WeakMap<Gradient, CanvasGradient>();
+
+function resolveColor(
+  ctx: CanvasRenderingContext2D,
+  color: string | Gradient | undefined
+) {
+  if (!color) return "#000000";
+  if (typeof color === "string") return color;
+
+  if (!GRADIENTS.has(color)) {
+    const gradient = color.create(ctx);
+    GRADIENTS.set(color, gradient);
+  }
+
+  return GRADIENTS.get(color)!;
 }
