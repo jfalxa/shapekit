@@ -44,9 +44,9 @@ export class Shape extends Renderable {
   _obb: BoundingBox; // local unstransformed OBB
 
   constructor(init: ShapeInit) {
-    // by default, create a centered rect of width x height
+    // by default, create a rect of width x height
     if (!init.path && init.width !== undefined && init.height !== undefined) {
-      init.path = rect(0, 0, init.width, init.height);
+      init.path = [rect(0, 0, init.width, init.height)];
     }
 
     super(init);

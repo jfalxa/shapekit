@@ -4,7 +4,7 @@ import { Shape } from "./shapes/shape";
 import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
-import { bezier3, move, arc, roundedRect } from "./path";
+import { bezier3, move, arc, roundRect } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
 import { renderHulls, renderOBB } from "./utils/debug";
@@ -98,10 +98,10 @@ class App extends Loop {
     textFill: "black",
     padding: 12,
     textAlign: "center",
-    textPosition: "middle",
+    textPosition: "bottom",
     fontWeight: "bold",
     fontStyle: "italic",
-    path: roundedRect(0, 0, 200, 100, 25),
+    path: [roundRect(0, 0, 200, 100, 25)],
   });
 
   // lemon = new Shape({
@@ -282,7 +282,7 @@ class App extends Loop {
         x: +100,
         stroke: "orange",
         image: treeImage,
-        path: roundedRect(0, 0, 100, 50, 15),
+        path: [roundRect(0, 0, 100, 50, 15)],
       })
     );
 
@@ -309,10 +309,10 @@ class App extends Loop {
     // this.shapes.push(this.path);
     // this.shapes.push(this.path2);
     // this.shapes.push(this.path3);
-    // this.shapes.push(this.roundRect);
+    this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    this.shapes.push(this.group);
+    // this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
     // this.shapes.push(this.circle);
@@ -325,7 +325,7 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      shape.angle += 0.001 * this.deltaTime;
+      // shape.angle += 0.001 * this.deltaTime;
       shape.update();
       // shape.update(true);
     }
@@ -347,8 +347,8 @@ class App extends Loop {
     // }
 
     renderAll(this.ctx, this.shapes);
-    // renderOBB(this.ctx, this.shapes);
-    // renderHulls(this.ctx, this.shapes);
+    renderOBB(this.ctx, this.shapes);
+    renderHulls(this.ctx, this.shapes);
 
     end = performance.now();
 

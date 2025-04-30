@@ -88,14 +88,15 @@ export class Arc extends Segment {
     startAngle: number,
     endAngle: number,
     quality: number,
-    out: Vec2[] = []
+    out: Vec2[] = [],
+    offset = 0
   ) {
-    out[0] = new Vec2(
+    out[offset] = new Vec2(
       center.x + radius * Math.cos(startAngle),
       center.y + radius * Math.sin(startAngle)
     );
 
-    let i = 1;
+    let i = offset + 1;
     const tolerance = 1 / quality;
     const stack = [{ a: startAngle, b: endAngle }];
 
