@@ -40,9 +40,28 @@ export class Corner extends Segment {
     const p0 = v(from).scale(sx, sy);
     const p1 = v(this.control).scale(sx, sy);
     const p2 = v(this.to).scale(sx, sy);
+    const r = this.radius;
 
-    const radius = this.radius;
+    const { center, startAngle, endAngle } = Corner.toArc(p0, p1, p2, r);
 
+    return Arc.adaptiveSample(
+      center,
+      r,
+      startAngle,
+      endAngle,
+      quality,
+      this.points
+    );
+  }
+
+  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
+    const { center } = Corner.toArc(from, this.control, this.to, this.radius);
+    this.min.copy(center).translate(-this.radius);
+    this.max.copy(center).translate(this.radius);
+    aabb.merge(this);
+  }
+
+  static toArc(p0: Vec2, p1: Vec2, p2: Vec2, r: number) {
     // Compute unit vectors for the rays from P1 to P0 and from P1 to P2.
     const v0 = v(p0).subtract(p1).normalize();
     const v2 = v(p2).subtract(p1).normalize();
@@ -51,7 +70,7 @@ export class Corner extends Segment {
     const theta = Math.acos(v0.dot(v2));
 
     // Distance from P1 to tangent points along the rays.
-    const d = radius / Math.tan(theta / 2);
+    const d = r / Math.tan(theta / 2);
 
     // Compute the tangent points T0 and T1.
     const t0 = v(v0).scale(d).add(p1);
@@ -61,31 +80,13 @@ export class Corner extends Segment {
     const bisector = v(v0).add(v2).normalize();
 
     // Find the center of the circle along the bisector.
-    const offset = radius / Math.sin(theta / 2);
+    const offset = r / Math.sin(theta / 2);
     const center = v(bisector).scale(offset).add(p1);
 
     // Calculate the start and end angles for the arc.
     const startAngle = Math.atan2(t0.y - center.y, t0.x - center.x);
     const endAngle = Math.atan2(t1.y - center.y, t1.x - center.x);
 
-    Arc.adaptiveSample(
-      center,
-      radius,
-      startAngle,
-      endAngle,
-      quality,
-      this.points
-    );
-
-    this.points.push(p2.clone());
-
-    return this.points;
-  }
-
-  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
-    this.min.copy(from).min(this.to).min(this.control);
-    this.max.copy(from).max(this.to).max(this.control);
-
-    aabb.merge(this);
+    return { center, startAngle, endAngle, radius: r };
   }
 }
