@@ -59,7 +59,7 @@ export class Shape extends Renderable {
     this.height = init.height ?? 0;
     this.scaleX = init.scaleX ?? 1;
     this.scaleY = init.scaleY ?? 1;
-    this.angle = init.angle ?? 0;
+    this.rotation = init.rotation ?? 0;
 
     this.fill = init.fill;
     this.stroke = init.stroke;
@@ -119,11 +119,8 @@ export class Shape extends Renderable {
 
     this.path2D = buildPath(path, _hull, _obb, sw, sh, quality);
 
-    // save untransformed obb base size
-    this.baseWidth = _obb.width;
-    this.baseHeight = _obb.height;
-
-    _obb.scale(sw, sh);
+    this.baseWidth = _obb.width / sw;
+    this.baseHeight = _obb.height / sh;
     this.width = _obb.width;
     this.height = _obb.height;
 

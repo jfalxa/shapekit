@@ -14,7 +14,7 @@ export interface RenderableInit {
   scaleY?: number;
   skewX?: number;
   skewY?: number;
-  angle?: number;
+  rotation?: number;
 }
 
 export abstract class Renderable {
@@ -29,7 +29,7 @@ export abstract class Renderable {
   scaleY: number;
   skewX: number; // in radians
   skewY: number; // in radians
-  angle: number; // in radians
+  rotation: number; // in radians
 
   baseWidth: number;
   baseHeight: number;
@@ -48,7 +48,7 @@ export abstract class Renderable {
     this.scaleY = init.scaleY ?? 1;
     this.skewX = init.skewX ?? 0;
     this.skewY = init.skewY ?? 0;
-    this.angle = init.angle ?? 0;
+    this.rotation = init.rotation ?? 0;
 
     this.transform = new Matrix3();
     this.obb = new BoundingBox();

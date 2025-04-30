@@ -150,8 +150,8 @@ class App extends Loop {
     y: 300,
     stroke: "hotpink",
     // lineWidth: 5,
-    angle: Math.PI / 4,
-    path: [arc(0, 0, 50)],
+    // rotation: Math.PI / 4,
+    path: [arc(0, 0, 200, (3 * Math.PI) / 2, (3 * Math.PI) / 2 + 0.6)],
   });
 
   skewed = new Group({
@@ -169,7 +169,7 @@ class App extends Loop {
         textFill: "#000000",
         fontSize: 18,
         padding: 8,
-        angle: Math.PI / 3,
+        rotation: Math.PI / 3,
         // scaleY: 1.5,
         // skewX: Math.PI / 6,
         // skewY: Math.PI / 6,
@@ -187,7 +187,7 @@ class App extends Loop {
         id: "GROUP",
         x: 73.3623046875,
         y: -58.7176513671875,
-        angle: Math.PI / 4,
+        rotation: Math.PI / 4,
 
         children: [
           new Shape({
@@ -195,7 +195,7 @@ class App extends Loop {
             x: -100,
             stroke: "hotpink",
             // lineWidth: 5,
-            angle: Math.PI / 3,
+            rotation: Math.PI / 3,
             path: [arc(0, 0, 50, 0, 1.75 * Math.PI)],
           }),
 
@@ -230,6 +230,18 @@ class App extends Loop {
             lineHeight: 24,
             padding: 8,
           }),
+
+          new Shape({
+            stroke: "red",
+            fill: "yellow",
+            lineWidth: 3,
+            path: [
+              move(0, 50),
+              corner(-50, -50, -100, 50, 25),
+              corner(50, -50, 0, -150, 25),
+              corner(0, 50, 100, 50, 25),
+            ],
+          }),
         ],
       }),
     ],
@@ -246,7 +258,7 @@ class App extends Loop {
         width: 100,
         height: 50,
         fill: "red",
-        angle: Math.PI / 4,
+        rotation: Math.PI / 4,
       }),
       new Shape({
         x: 100,
@@ -261,7 +273,7 @@ class App extends Loop {
         width: 100,
         height: 50,
         fill: "blue",
-        angle: Math.PI / 4,
+        rotation: Math.PI / 4,
       }),
       new Shape({
         x: -100,
@@ -309,7 +321,7 @@ class App extends Loop {
     // this.shapes.push(this.path);
     // this.shapes.push(this.path2);
     // this.shapes.push(this.path3);
-    this.shapes.push(this.roundRect);
+    // this.shapes.push(this.roundRect);
     this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
     // this.shapes.push(this.group);
@@ -325,9 +337,9 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      // shape.angle += 0.001 * this.deltaTime;
-      shape.update();
-      // shape.update(true);
+      // shape.rotation += 0.001 * this.deltaTime;
+      // shape.update();
+      shape.update(true);
     }
 
     mid = performance.now();
@@ -352,11 +364,11 @@ class App extends Loop {
 
     end = performance.now();
 
-    // console.log(
-    //   `total = ${end - start}ms, update = ${mid - start}ms, render = ${
-    //     end - mid
-    //   }ms`
-    // );
+    const message = `total = ${end - start}ms, update = ${
+      mid - start
+    }ms, render = ${end - mid}ms`;
+
+    // console.log(message);
   }
 }
 

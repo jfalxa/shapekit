@@ -85,7 +85,7 @@ function renderStroke(ctx: Canvas2D, shape: Shape) {
 
 function renderImage(ctx: Canvas2D, image: Image) {
   const { width, height } = image;
-  ctx.drawImage(image.image, -width / 2, -height / 2, width, height);
+  ctx.drawImage(image.image, 0, 0, width, height);
 }
 
 function renderText(ctx: Canvas2D, text: Text) {

@@ -70,11 +70,11 @@ export class Matrix3 extends Float64Array {
       scaleY = 1,
       skewX = 0,
       skewY = 0,
-      angle = 0,
+      rotation = 0,
     } = renderable;
 
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
+    const cos = Math.cos(rotation);
+    const sin = Math.sin(rotation);
 
     const tanSkewX = Math.tan(skewX);
     const tanSkewY = Math.tan(skewY);
@@ -108,7 +108,7 @@ export class Matrix3 extends Float64Array {
 
     out.x = e;
     out.y = f;
-    out.angle = Math.atan2(b, a);
+    out.rotation = Math.atan2(b, a);
     out.skewX = Math.atan((a * c + b * d) / (scaleX * scaleY));
     out.skewY = 0;
     out.width = _width * (scaleX / _scaleX);
