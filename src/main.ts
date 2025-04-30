@@ -59,8 +59,8 @@ class App extends Loop {
     lineCap: "round",
     path: [
       move(10, 80),
-      bezier3(95, 80, 40, 10, 65, 10),
-      bezier3(180, 80, 150, 150),
+      bezier3(40, 10, 65, 10, 95, 80),
+      bezier3(150, 150, 180, 80),
     ],
   });
 
@@ -84,8 +84,8 @@ class App extends Loop {
     lineCap: "round",
     path: [
       move(10, 80),
-      bezier3(95, 80, 40, 10, 65, 10),
-      bezier3(180, 80, 150, 150),
+      bezier3(40, 10, 65, 10, 95, 80),
+      bezier3(150, 150, 180, 80),
     ],
   });
 
@@ -127,9 +127,9 @@ class App extends Loop {
     lineWidth: 3,
     path: [
       move(0, 50),
-      corner(-50, -50, -100, 50, 25),
-      corner(50, -50, 0, -150, 25),
-      corner(0, 50, 100, 50, 25),
+      corner(-100, 50, -50, -50, 25),
+      corner(0, -150, 50, -50, 25),
+      corner(100, 50, 0, 50, 25),
     ],
   });
 
@@ -224,8 +224,8 @@ class App extends Loop {
             lineCap: "round",
             path: [
               move(10, 80),
-              bezier3(95, 80, 40, 10, 65, 10),
-              bezier3(180, 80, 150, 150),
+              bezier3(40, 10, 65, 10, 95, 80),
+              bezier3(150, 150, 180, 80),
             ],
           }),
 
@@ -251,9 +251,9 @@ class App extends Loop {
             globalAlpha: 0.5,
             path: [
               move(0, 50),
-              corner(-50, -50, -100, 50, 25),
-              corner(50, -50, 0, -150, 25),
-              corner(0, 50, 100, 50, 25),
+              corner(-100, 50, -50, -50, 25),
+              corner(0, -150, 50, -50, 25),
+              corner(100, 50, 0, 50, 25),
             ],
           }),
         ],
@@ -375,8 +375,8 @@ class App extends Loop {
     // }
 
     renderAll(this.ctx, this.shapes);
-    // renderOBB(this.ctx, this.shapes);
-    // renderHulls(this.ctx, this.shapes);
+    renderOBB(this.ctx, this.shapes);
+    renderHulls(this.ctx, this.shapes);
 
     end = performance.now();
 
