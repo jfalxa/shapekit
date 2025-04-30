@@ -18,8 +18,6 @@ export function buildPath(
   path: Path,
   points: Vec2[],
   obb: BoundingBox,
-  sx: number,
-  sy: number,
   quality: number
 ): Path2D {
   const path2D = new Path2D();
@@ -36,7 +34,7 @@ export function buildPath(
   for (const segment of path) {
     // simple line
     if (segment instanceof Vec2) {
-      const point = v(segment).scale(sx, sy);
+      const point = v(segment);
 
       path2D.lineTo(point.x, point.y);
       points.push(point);
@@ -45,17 +43,17 @@ export function buildPath(
       bbox.max.copy(segment);
       obb.merge(bbox);
 
-      lastPoint = segment;
-      lastControl = segment;
+      lastPoint = point;
+      lastControl = point;
     }
     // other segments
     else {
       let control = segment.getOptionalControl();
       if (!control) control = mirrorControl(lastPoint, lastControl);
 
-      segment.apply(path2D, control, sx, sy);
-      points.push(...segment.sample(lastPoint, control, sx, sy, quality));
-      segment.join(obb, lastPoint, control, sx, sy);
+      segment.apply(path2D, control);
+      points.push(...segment.sample(lastPoint, control, quality));
+      segment.join(obb, lastPoint, control);
 
       lastPoint = segment.getEndPoint();
       lastControl = segment.getSharedControl();

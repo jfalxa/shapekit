@@ -16,34 +16,21 @@ export abstract class Segment {
     this.points = [new Vec2(0, 0)];
   }
 
-  abstract apply(
-    path: Path2D,
-    control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ): void;
+  abstract apply(path: Path2D, control: Vec2 | undefined): void;
 
-  join(
-    aabb: BoundingBox,
-    _from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ) {
-    this.min.copy(this.to).scale(sx, sy);
-    this.max.copy(this.to).scale(sx, sy);
+  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined) {
+    this.min.copy(this.to);
+    this.max.copy(this.to);
     aabb.merge(this);
   }
 
-  sample(
-    _from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number,
-    _quality: number
-  ) {
-    this.points[0].copy(this.to).scale(sx, sy);
+  sample(_from: Vec2, _control: Vec2 | undefined, _quality: number) {
+    this.points[0].copy(this.to);
     return this.points;
+  }
+
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
   }
 
   getEndPoint(): Vec2 {

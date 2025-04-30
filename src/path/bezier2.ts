@@ -1,4 +1,4 @@
-import { Point, v, Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { pointToLineDistance } from "../utils/polyline";
 import { Segment } from "./segment";
@@ -26,44 +26,32 @@ export class Bezier2 extends Segment {
     return this.control;
   }
 
-  apply(path: Path2D, control: Vec2 | undefined, sx: number, sy: number): void {
+  apply(path: Path2D, control: Vec2 | undefined): void {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Control point is missing");
-    const p1 = v(_control).scale(sx, sy);
-    const p2 = v(this.to).scale(sx, sy);
+    const p1 = _control;
+    const p2 = this.to;
     path.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
   }
 
-  sample(
-    from: Vec2,
-    control: Vec2 | undefined,
-    sx: number,
-    sy: number,
-    quality = 1
-  ): Vec2[] {
+  sample(from: Vec2, control: Vec2 | undefined, quality = 1): Vec2[] {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Control point is missing");
 
-    const p0 = v(from.scale(sx, sy));
-    const p1 = v(_control).scale(sx, sy);
-    const p2 = v(this.to).scale(sx, sy);
+    const p0 = from;
+    const p1 = _control;
+    const p2 = this.to;
 
     return Bezier2.adaptiveSample(p0, p1, p2, quality, this.points);
   }
 
-  join(
-    aabb: BoundingBox,
-    from: Vec2,
-    control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ) {
+  join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined) {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Control point is missing");
 
-    const p0 = v(from.scale(sx, sy));
-    const p1 = v(_control).scale(sx, sy);
-    const p2 = v(this.to).scale(sx, sy);
+    const p0 = from;
+    const p1 = _control;
+    const p2 = this.to;
 
     this.min.put(Infinity);
     this.max.put(-Infinity);
@@ -94,6 +82,11 @@ export class Bezier2 extends Segment {
     }
 
     aabb.merge(this);
+  }
+
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.control?.scale(sx, sy);
   }
 
   static sample(

@@ -22,24 +22,18 @@ export class Corner extends Segment {
     this.points.push(new Vec2(0, 0));
   }
 
-  apply(path: Path2D, _control: Vec2 | undefined, sx: number, sy: number) {
-    const control = v(this.control).scale(sx, sy);
-    const to = v(this.to).scale(sx, sy);
+  apply(path: Path2D, _control: Vec2 | undefined) {
+    const control = this.control;
+    const to = this.to;
 
     path.arcTo(control.x, control.y, to.x, to.y, this.radius);
     path.lineTo(to.x, to.y);
   }
 
-  sample(
-    from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number,
-    quality: number
-  ) {
-    const p0 = v(from).scale(sx, sy);
-    const p1 = v(this.control).scale(sx, sy);
-    const p2 = v(this.to).scale(sx, sy);
+  sample(from: Vec2, _control: Vec2 | undefined, quality: number) {
+    const p0 = from;
+    const p1 = this.control;
+    const p2 = this.to;
     const r = this.radius;
 
     const { center, startAngle, endAngle } = Corner.toArc(p0, p1, p2, r);
@@ -55,16 +49,10 @@ export class Corner extends Segment {
     );
   }
 
-  join(
-    aabb: BoundingBox,
-    from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ) {
-    const p0 = v(from).scale(sx, sy);
-    const p1 = v(this.control).scale(sx, sy);
-    const p2 = v(this.to).scale(sx, sy);
+  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
+    const p0 = from;
+    const p1 = this.control;
+    const p2 = this.to;
     const r = this.radius;
 
     const arc = Corner.toArc(p0, p1, p2, r);
@@ -77,15 +65,14 @@ export class Corner extends Segment {
       arc.endAngle
     );
 
-    this.min.put(Infinity);
-    this.max.put(-Infinity);
-
-    for (const point of extrema) {
-      this.min.min(point);
-      this.max.max(point);
-    }
+    BoundingBox.fit(extrema, this);
 
     aabb.merge(this);
+  }
+
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.control?.scale(sx, sy);
   }
 
   static toArc(p0: Vec2, p1: Vec2, p2: Vec2, r: number) {

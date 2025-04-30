@@ -109,20 +109,19 @@ export class Shape extends Renderable {
     const { width, height, baseWidth, baseHeight } = this;
     const { path, quality, _hull, _obb } = this;
 
-    let sw = 1;
-    let sh = 1;
-
     if (width && height && baseWidth && baseHeight) {
-      sw = width / baseWidth;
-      sh = height / baseHeight;
+      const sw = width / baseWidth;
+      const sh = height / baseHeight;
+
+      for (const segment of this.path) {
+        segment.scale(sw, sh);
+      }
     }
 
-    this.path2D = buildPath(path, _hull, _obb, sw, sh, quality);
+    this.path2D = buildPath(path, _hull, _obb, quality);
 
-    this.baseWidth = _obb.width / sw;
-    this.baseHeight = _obb.height / sh;
-    this.width = _obb.width;
-    this.height = _obb.height;
+    this.width = this.baseWidth = _obb.width;
+    this.height = this.baseHeight = _obb.height;
 
     this.hull.length = _hull.length;
   }

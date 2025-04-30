@@ -111,4 +111,16 @@ export class BoundingBox {
     this.center.copy(other.center);
     return this;
   }
+
+  static fit(points: Vec2[], out: AABB = new BoundingBox()) {
+    out.min.put(Infinity);
+    out.max.put(-Infinity);
+
+    for (const point of points) {
+      out.min.min(point);
+      out.max.max(point);
+    }
+
+    return out;
+  }
 }

@@ -1,4 +1,4 @@
-import { Point, v, Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { solveQuadratic } from "../math/solver";
 import { Segment } from "./segment";
@@ -45,49 +45,37 @@ export class Bezier3 extends Segment {
     return this.end;
   }
 
-  apply(path: Path2D, control: Vec2 | undefined, sx: number, sy: number) {
+  apply(path: Path2D, control: Vec2 | undefined) {
     const _start = this.start ?? control;
     if (!_start) throw new Error("Missing start control point");
 
-    const p1 = v(_start).scale(sx, sy);
-    const p2 = v(this.end).scale(sx, sy);
-    const p3 = v(this.to).scale(sx, sy);
+    const p1 = _start;
+    const p2 = this.end;
+    const p3 = this.to;
 
     path.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
   }
 
-  sample(
-    from: Vec2,
-    control: Vec2 | undefined,
-    sx: number,
-    sy: number,
-    quality: number
-  ): Vec2[] {
+  sample(from: Vec2, control: Vec2 | undefined, quality: number): Vec2[] {
     const start = this.start ?? control;
     if (!start) throw new Error("Missing start control point");
 
-    const p0 = v(from).scale(sx, sy);
-    const p1 = v(start).scale(sx, sy);
-    const p2 = v(this.end).scale(sx, sy);
-    const p3 = v(this.to).scale(sx, sy);
+    const p0 = from;
+    const p1 = start;
+    const p2 = this.end;
+    const p3 = this.to;
 
     return Bezier3.adaptiveSample(p0, p1, p2, p3, quality);
   }
 
-  join(
-    aabb: BoundingBox,
-    from: Vec2,
-    control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ): void {
+  join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined): void {
     const start = this.start ?? control;
     if (!start) throw new Error("Missing start control point");
 
-    const p0 = v(from).scale(sx, sy);
-    const p1 = v(start).scale(sx, sy);
-    const p2 = v(this.end).scale(sx, sy);
-    const p3 = v(this.to).scale(sx, sy);
+    const p0 = from;
+    const p1 = start;
+    const p2 = this.end;
+    const p3 = this.to;
 
     this.min.put(Infinity);
     this.max.put(-Infinity);
@@ -122,6 +110,12 @@ export class Bezier3 extends Segment {
     }
 
     aabb.merge(this);
+  }
+
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.start?.scale(sx, sy);
+    this.end.scale(sx, sy);
   }
 
   static sample(

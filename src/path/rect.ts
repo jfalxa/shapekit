@@ -1,4 +1,4 @@
-import { v, Vec2 } from "../math/vec2";
+import { Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
@@ -23,47 +23,29 @@ export class Rect extends Segment {
     );
   }
 
-  apply(
-    path: Path2D,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ): void {
-    const to = v(this.to).scale(sx, sy);
-    const width = this.width * sx;
-    const height = this.height * sy;
-    path.rect(to.x, to.y, width, height);
+  apply(path: Path2D, _control: Vec2 | undefined): void {
+    path.rect(this.to.x, this.to.y, this.width, this.height);
   }
 
-  sample(
-    _from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number,
-    _quality: number
-  ): Vec2[] {
-    const to = v(this.to).scale(sx, sy);
-    const width = this.width * sx;
-    const height = this.height * sy;
-
-    this.points[0].copy(to);
-    this.points[1].copy(to).translate(width, 0);
-    this.points[2].copy(to).translate(width, height);
-    this.points[3].copy(to).translate(0, height);
-    this.points[4].copy(to);
+  sample(_from: Vec2, _control: Vec2 | undefined, _quality: number): Vec2[] {
+    this.points[0].copy(this.to);
+    this.points[1].copy(this.to).translate(this.width, 0);
+    this.points[2].copy(this.to).translate(this.width, this.height);
+    this.points[3].copy(this.to).translate(0, this.height);
+    this.points[4].copy(this.to);
 
     return this.points;
   }
 
-  join(
-    aabb: BoundingBox,
-    _from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ): void {
-    this.min.copy(this.to).scale(sx, sy);
-    this.max.copy(this.to).translate(this.width, this.height).scale(sx, sy);
+  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined): void {
+    this.min.copy(this.to);
+    this.max.copy(this.to).translate(this.width, this.height);
     aabb.merge(this);
+  }
+
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.width *= sx;
+    this.height *= sy;
   }
 }

@@ -72,10 +72,8 @@ export class Group extends Renderable {
       this.obb.merge(childOBB);
     }
 
-    this.baseWidth = this.obb.width;
-    this.baseHeight = this.obb.height;
-    this.width = this.obb.width;
-    this.height = this.obb.height;
+    this.width = this.baseWidth = this.obb.width;
+    this.height = this.baseHeight = this.obb.height;
 
     this.obb.transform(this.transform);
   }

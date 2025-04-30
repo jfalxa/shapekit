@@ -1,4 +1,4 @@
-import { Point, v, Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { pointToLineDistance } from "../utils/polyline";
 import { Segment } from "./segment";
@@ -15,35 +15,38 @@ export function arc(
 }
 
 export class Arc extends Segment {
+  radiusX: number;
+  radiusY: number;
+
   constructor(
     x: number,
     y: number,
-    public radius: number,
+    radius: number,
     public startAngle = 0,
     public endAngle = 2 * Math.PI,
     public counterclockwise?: boolean
   ) {
     super(x, y);
+    this.radiusX = radius;
+    this.radiusY = radius;
   }
 
-  apply(path: Path2D, _control: Vec2, sx: number, sy: number) {
-    const to = v(this.to).scale(sx, sy);
-
-    if (sx === sy) {
+  apply(path: Path2D, _control: Vec2) {
+    if (this.radiusX === this.radiusY) {
       path.arc(
-        to.x,
-        to.y,
-        this.radius * sx,
+        this.to.x,
+        this.to.y,
+        this.radiusX,
         this.startAngle,
         this.endAngle,
         this.counterclockwise
       );
     } else {
       path.ellipse(
-        to.x,
-        to.y,
-        this.radius * sx,
-        this.radius * sy,
+        this.to.x,
+        this.to.y,
+        this.radiusX,
+        this.radiusY,
         0,
         this.startAngle,
         this.endAngle,
@@ -52,19 +55,11 @@ export class Arc extends Segment {
     }
   }
 
-  sample(
-    _from: any,
-    _control: any,
-    sx: number,
-    sy: number,
-    quality: number
-  ): Vec2[] {
-    const to = v(this.to).scale(sx, sy);
-
+  sample(_from: any, _control: any, quality: number): Vec2[] {
     return Arc.adaptiveSample(
-      to,
-      this.radius * sx,
-      this.radius * sy,
+      this.to,
+      this.radiusX,
+      this.radiusY,
       this.startAngle,
       this.endAngle,
       quality,
@@ -72,32 +67,24 @@ export class Arc extends Segment {
     );
   }
 
-  join(
-    aabb: BoundingBox,
-    _from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ) {
-    const center = v(this.to).scale(sx, sy);
-
+  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined) {
     const extrema = Arc.sampleExtrema(
-      center,
-      this.radius * sx,
-      this.radius * sy,
+      this.to,
+      this.radiusX,
+      this.radiusY,
       this.startAngle,
       this.endAngle
     );
 
-    this.min.put(Infinity);
-    this.max.put(-Infinity);
-
-    for (const point of extrema) {
-      this.min.min(point);
-      this.max.max(point);
-    }
+    BoundingBox.fit(extrema, this);
 
     aabb.merge(this);
+  }
+
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.radiusX *= sx;
+    this.radiusY *= sy;
   }
 
   static sample(

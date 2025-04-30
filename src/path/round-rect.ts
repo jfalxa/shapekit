@@ -1,7 +1,6 @@
-import { v, Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
+import { Vec2 } from "../math/vec2";
 import { Arc } from "./arc";
-import { Segment } from "./segment";
+import { Rect } from "./rect";
 
 export function roundRect(
   x: number,
@@ -13,17 +12,17 @@ export function roundRect(
   return new RoundRect(x, y, width, height, radius);
 }
 
-class RoundRect extends Segment {
+class RoundRect extends Rect {
   radii: [number, number, number, number];
 
   constructor(
     x: number,
     y: number,
-    public width: number,
-    public height: number,
+    width: number,
+    height: number,
     radius: number | [number, number, number, number]
   ) {
-    super(x, y);
+    super(x, y, width, height);
 
     this.radii =
       typeof radius === "number" //
@@ -31,28 +30,14 @@ class RoundRect extends Segment {
         : radius;
   }
 
-  apply(
-    path: Path2D,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ): void {
-    const to = v(this.to).scale(sx, sy);
-    const width = this.width * sx;
-    const height = this.height * sy;
-    path.roundRect(to.x, to.y, width, height, this.radii);
+  apply(path: Path2D, _control: Vec2 | undefined): void {
+    path.roundRect(this.to.x, this.to.y, this.width, this.height, this.radii);
   }
 
-  sample(
-    _from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number,
-    quality: number
-  ): Vec2[] {
-    const to = v(this.to).scale(sx, sy);
-    const width = this.width * sx;
-    const height = this.height * sy;
+  sample(_from: Vec2, _control: Vec2 | undefined, quality: number): Vec2[] {
+    const to = this.to;
+    const width = this.width;
+    const height = this.height;
 
     const [rTL, rTR, rBR, rBL] = this.radii;
 
@@ -67,17 +52,5 @@ class RoundRect extends Segment {
     Arc.adaptiveSample(cBL, rBL, rBL, Math.PI / 2, Math.PI, quality, this.points, this.points.length); // prettier-ignore
 
     return this.points;
-  }
-
-  join(
-    aabb: BoundingBox,
-    _from: Vec2,
-    _control: Vec2 | undefined,
-    sx: number,
-    sy: number
-  ): void {
-    this.min.copy(this.to).scale(sx, sy);
-    this.max.copy(this.to).translate(this.width, this.height).scale(sx, sy);
-    aabb.merge(this);
   }
 }
