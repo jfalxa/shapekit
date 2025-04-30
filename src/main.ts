@@ -10,6 +10,7 @@ import { Renderable } from "./shapes/renderable";
 import { renderHulls, renderOBB } from "./utils/debug";
 import { Matrix3 } from "./math/mat3";
 import { Vec2 } from "./math/vec2";
+import { linearGradient } from "./gradients";
 
 class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
@@ -206,6 +207,11 @@ class App extends Loop {
             // lineWidth: 5,
             rotation: Math.PI / 3,
             path: [arc(0, 0, 50, 0, 1.75 * Math.PI)],
+            fill: linearGradient(-50, -50, 50, 50, {
+              25: "yellow",
+              50: "red",
+              75: "blue",
+            }),
           }),
 
           new Shape({
@@ -240,17 +246,17 @@ class App extends Loop {
             padding: 8,
           }),
 
-          new Shape({
-            stroke: "red",
-            fill: "yellow",
-            lineWidth: 3,
-            path: [
-              move(0, 50),
-              corner(-50, -50, -100, 50, 25),
-              corner(50, -50, 0, -150, 25),
-              corner(0, 50, 100, 50, 25),
-            ],
-          }),
+          // new Shape({
+          //   stroke: "red",
+          //   fill: "yellow",
+          //   lineWidth: 3,
+          //   path: [
+          //     move(0, 50),
+          //     corner(-50, -50, -100, 50, 25),
+          //     corner(50, -50, 0, -150, 25),
+          //     corner(0, 50, 100, 50, 25),
+          //   ],
+          // }),
         ],
       }),
     ],
@@ -349,7 +355,7 @@ class App extends Loop {
     for (const shape of this.shapes) {
       // shape.rotation += 0.001 * this.deltaTime;
       // shape.update();
-      shape.update(true);
+      // shape.update(true);
     }
 
     mid = performance.now();
