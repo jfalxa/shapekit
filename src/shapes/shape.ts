@@ -19,6 +19,8 @@ export interface ShapeInit extends RenderableInit {
   shadowColor?: string;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
+  globalAlpha?: number;
+  filter?: string;
   quality?: number;
 }
 
@@ -37,6 +39,8 @@ export class Shape extends Renderable {
   shadowColor?: string;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
+  globalAlpha?: number;
+  filter?: string;
 
   path2D!: Path2D;
   hull: Vec2[];
@@ -73,6 +77,8 @@ export class Shape extends Renderable {
     this.shadowColor = init.shadowColor;
     this.shadowOffsetX = init.shadowOffsetX;
     this.shadowOffsetY = init.shadowOffsetY;
+    this.globalAlpha = init.globalAlpha;
+    this.filter = init.filter;
     this.quality = init.quality ?? 1;
 
     this.hull = new Array();

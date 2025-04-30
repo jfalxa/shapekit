@@ -5,16 +5,19 @@ import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
 export interface GroupInit extends RenderableInit {
+  globalCompositeOperation?: GlobalCompositeOperation;
   children?: Renderable[];
 }
 
 export class Group extends Renderable {
   children: Renderable[];
+  globalCompositeOperation?: GlobalCompositeOperation;
   invertTransform: Matrix3;
 
   constructor(init: GroupInit) {
     super(init);
     this.children = init.children ?? [];
+    this.globalCompositeOperation = init.globalCompositeOperation;
     this.invertTransform = new Matrix3();
 
     this.update();

@@ -31,7 +31,7 @@ export function render(ctx: Canvas2D, renderable: Renderable) {
       renderable.transform[7]
     );
 
-    renderShadows(ctx, renderable);
+    applyEffects(ctx, renderable);
 
     if (renderable.fill) renderFill(ctx, renderable);
     if (renderable.stroke) renderStroke(ctx, renderable);
@@ -41,28 +41,20 @@ export function render(ctx: Canvas2D, renderable: Renderable) {
 }
 
 function renderGroup(ctx: Canvas2D, group: Group) {
-  for (let i = 0; i < group.children.length; i++) {
-    render(ctx, group.children[i]);
+  const { children, globalCompositeOperation = "source-over" } = group;
+
+  if (globalCompositeOperation !== ctx.globalCompositeOperation) {
+    ctx.globalCompositeOperation = globalCompositeOperation;
   }
-}
 
-function renderShadows(ctx: Canvas2D, shape: Shape) {
-  const {
-    shadowBlur = 0,
-    shadowColor = "#000000",
-    shadowOffsetX = 0,
-    shadowOffsetY = 0,
-  } = shape;
-
-  if (shadowBlur !== ctx.shadowBlur) ctx.shadowBlur = shadowBlur;
-  if (shadowColor !== ctx.shadowColor) ctx.shadowColor = shadowColor;
-  if (shadowOffsetX !== ctx.shadowOffsetX) ctx.shadowOffsetX = shadowOffsetX;
-  if (shadowOffsetY !== ctx.shadowOffsetY) ctx.shadowOffsetY = shadowOffsetY;
+  for (let i = 0; i < children.length; i++) {
+    render(ctx, children[i]);
+  }
 }
 
 function renderFill(ctx: Canvas2D, shape: Shape) {
   const fill = resolveColor(ctx, shape.fill);
-  if (ctx.fillStyle !== fill) ctx.fillStyle = fill;
+  if (fill !== ctx.fillStyle) ctx.fillStyle = fill;
   ctx.fill(shape.path2D);
 }
 
@@ -82,7 +74,7 @@ function renderStroke(ctx: Canvas2D, shape: Shape) {
   if (miterLimit !== ctx.miterLimit) ctx.miterLimit = miterLimit;
 
   const stroke = resolveColor(ctx, shape.stroke);
-  if (ctx.strokeStyle !== stroke) ctx.strokeStyle = stroke;
+  if (stroke !== ctx.strokeStyle) ctx.strokeStyle = stroke;
 
   ctx.stroke(shape.path2D);
 }
@@ -144,6 +136,24 @@ function renderText(ctx: Canvas2D, text: Text) {
       ctx.strokeText(line, x, y);
     }
   }
+}
+
+function applyEffects(ctx: Canvas2D, shape: Shape) {
+  const {
+    globalAlpha = 1,
+    filter = "none",
+    shadowBlur = 0,
+    shadowColor = "#000000",
+    shadowOffsetX = 0,
+    shadowOffsetY = 0,
+  } = shape;
+
+  if (globalAlpha !== ctx.globalAlpha) ctx.globalAlpha = globalAlpha;
+  if (filter !== ctx.filter) ctx.filter = filter;
+  if (shadowBlur !== ctx.shadowBlur) ctx.shadowBlur = shadowBlur;
+  if (shadowColor !== ctx.shadowColor) ctx.shadowColor = shadowColor;
+  if (shadowOffsetX !== ctx.shadowOffsetX) ctx.shadowOffsetX = shadowOffsetX;
+  if (shadowOffsetY !== ctx.shadowOffsetY) ctx.shadowOffsetY = shadowOffsetY;
 }
 
 const GRADIENTS = new WeakMap<Gradient, CanvasGradient>();
