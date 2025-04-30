@@ -17,7 +17,14 @@ export class Group extends Renderable {
     this.children = init.children ?? [];
     this.invertTransform = new Matrix3();
 
-    this.update(true);
+    this.update();
+  }
+
+  getChildAt(x: number, y: number) {
+    for (let i = this.children.length - 1; i >= 0; i--) {
+      const child = this.children[i];
+      if (child.contains({ x, y })) return child;
+    }
   }
 
   contains(shape: Vec2 | Shape): boolean {
@@ -78,3 +85,35 @@ export class Group extends Renderable {
     this.obb.transform(this.transform);
   }
 }
+
+const gradient = {
+  from: [0, 0],
+  to: [200, 0],
+  stops: {
+    0: "red",
+    14: "green",
+    65: "blue",
+    100: "purple",
+  },
+};
+
+const lgr = linearGradient(0, 0, 200, 0, {
+  0: "red",
+  14: "green",
+  65: "blue",
+  100: "purple",
+});
+
+const cgr = conicGradient(0, 0, Math.PI / 4, {
+  0: "red",
+  14: "green",
+  65: "blue",
+  100: "purple",
+});
+
+const rgr = radialGradient(0, 0, 5, 200, 0, 10, {
+  0: "red",
+  14: "green",
+  65: "blue",
+  100: "purple",
+});
