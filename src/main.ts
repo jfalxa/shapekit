@@ -148,6 +148,15 @@ class App extends Loop {
   circle = new Shape({
     x: 400,
     y: 300,
+    // lineWidth: 5,
+    // rotation: Math.PI / 4,
+    fill: "red",
+    path: [arc(0, 0, 200)],
+  });
+
+  arc = new Shape({
+    x: 400,
+    y: 300,
     stroke: "hotpink",
     // lineWidth: 5,
     // rotation: Math.PI / 4,
@@ -322,12 +331,13 @@ class App extends Loop {
     // this.shapes.push(this.path2);
     // this.shapes.push(this.path3);
     // this.shapes.push(this.roundRect);
-    this.shapes.push(this.roundTriangle);
+    // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    // this.shapes.push(this.group);
+    this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
     // this.shapes.push(this.circle);
+    // this.shapes.push(this.arc);
   }
 
   s = 1;
