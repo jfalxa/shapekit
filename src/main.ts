@@ -218,8 +218,6 @@ class App extends Loop {
             id: "PATH",
             x: -100,
             y: 100,
-            // x: -85,
-            // y: -52.5,
 
             stroke: "blue",
             lineWidth: 50,
@@ -246,17 +244,18 @@ class App extends Loop {
             padding: 8,
           }),
 
-          // new Shape({
-          //   stroke: "red",
-          //   fill: "yellow",
-          //   lineWidth: 3,
-          //   path: [
-          //     move(0, 50),
-          //     corner(-50, -50, -100, 50, 25),
-          //     corner(50, -50, 0, -150, 25),
-          //     corner(0, 50, 100, 50, 25),
-          //   ],
-          // }),
+          new Shape({
+            stroke: "red",
+            fill: "yellow",
+            lineWidth: 3,
+            globalAlpha: 0.5,
+            path: [
+              move(0, 50),
+              corner(-50, -50, -100, 50, 25),
+              corner(50, -50, 0, -150, 25),
+              corner(0, 50, 100, 50, 25),
+            ],
+          }),
         ],
       }),
     ],
@@ -310,6 +309,7 @@ class App extends Loop {
         stroke: "orange",
         image: treeImage,
         path: [roundRect(0, 0, 100, 50, 15)],
+        filter: "sepia(1) contrast(1.2)",
       })
     );
 
@@ -355,7 +355,7 @@ class App extends Loop {
     for (const shape of this.shapes) {
       // shape.rotation += 0.001 * this.deltaTime;
       // shape.update();
-      // shape.update(true);
+      shape.update(true);
     }
 
     mid = performance.now();
@@ -375,8 +375,8 @@ class App extends Loop {
     // }
 
     renderAll(this.ctx, this.shapes);
-    renderOBB(this.ctx, this.shapes);
-    renderHulls(this.ctx, this.shapes);
+    // renderOBB(this.ctx, this.shapes);
+    // renderHulls(this.ctx, this.shapes);
 
     end = performance.now();
 

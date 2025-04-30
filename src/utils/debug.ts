@@ -12,6 +12,9 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.lineCap = "square";
   ctx.lineWidth = 3;
 
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.filter = "none";
   ctx.shadowBlur = 0;
   ctx.shadowColor = "black";
   ctx.shadowOffsetX = 0;
@@ -43,8 +46,11 @@ export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.lineCap = "square";
   ctx.lineWidth = 4;
 
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.filter = "none";
   ctx.shadowBlur = 0;
-  ctx.shadowColor = "#000000";
+  ctx.shadowColor = "black";
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
 
