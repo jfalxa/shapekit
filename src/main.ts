@@ -4,7 +4,7 @@ import { Shape } from "./shapes/shape";
 import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
-import { bezier3, move, arc, roundRect } from "./path";
+import { bezier3, move, arc, roundRect, corner } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
 import { renderHulls, renderOBB } from "./utils/debug";
@@ -118,19 +118,19 @@ class App extends Loop {
   //   ],
   // });
 
-  // roundTriangle = new Shape({
-  //   x: 400,
-  //   y: 300,
-  //   stroke: "red",
-  //   fill: "yellow",
-  //   lineWidth: 3,
-  //   path: [
-  //     move(0, 50),
-  //     corner(-50, -50, -100, 50, 10),
-  //     corner(50, -50, 0, -150, 10),
-  //     corner(0, 50, 100, 50, 10),
-  //   ],
-  // });
+  roundTriangle = new Shape({
+    x: 400,
+    y: 300,
+    stroke: "red",
+    fill: "yellow",
+    lineWidth: 3,
+    path: [
+      move(0, 50),
+      corner(-50, -50, -100, 50, 25),
+      corner(50, -50, 0, -150, 25),
+      corner(0, 50, 100, 50, 25),
+    ],
+  });
 
   // line = new Shape({
   //   x: 400,
@@ -310,7 +310,7 @@ class App extends Loop {
     // this.shapes.push(this.path2);
     // this.shapes.push(this.path3);
     this.shapes.push(this.roundRect);
-    // this.shapes.push(this.roundTriangle);
+    this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
     // this.shapes.push(this.group);
     // this.shapes.push(this.group2);

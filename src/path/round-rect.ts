@@ -61,8 +61,6 @@ class RoundRect extends Segment {
     const cBR = new Vec2(to.x + width - rBR, to.y + height - rBR);
     const cBL = new Vec2(to.x + rBL, to.y + height - rBL);
 
-    this.points.length = 0;
-
     Arc.adaptiveSample(cTL, rTL, Math.PI, (3 * Math.PI) / 2, quality, this.points, 0); // prettier-ignore
     Arc.adaptiveSample(cTR, rTR, -Math.PI / 2, 0, quality, this.points, this.points.length); // prettier-ignore
     Arc.adaptiveSample(cBR, rBR, 0, Math.PI / 2, quality, this.points, this.points.length); // prettier-ignore
