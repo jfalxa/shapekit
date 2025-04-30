@@ -3,18 +3,18 @@ import { BoundingBox } from "../utils/bounding-box";
 import { pointToLineDistance } from "../utils/polyline";
 import { Segment } from "./segment";
 
-export function bezier2(x: number, y: number, cx?: number, cy?: number) {
-  return new Bezier2(x, y, cx, cy);
+export function bezier2(cpx: number, cpy: number, x?: number, y?: number) {
+  return new Bezier2(cpx, cpy, x, y);
 }
 
 export class Bezier2 extends Segment {
   control: Vec2 | undefined;
 
-  constructor(x: number, y: number, cx?: number, cy?: number) {
-    super(x, y);
+  constructor(cpx: number, cpy: number, x?: number, y?: number) {
+    super(x ?? cpx, y ?? cpy);
 
-    if (cx !== undefined && cy !== undefined) {
-      this.control = new Vec2(cx, cy);
+    if (x !== undefined && y !== undefined) {
+      this.control = new Vec2(x, y);
     }
   }
 
@@ -29,53 +29,50 @@ export class Bezier2 extends Segment {
   apply(path: Path2D, control: Vec2 | undefined): void {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Control point is missing");
-    const p1 = _control;
-    const p2 = this.to;
-    path.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
+
+    const to = this.to;
+    const cp = _control;
+
+    path.quadraticCurveTo(cp.x, cp.y, to.x, to.y);
   }
 
   sample(from: Vec2, control: Vec2 | undefined, quality = 1): Vec2[] {
-    const _control = this.control ?? control;
-    if (!_control) throw new Error("Control point is missing");
+    const cp = this.control ?? control;
+    if (!cp) throw new Error("Control point is missing");
 
-    const p0 = from;
-    const p1 = _control;
-    const p2 = this.to;
-
-    return Bezier2.adaptiveSample(p0, p1, p2, quality, this.points);
+    return Bezier2.adaptiveSample(from, cp, this.to, quality, this.points);
   }
 
   join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined) {
     const _control = this.control ?? control;
     if (!_control) throw new Error("Control point is missing");
 
-    const p0 = from;
-    const p1 = _control;
-    const p2 = this.to;
+    const to = this.to;
+    const cp = _control;
 
     this.min.put(Infinity);
     this.max.put(-Infinity);
 
-    this.min.min(p0).min(p2);
-    this.max.max(p0).max(p2);
+    this.min.min(from).min(to);
+    this.max.max(from).max(to);
 
     const point = new Vec2(0, 0);
 
-    const denomX = p2.x - 2 * p1.x + p0.x;
+    const denomX = to.x - 2 * cp.x + from.x;
     if (denomX !== 0) {
-      const t = (p0.x - p1.x) / denomX;
+      const t = (from.x - cp.x) / denomX;
       if (t > 0 && t < 1) {
-        Bezier2.sample(p0, p1, p2, t, point);
+        Bezier2.sample(from, cp, to, t, point);
         this.min.min(point);
         this.max.max(point);
       }
     }
 
-    const denomY = p2.y - 2 * p1.y + p0.y;
+    const denomY = to.y - 2 * cp.y + from.y;
     if (denomY !== 0) {
-      const t = (p0.y - p1.y) / denomY;
+      const t = (from.y - cp.y) / denomY;
       if (t > 0 && t < 1) {
-        Bezier2.sample(p0, p1, p2, t, point);
+        Bezier2.sample(from, cp, to, t, point);
         this.min.min(point);
         this.max.max(point);
       }
@@ -90,27 +87,27 @@ export class Bezier2 extends Segment {
   }
 
   static sample(
-    p0: Point,
-    p1: Point,
-    p2: Point,
+    from: Point,
+    cp: Point,
+    to: Point,
     t: number,
     out = new Vec2(0, 0)
   ) {
-    out.x = (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * p1.x + t * t * p2.x;
-    out.y = (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * p1.y + t * t * p2.y;
+    out.x = (1 - t) * (1 - t) * from.x + 2 * (1 - t) * t * cp.x + t * t * to.x;
+    out.y = (1 - t) * (1 - t) * from.y + 2 * (1 - t) * t * cp.y + t * t * to.y;
     return out;
   }
 
   static adaptiveSample(
-    p0: Point,
-    p1: Point,
-    p2: Point,
+    from: Point,
+    cp: Point,
+    to: Point,
     quality: number,
     out: Vec2[] = []
   ) {
     let i = 0;
     const tolerance = 1 / quality;
-    const stack = [{ a: p0, b: p1, c: p2 }];
+    const stack = [{ a: from, b: cp, c: to }];
 
     while (stack.length > 0) {
       const { a, b, c } = stack.pop()!;

@@ -5,14 +5,14 @@ import { Segment } from "./segment";
 import { pointToLineDistance } from "../utils/polyline";
 
 export function bezier3(
-  x: number,
-  y: number,
-  sx: number,
-  sy: number,
-  ex?: number,
-  ey?: number
+  cp1x: number,
+  cp1y: number,
+  cp2x: number,
+  cp2y: number,
+  x?: number,
+  y?: number
 ) {
-  return new Bezier3(x, y, sx, sy, ex, ey);
+  return new Bezier3(cp1x, cp1y, cp2x, cp2y, x, y);
 }
 
 export class Bezier3 extends Segment {
@@ -20,20 +20,20 @@ export class Bezier3 extends Segment {
   end: Vec2;
 
   constructor(
-    x: number,
-    y: number,
-    sx: number,
-    sy: number,
-    ex?: number,
-    ey?: number
+    cp1x: number,
+    cp1y: number,
+    cp2x: number,
+    cp2y: number,
+    x?: number,
+    y?: number
   ) {
-    super(x, y);
+    super(x ?? cp2x, y ?? cp2y);
 
-    if (ex !== undefined && ey !== undefined) {
-      this.start = new Vec2(sx, sy);
-      this.end = new Vec2(ex, ey);
+    if (x !== undefined && y !== undefined) {
+      this.start = new Vec2(cp1x, cp1y);
+      this.end = new Vec2(cp2x, cp2y);
     } else {
-      this.end = new Vec2(sx, sy);
+      this.end = new Vec2(cp1x, cp1y);
     }
   }
 
@@ -46,64 +46,62 @@ export class Bezier3 extends Segment {
   }
 
   apply(path: Path2D, control: Vec2 | undefined) {
-    const _start = this.start ?? control;
-    if (!_start) throw new Error("Missing start control point");
+    const start = this.start ?? control;
+    if (!start) throw new Error("Missing start control point");
 
-    const p1 = _start;
-    const p2 = this.end;
-    const p3 = this.to;
+    const cp1 = start;
+    const cp2 = this.end;
+    const to = this.to;
 
-    path.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+    path.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, to.x, to.y);
   }
 
   sample(from: Vec2, control: Vec2 | undefined, quality: number): Vec2[] {
     const start = this.start ?? control;
     if (!start) throw new Error("Missing start control point");
 
-    const p0 = from;
-    const p1 = start;
-    const p2 = this.end;
-    const p3 = this.to;
+    const cp1 = start;
+    const cp2 = this.end;
+    const to = this.to;
 
-    return Bezier3.adaptiveSample(p0, p1, p2, p3, quality);
+    return Bezier3.adaptiveSample(from, cp1, cp2, to, quality);
   }
 
   join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined): void {
     const start = this.start ?? control;
     if (!start) throw new Error("Missing start control point");
 
-    const p0 = from;
-    const p1 = start;
-    const p2 = this.end;
-    const p3 = this.to;
+    const cp1 = start;
+    const cp2 = this.end;
+    const to = this.to;
 
     this.min.put(Infinity);
     this.max.put(-Infinity);
 
-    this.min.min(p0).min(p3);
-    this.max.max(p0).max(p3);
+    this.min.min(from).min(to);
+    this.max.max(from).max(to);
 
     const point = new Vec2(0, 0);
 
-    const ax = -p0.x + 3 * p1.x - 3 * p2.x + p3.x;
-    const bx = 2 * (p0.x - 2 * p1.x + p2.x);
-    const cx = -p0.x + p1.x;
+    const ax = -from.x + 3 * cp1.x - 3 * cp2.x + to.x;
+    const bx = 2 * (from.x - 2 * cp1.x + cp2.x);
+    const cx = -from.x + cp1.x;
 
     for (const t of solveQuadratic(ax, bx, cx)) {
       if (t > 0 && t < 1) {
-        Bezier3.sample(p0, p1, p2, p3, t, point);
+        Bezier3.sample(from, cp1, cp2, to, t, point);
         this.min.min(point);
         this.max.max(point);
       }
     }
 
-    const ay = -p0.y + 3 * p1.y - 3 * p2.y + p3.y;
-    const by = 2 * (p0.y - 2 * p1.y + p2.y);
-    const cy = -p0.y + p1.y;
+    const ay = -from.y + 3 * cp1.y - 3 * cp2.y + to.y;
+    const by = 2 * (from.y - 2 * cp1.y + cp2.y);
+    const cy = -from.y + cp1.y;
 
     for (const t of solveQuadratic(ay, by, cy)) {
       if (t > 0 && t < 1) {
-        Bezier3.sample(p0, p1, p2, p3, t, point);
+        Bezier3.sample(from, cp1, cp2, to, t, point);
         this.min.min(point);
         this.max.max(point);
       }
@@ -119,39 +117,39 @@ export class Bezier3 extends Segment {
   }
 
   static sample(
-    p0: Point,
-    p1: Point,
-    p2: Point,
-    p3: Point,
+    from: Point,
+    cp1: Point,
+    cp2: Point,
+    to: Point,
     t: number,
     out = new Vec2(0, 0)
   ) {
     out.x =
-      (1 - t) ** 3 * p0.x +
-      3 * (1 - t) ** 2 * t * p1.x +
-      3 * (1 - t) * t ** 2 * p2.x +
-      t ** 3 * p3.x;
+      (1 - t) ** 3 * from.x +
+      3 * (1 - t) ** 2 * t * cp1.x +
+      3 * (1 - t) * t ** 2 * cp2.x +
+      t ** 3 * to.x;
 
     out.y =
-      (1 - t) ** 3 * p0.y +
-      3 * (1 - t) ** 2 * t * p1.y +
-      3 * (1 - t) * t ** 2 * p2.y +
-      t ** 3 * p3.y;
+      (1 - t) ** 3 * from.y +
+      3 * (1 - t) ** 2 * t * cp1.y +
+      3 * (1 - t) * t ** 2 * cp2.y +
+      t ** 3 * to.y;
 
     return out;
   }
 
   static adaptiveSample(
-    p0: Point,
-    p1: Point,
-    p2: Point,
-    p3: Point,
+    from: Point,
+    cp1: Point,
+    cp2: Point,
+    to: Point,
     quality: number,
     out: Vec2[] = []
   ) {
     let i = 0;
     const tolerance = 1 / quality;
-    const stack = [{ a: p0, b: p1, c: p2, d: p3 }];
+    const stack = [{ a: from, b: cp1, c: cp2, d: to }];
 
     while (stack.length > 0) {
       const { a, b, c, d } = stack.pop()!;
