@@ -47,6 +47,7 @@ export class Corner extends Segment {
     return Arc.adaptiveSample(
       center,
       r,
+      r,
       startAngle,
       endAngle,
       quality,
@@ -54,10 +55,36 @@ export class Corner extends Segment {
     );
   }
 
-  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
-    const { center } = Corner.toArc(from, this.control, this.to, this.radius);
-    this.min.copy(center).translate(-this.radius);
-    this.max.copy(center).translate(this.radius);
+  join(
+    aabb: BoundingBox,
+    from: Vec2,
+    _control: Vec2 | undefined,
+    sx: number,
+    sy: number
+  ) {
+    const p0 = v(from).scale(sx, sy);
+    const p1 = v(this.control).scale(sx, sy);
+    const p2 = v(this.to).scale(sx, sy);
+    const r = this.radius;
+
+    const arc = Corner.toArc(p0, p1, p2, r);
+
+    const extrema = Arc.sampleExtrema(
+      arc.center,
+      arc.radius,
+      arc.radius,
+      arc.startAngle,
+      arc.endAngle
+    );
+
+    this.min.put(Infinity);
+    this.max.put(-Infinity);
+
+    for (const point of extrema) {
+      this.min.min(point);
+      this.max.max(point);
+    }
+
     aabb.merge(this);
   }
 

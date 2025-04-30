@@ -28,16 +28,28 @@ export class Arc extends Segment {
 
   apply(path: Path2D, _control: Vec2, sx: number, sy: number) {
     const to = v(this.to).scale(sx, sy);
-    const radius = this.radius * Math.min(sx, sy);
 
-    path.arc(
-      to.x,
-      to.y,
-      radius,
-      this.startAngle,
-      this.endAngle,
-      this.counterclockwise
-    );
+    if (sx === sy) {
+      path.arc(
+        to.x,
+        to.y,
+        this.radius * sx,
+        this.startAngle,
+        this.endAngle,
+        this.counterclockwise
+      );
+    } else {
+      path.ellipse(
+        to.x,
+        to.y,
+        this.radius * sx,
+        this.radius * sy,
+        0,
+        this.startAngle,
+        this.endAngle,
+        this.counterclockwise
+      );
+    }
   }
 
   sample(
@@ -48,11 +60,11 @@ export class Arc extends Segment {
     quality: number
   ): Vec2[] {
     const to = v(this.to).scale(sx, sy);
-    const radius = this.radius * Math.min(sx, sy);
 
     return Arc.adaptiveSample(
       to,
-      radius,
+      this.radius * sx,
+      this.radius * sy,
       this.startAngle,
       this.endAngle,
       quality,
@@ -60,15 +72,38 @@ export class Arc extends Segment {
     );
   }
 
-  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined) {
-    this.min.copy(this.to).translate(-this.radius);
-    this.max.copy(this.to).translate(this.radius);
+  join(
+    aabb: BoundingBox,
+    _from: Vec2,
+    _control: Vec2 | undefined,
+    sx: number,
+    sy: number
+  ) {
+    const center = v(this.to).scale(sx, sy);
+
+    const extrema = Arc.sampleExtrema(
+      center,
+      this.radius * sx,
+      this.radius * sy,
+      this.startAngle,
+      this.endAngle
+    );
+
+    this.min.put(Infinity);
+    this.max.put(-Infinity);
+
+    for (const point of extrema) {
+      this.min.min(point);
+      this.max.max(point);
+    }
+
     aabb.merge(this);
   }
 
   static sample(
     center: Point,
-    radius: number,
+    rx: number,
+    ry: number,
     startAngle: number,
     endAngle: number,
     t: number,
@@ -77,14 +112,15 @@ export class Arc extends Segment {
     let angleDiff = endAngle - startAngle;
     if (angleDiff < 0) angleDiff += 2 * Math.PI;
     const angle = startAngle + angleDiff * t;
-    out.x = center.x + radius * Math.cos(angle);
-    out.y = center.y + radius * Math.sin(angle);
+    out.x = center.x + rx * Math.cos(angle);
+    out.y = center.y + ry * Math.sin(angle);
     return out;
   }
 
   static adaptiveSample(
     center: Point,
-    radius: number,
+    rx: number,
+    ry: number,
     startAngle: number,
     endAngle: number,
     quality: number,
@@ -92,8 +128,8 @@ export class Arc extends Segment {
     offset = 0
   ) {
     out[offset] = new Vec2(
-      center.x + radius * Math.cos(startAngle),
-      center.y + radius * Math.sin(startAngle)
+      center.x + rx * Math.cos(startAngle),
+      center.y + ry * Math.sin(startAngle)
     );
 
     let i = offset + 1;
@@ -103,9 +139,9 @@ export class Arc extends Segment {
     while (stack.length > 0) {
       const { a, b } = stack.pop()!;
 
-      const p0 = Arc.sample(center, radius, a, b, 0);
-      const p1 = Arc.sample(center, radius, a, b, 1);
-      const pm = Arc.sample(center, radius, a, b, 0.5);
+      const p0 = Arc.sample(center, rx, ry, a, b, 0);
+      const p1 = Arc.sample(center, rx, ry, a, b, 1);
+      const pm = Arc.sample(center, rx, ry, a, b, 0.5);
 
       const err = pointToLineDistance(pm, p0, p1);
 
@@ -124,5 +160,49 @@ export class Arc extends Segment {
 
     out.length = i;
     return out;
+  }
+
+  static sampleExtrema(
+    center: Point,
+    rx: number,
+    ry: number,
+    startAngle: number,
+    endAngle: number
+  ) {
+    const extrema: Vec2[] = [];
+    const twoPi = Math.PI * 2;
+
+    // normalize into [0, 2π)
+    let start = startAngle % twoPi;
+    if (start < 0) start += twoPi;
+    let end = endAngle % twoPi;
+    if (end <= 0) end += twoPi;
+
+    // total swept angle, always positive
+    let sweep = end - start;
+    if (sweep < 0) sweep += twoPi;
+
+    // helper to push a point at a given angle
+    const pushAt = (ang: number) =>
+      extrema.push(
+        new Vec2(center.x + rx * Math.cos(ang), center.y + ry * Math.sin(ang))
+      );
+
+    // always include start and end
+    pushAt(startAngle);
+    pushAt(endAngle);
+
+    // check the four cardinal angles
+    for (let i = 0; i < 4; i++) {
+      const ang = i * (Math.PI / 2);
+      let d = ang - start;
+      if (d < 0) d += twoPi;
+      // if strictly between start and end, include
+      if (d > 0 && d < sweep) {
+        pushAt(ang);
+      }
+    }
+
+    return extrema;
   }
 }
