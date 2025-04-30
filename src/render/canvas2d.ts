@@ -108,20 +108,18 @@ function renderText(ctx: Canvas2D, text: Text) {
   if (textBaseline !== ctx.textBaseline) ctx.textBaseline = textBaseline;
 
   const textHeight = lines.length * lineHeight;
-  const halfWidth = text.width / 2;
-  const halfHeight = text.height / 2;
 
-  const minY = -halfHeight + padding;
-  const maxY = halfHeight - padding;
+  const minY = 0 + padding;
+  const maxY = text.height - padding;
 
-  let x = 0;
-  if (textAlign === "left") x = -halfWidth + padding;
-  if (textAlign === "right") x = halfWidth - padding;
+  let x = text.width / 2;
+  if (textAlign === "left") x = padding;
+  if (textAlign === "right") x = text.width - padding;
 
   let y = 0;
-  if (textPosition === "top") y = -halfHeight + padding;
-  if (textPosition === "middle") y = -textHeight / 2;
-  if (textPosition === "bottom") y = halfHeight - padding - textHeight;
+  if (textPosition === "top") y = padding;
+  if (textPosition === "middle") y = -text.height / 2;
+  if (textPosition === "bottom") y = text.height - padding - textHeight;
 
   for (let i = 0; i < lines.length; i++) {
     y += lineHeight;
