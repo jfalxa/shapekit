@@ -4,8 +4,7 @@ import { BoundingBox } from "../utils/bounding-box";
 import { Group } from "./group";
 import { Shape } from "./shape";
 
-export interface RenderableInit {
-  id?: string;
+export interface Transform {
   x?: number;
   y?: number;
   width?: number;
@@ -15,6 +14,10 @@ export interface RenderableInit {
   skewX?: number;
   skewY?: number;
   rotation?: number;
+}
+
+export interface RenderableInit extends Transform {
+  id?: string;
 }
 
 export abstract class Renderable {

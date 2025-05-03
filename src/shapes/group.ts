@@ -4,8 +4,11 @@ import { BoundingBox } from "../utils/bounding-box";
 import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
-export interface GroupInit extends RenderableInit {
+export interface GroupStyle {
   globalCompositeOperation?: GlobalCompositeOperation;
+}
+
+export interface GroupInit extends RenderableInit, GroupStyle {
   children?: Renderable[];
 }
 

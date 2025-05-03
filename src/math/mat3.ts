@@ -1,4 +1,4 @@
-import { RenderableInit } from "../shapes/renderable";
+import { Transform } from "../shapes/renderable";
 
 // prettier-ignore
 const IDENTITY = [
@@ -75,7 +75,7 @@ export class Matrix3 extends Float64Array {
     return this;
   }
 
-  compose(renderable: RenderableInit) {
+  compose(renderable: Transform) {
     const {
       x = 0,
       y = 0,
@@ -107,7 +107,7 @@ export class Matrix3 extends Float64Array {
     return this;
   }
 
-  decompose(out: RenderableInit = {}) {
+  decompose(out: Transform = {}) {
     const [a, b, , c, d, , e, f] = this;
 
     const _width = out.width || 0;

@@ -7,8 +7,7 @@ import { isPointInPolyline, doPolylinesOverlap } from "../utils/polyline";
 import { isPointInPolygon, doPolygonsOverlap } from "../utils/polygon";
 import { Renderable, RenderableInit } from "./renderable";
 
-export interface ShapeInit extends RenderableInit {
-  path?: Path;
+export interface ShapeStyle {
   fill?: string | Gradient;
   stroke?: string | Gradient;
   lineWidth?: number;
@@ -22,6 +21,10 @@ export interface ShapeInit extends RenderableInit {
   shadowOffsetY?: number;
   globalAlpha?: number;
   filter?: string;
+}
+
+export interface ShapeInit extends RenderableInit, ShapeStyle {
+  path?: Path;
   quality?: number;
 }
 

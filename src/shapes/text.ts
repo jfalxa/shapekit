@@ -1,8 +1,7 @@
 import { fitText, measureText } from "../utils/text";
 import { Shape, ShapeInit } from "./shape";
 
-export interface TextInit extends ShapeInit {
-  text: string;
+export interface TextStyle {
   fontFamily?: string;
   fontSize?: number;
   fontStretch?: string;
@@ -15,21 +14,18 @@ export interface TextInit extends ShapeInit {
   textLineWidth?: number;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
-  textPosition?: "top" | "middle" | "bottom";
   direction?: CanvasDirection;
+  textPosition?: "top" | "middle" | "bottom";
   padding?: number;
 }
 
-export class Text extends Shape {
-  textFill?: string;
-  textStroke?: string;
-  textLineWidth?: number;
-  textAlign?: CanvasTextAlign;
-  textBaseline?: CanvasTextBaseline;
-  textPosition?: "top" | "middle" | "bottom";
-  direction?: CanvasDirection;
-
+export interface TextInit extends ShapeInit, TextStyle {
   text: string;
+}
+
+export class Text extends Shape {
+  text: string;
+
   fontFamily?: string;
   fontSize?: number;
   fontStretch?: string;
@@ -37,6 +33,13 @@ export class Text extends Shape {
   fontVariant?: string;
   fontWeight?: string;
   lineHeight?: number;
+  textFill?: string;
+  textStroke?: string;
+  textLineWidth?: number;
+  textAlign?: CanvasTextAlign;
+  textBaseline?: CanvasTextBaseline;
+  textPosition?: "top" | "middle" | "bottom";
+  direction?: CanvasDirection;
   padding?: number;
 
   declare font: string;
