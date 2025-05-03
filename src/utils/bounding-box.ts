@@ -22,28 +22,29 @@ export class BoundingBox {
 
   center = new Vec2(0, 0);
 
-  get width() {
-    return this.max[0] - this.min[0];
+  width = 0;
+  height = 0;
+
+  static isAABB(value: object): value is AABB {
+    return (
+      "min" in value &&
+      value.min instanceof Vec2 &&
+      "max" in value &&
+      value.max instanceof Vec2
+    );
   }
 
-  get height() {
-    return this.max[1] - this.min[1];
-  }
-
-  equals(other: BoundingBox) {
-    return this.min.equals(other.min) && this.max.equals(other.max);
-  }
-
-  scale(sx: number, sy: number) {
-    this.a.scale(sx, sy);
-    this.b.scale(sx, sy);
-    this.c.scale(sx, sy);
-    this.d.scale(sx, sy);
-
-    this.min.copy(this.a).min(this.b).min(this.c).min(this.d);
-    this.max.copy(this.a).max(this.b).max(this.c).max(this.d);
-
-    this.center.copy(this.min).add(this.max).scale(0.5);
+  copy(other: BoundingBox) {
+    this.min.copy(other.min);
+    this.max.copy(other.max);
+    this.a.copy(other.a);
+    this.b.copy(other.b);
+    this.c.copy(other.c);
+    this.d.copy(other.d);
+    this.center.copy(other.center);
+    this.width = other.width;
+    this.height = other.height;
+    return this;
   }
 
   transform(matrix: Matrix3) {
@@ -56,76 +57,49 @@ export class BoundingBox {
     this.max.copy(this.a).max(this.b).max(this.c).max(this.d);
 
     this.center.copy(this.min).add(this.max).scale(0.5);
+    this.width = this.max.x - this.min.x;
+    this.height = this.max.y - this.min.y;
   }
 
-  merge(other: Vec2 | AABB) {
-    if (other instanceof Vec2) {
-      this.min.min(other);
-      this.max.max(other);
-    } else {
-      this.min.min(other.min);
-      this.max.max(other.max);
-    }
+  merge(other: Vec2 | AABB | Renderable) {
+    const aabb = other instanceof Renderable ? other.obb : other;
+    const min = BoundingBox.isAABB(aabb) ? aabb.min : aabb;
+    const max = BoundingBox.isAABB(aabb) ? aabb.max : aabb;
+
+    this.min.min(min);
+    this.max.max(max);
 
     this.a.copy(this.min);
-    this.b.put(this.max[0], this.min[1]);
+    this.b.put(this.max.x, this.min.y);
     this.c.copy(this.max);
-    this.d.put(this.min[0], this.max[1]);
+    this.d.put(this.min.x, this.max.y);
 
     this.center.copy(this.min).add(this.max).scale(0.5);
+    this.width = this.max.x - this.min.x;
+    this.height = this.max.y - this.min.y;
   }
 
-  mayContain(other: Point | Renderable) {
-    if (other instanceof Renderable) {
-      return (
-        other.obb.min[0] >= this.min[0] &&
-        other.obb.max[0] <= this.max[0] &&
-        other.obb.min[1] >= this.min[1] &&
-        other.obb.max[1] <= this.max[1]
-      );
-    } else {
-      return (
-        other.x > this.min[0] &&
-        other.x < this.max[0] &&
-        other.y > this.min[1] &&
-        other.y < this.max[1]
-      );
-    }
-  }
+  mayContain(other: Point | AABB | Renderable) {
+    const aabb = other instanceof Renderable ? other.obb : other;
+    const min = BoundingBox.isAABB(aabb) ? aabb.min : aabb;
+    const max = BoundingBox.isAABB(aabb) ? aabb.max : aabb;
 
-  mayOverlap(other: Renderable) {
     return (
-      this.min[0] <= other.obb.max[0] &&
-      this.max[0] >= other.obb.min[0] &&
-      this.min[1] <= other.obb.max[1] &&
-      this.max[1] >= other.obb.min[1]
+      min.x >= this.min.x &&
+      max.x <= this.max.x &&
+      min.y >= this.min.y &&
+      max.y <= this.max.y
     );
   }
 
-  clone() {
-    return new BoundingBox().copy(this);
-  }
+  mayOverlap(other: AABB | Renderable) {
+    const aabb = other instanceof Renderable ? other.obb : other;
 
-  copy(other: BoundingBox) {
-    this.min.copy(other.min);
-    this.max.copy(other.max);
-    this.a.copy(other.a);
-    this.b.copy(other.b);
-    this.c.copy(other.c);
-    this.d.copy(other.d);
-    this.center.copy(other.center);
-    return this;
-  }
-
-  static fit(points: Vec2[], out: AABB = new BoundingBox()) {
-    out.min.put(Infinity);
-    out.max.put(-Infinity);
-
-    for (const point of points) {
-      out.min.min(point);
-      out.max.max(point);
-    }
-
-    return out;
+    return (
+      this.min.x <= aabb.max.x &&
+      this.max.x >= aabb.min.x &&
+      this.min.y <= aabb.max.y &&
+      this.max.y >= aabb.min.y
+    );
   }
 }
