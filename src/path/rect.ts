@@ -22,6 +22,12 @@ export class Rect extends Segment {
     );
   }
 
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.width *= sx;
+    this.height *= sy;
+  }
+
   apply(path: Path2D): void {
     path.rect(this.to.x, this.to.y, this.width, this.height);
   }
@@ -34,11 +40,5 @@ export class Rect extends Segment {
     this.points[4].copy(this.to);
 
     return this.points;
-  }
-
-  scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.width *= sx;
-    this.height *= sy;
   }
 }

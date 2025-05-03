@@ -11,6 +11,8 @@ export class ClosePath extends Segment {
     super(0, 0);
   }
 
+  scale(_sx: number, _sy: number): void {}
+
   link(previous: Segment | undefined) {
     super.link(previous);
 

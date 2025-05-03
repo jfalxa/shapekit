@@ -24,6 +24,13 @@ export class ArcTo extends Segment {
     this.radiusY = radius;
   }
 
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.control?.scale(sx, sy);
+    this.radiusX *= sx;
+    this.radiusY *= sy;
+  }
+
   apply(path: Path2D) {
     if (this.radiusX === this.radiusY) {
       path.arcTo(
@@ -72,13 +79,6 @@ export class ArcTo extends Segment {
       quality,
       this.points
     );
-  }
-
-  scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.control?.scale(sx, sy);
-    this.radiusX *= sx;
-    this.radiusY *= sy;
   }
 
   static toArc(from: Vec2, cp: Vec2, to: Vec2, rx: number, ry: number) {

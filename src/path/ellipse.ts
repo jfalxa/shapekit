@@ -37,6 +37,12 @@ export class Ellipse extends Segment {
     super(x, y);
   }
 
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.radiusX *= sx;
+    this.radiusY *= sy;
+  }
+
   apply(path: Path2D) {
     path.ellipse(
       this.to.x,
@@ -61,12 +67,6 @@ export class Ellipse extends Segment {
       quality,
       this.points
     );
-  }
-
-  scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.radiusX *= sx;
-    this.radiusY *= sy;
   }
 
   static sample(

@@ -29,6 +29,12 @@ export class Arc extends Segment {
     this.radiusY = radius;
   }
 
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.radiusX *= sx;
+    this.radiusY *= sy;
+  }
+
   apply(path: Path2D) {
     if (this.radiusX === this.radiusY) {
       path.arc(
@@ -63,12 +69,6 @@ export class Arc extends Segment {
       quality,
       this.points
     );
-  }
-
-  scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.radiusX *= sx;
-    this.radiusY *= sy;
   }
 
   static sample(

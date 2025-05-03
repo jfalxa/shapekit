@@ -43,6 +43,12 @@ export class BezierCurveTo extends ControlledSegment {
     return this.end;
   }
 
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.start?.scale(sx, sy);
+    this.end.scale(sx, sy);
+  }
+
   apply(path: Path2D) {
     path.bezierCurveTo(
       this._control.x,
@@ -62,12 +68,6 @@ export class BezierCurveTo extends ControlledSegment {
       this.to,
       quality
     );
-  }
-
-  scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.start?.scale(sx, sy);
-    this.end.scale(sx, sy);
   }
 
   static sample(

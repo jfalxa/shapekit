@@ -30,6 +30,11 @@ export class QuadraticCurveTo extends ControlledSegment {
     return this._control;
   }
 
+  scale(sx: number, sy: number) {
+    this.to.scale(sx, sy);
+    this.control?.scale(sx, sy);
+  }
+
   apply(path: Path2D): void {
     path.quadraticCurveTo(
       this._control.x,
@@ -47,11 +52,6 @@ export class QuadraticCurveTo extends ControlledSegment {
       quality,
       this.points
     );
-  }
-
-  scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.control?.scale(sx, sy);
   }
 
   static sample(
