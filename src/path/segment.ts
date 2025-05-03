@@ -7,6 +7,8 @@ export abstract class Segment {
   from: Vec2;
   to: Vec2;
 
+  previous?: Segment;
+
   protected points: Vec2[];
 
   constructor(x: number, y: number) {
@@ -16,11 +18,9 @@ export abstract class Segment {
   }
 
   link(previous: Segment | undefined) {
-    if (previous) {
-      this.from.copy(previous.to);
-    } else {
-      this.from.put(0);
-    }
+    this.previous = previous;
+    if (previous) this.from.copy(previous.to);
+    else this.from.put(0);
   }
 
   scale(sx: number, sy: number) {

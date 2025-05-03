@@ -51,6 +51,8 @@ class RoundRect extends Rect {
     Arc.adaptiveSample(cBR, rBR, rBR, 0, Math.PI / 2, quality, this.points, this.points.length); // prettier-ignore
     Arc.adaptiveSample(cBL, rBL, rBL, Math.PI / 2, Math.PI, quality, this.points, this.points.length); // prettier-ignore
 
+    this.points.push(new Vec2(to.x, to.y + rTL));
+
     return this.points;
   }
 }
