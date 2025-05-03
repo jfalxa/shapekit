@@ -1,25 +1,24 @@
 import { Loop } from "vroum";
 import { renderAll } from "./render/canvas2d";
 import { Shape } from "./shapes/shape";
-import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
-import {
-  bezierCurveTo,
-  moveTo,
-  arc,
-  roundRect,
-  arcTo,
-  quadraticCurveTo,
-  lineTo,
-  ellipse,
-} from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
-import { renderHulls, renderOBB } from "./utils/debug";
+import { renderHulls, renderOBB } from "./debug";
 import { Matrix3 } from "./math/mat3";
 import { Vec2 } from "./math/vec2";
-import { linearGradient } from "./gradients";
+import { linearGradient } from "./gradients/linear";
+import { bezierCurveTo } from "./path/bezier-curve-to";
+import { moveTo } from "./path/move-to";
+import { quadraticCurveTo } from "./path/quadratic-curve-to";
+import { arcTo } from "./path/arc-to";
+import { lineTo } from "./path/line-to";
+import { arc } from "./path/arc";
+import { ellipse } from "./path/ellipse";
+import { roundRect } from "./path/round-rect";
+
+import treeSrc from "./tree.png";
 
 class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
