@@ -54,7 +54,7 @@ function renderGroup(ctx: Canvas2D, group: Group) {
 
 function renderFill(ctx: Canvas2D, shape: Shape) {
   setContext(ctx, "fillStyle", resolveColor(ctx, shape.fill));
-  ctx.fill(shape.path2D);
+  ctx.fill(shape.path.path2D);
 }
 
 function renderStroke(ctx: Canvas2D, shape: Shape) {
@@ -64,7 +64,7 @@ function renderStroke(ctx: Canvas2D, shape: Shape) {
   setContext(ctx, "lineDashOffset", shape.lineDashOffset);
   setContext(ctx, "miterLimit", shape.miterLimit);
   setContext(ctx, "strokeStyle", resolveColor(ctx, shape.stroke));
-  ctx.stroke(shape.path2D);
+  ctx.stroke(shape.path.path2D);
 }
 
 function renderImage(ctx: Canvas2D, image: Image) {

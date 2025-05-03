@@ -5,11 +5,11 @@ export function isPointInPolyline(point: Point, polyline: Shape): boolean {
   const radius = polyline.stroke ? (polyline.lineWidth ?? 1) / 2 : 0;
   const threshold = radius;
 
-  const len = polyline.hull.length;
+  const len = polyline.points.length;
 
   for (let i = 0; i < len - 1; i++) {
-    const p1 = polyline.hull[i];
-    const p2 = polyline.hull[(i + 1) % len] ?? polyline.hull[i];
+    const p1 = polyline.points[i];
+    const p2 = polyline.points[(i + 1) % len] ?? polyline.points[i];
 
     if (pointToLineDistance(point, p1, p2) <= threshold) {
       return true;
@@ -24,16 +24,16 @@ export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
   const radiusB = b.stroke ? (b.lineWidth ?? 1) / 2 : 0;
   const threshold = radiusA + radiusB;
 
-  const aLen = a.hull.length;
-  const bLen = b.hull.length;
+  const aLen = a.points.length;
+  const bLen = b.points.length;
 
   for (let i = 0; i < aLen; i++) {
-    const a1 = a.hull[i];
-    const a2 = a.hull[(i + 1) % aLen];
+    const a1 = a.points[i];
+    const a2 = a.points[(i + 1) % aLen];
 
     for (let j = 0; j < bLen; j++) {
-      const b1 = b.hull[j];
-      const b2 = b.hull[(j + 1) % bLen];
+      const b1 = b.points[j];
+      const b2 = b.points[(j + 1) % bLen];
 
       if (segmentsDistance(a1, a2, b1, b2) <= threshold) {
         return true;

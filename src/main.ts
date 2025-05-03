@@ -18,6 +18,7 @@ import { arc } from "./path/arc";
 import { ellipse } from "./path/ellipse";
 import { roundRect } from "./path/round-rect";
 import { closePath } from "./path/close-path";
+import { Path } from "./path/path";
 
 import treeSrc from "./tree.png";
 
@@ -258,7 +259,7 @@ class App extends Loop {
             fill: "yellow",
             lineWidth: 3,
             globalAlpha: 0.5,
-            path: [
+            path: new Path([
               moveTo(0, 50),
               arcTo(-100, 50, -50, -50, 25),
               arcTo(0, -150, 50, -50, 25),
@@ -270,7 +271,7 @@ class App extends Loop {
               arcTo(200, -150, 250, -50, 25),
               arcTo(300, 50, 200, 50, 25),
               closePath(),
-            ],
+            ]),
           }),
 
           new Shape({
@@ -346,7 +347,7 @@ class App extends Loop {
 
     this.group.update(true);
 
-    for (let i = 0; i < 16000; i++) {
+    for (let i = 0; i < 0; i++) {
       this.shapes.push(
         new Shape({
           fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
@@ -369,7 +370,7 @@ class App extends Loop {
     // this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    // this.shapes.push(this.group);
+    this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
     // this.shapes.push(this.circle);
@@ -417,7 +418,7 @@ class App extends Loop {
 
     const message = `total = ${total}ms, update = ${update}ms, render = ${render}ms`;
 
-    console.log(message);
+    // console.log(message);
   }
 }
 

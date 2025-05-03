@@ -4,11 +4,11 @@ import { Vec2, Point } from "../math/vec2";
 // even odd rule algorithm
 export function isPointInPolygon(point: Point, shape: Shape): boolean {
   let inside = false;
-  const n = shape.hull.length;
+  const n = shape.points.length;
 
   for (let i = 0, j = n - 1; i < n; j = i++) {
-    const a = shape.hull[i];
-    const b = shape.hull[j];
+    const a = shape.points[i];
+    const b = shape.points[j];
 
     const yBetween = a.y > point.y !== b.y > point.y;
 
@@ -30,7 +30,7 @@ export function isPointInPolygon(point: Point, shape: Shape): boolean {
 export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
   const axis = new Vec2(0, 0);
 
-  for (const polygon of [a.hull, b.hull]) {
+  for (const polygon of [a.points, b.points]) {
     const len = polygon.length;
 
     for (let i = 0; i < len; i++) {
@@ -39,8 +39,8 @@ export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
 
       axis.put(p2.y - p1.y, -(p2.x - p1.x));
 
-      const [minA, maxA] = projectPolygon(a.hull, axis);
-      const [minB, maxB] = projectPolygon(b.hull, axis);
+      const [minA, maxA] = projectPolygon(a.points, axis);
+      const [minB, maxB] = projectPolygon(b.points, axis);
 
       if (maxA < minB || maxB < minA) {
         return false;

@@ -21,13 +21,13 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
 
   for (const shape of flattenRenderables(renderables)) {
     if (!(shape instanceof Shape)) continue;
-    if (shape.hull.length === 0) continue;
+    if (shape.points.length === 0) continue;
 
     ctx.beginPath();
-    ctx.moveTo(shape.hull[0][0], shape.hull[0][1]);
+    ctx.moveTo(shape.points[0][0], shape.points[0][1]);
 
-    for (let j = 1; j < shape.hull.length; j++) {
-      ctx.lineTo(shape.hull[j][0], shape.hull[j][1]);
+    for (let j = 1; j < shape.points.length; j++) {
+      ctx.lineTo(shape.points[j][0], shape.points[j][1]);
     }
 
     ctx.stroke();
