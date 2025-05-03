@@ -12,6 +12,7 @@ import {
   arcTo,
   quadraticCurveTo,
   lineTo,
+  ellipse,
 } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
@@ -133,7 +134,7 @@ class App extends Loop {
     ],
   });
 
-  line = new Shape({
+  polyline = new Shape({
     x: 400,
     y: 300,
     stroke: "yellow",
@@ -162,6 +163,13 @@ class App extends Loop {
     // lineWidth: 5,
     // rotation: Math.PI / 4,
     path: [arc(0, 0, 200, (3 * Math.PI) / 2, (3 * Math.PI) / 2 + 0.6)],
+  });
+
+  ellipse = new Shape({
+    x: 400,
+    y: 300,
+    stroke: "purple",
+    path: [ellipse(0, 0, 100, 50, Math.PI / 3)],
   });
 
   skewed = new Group({
@@ -344,8 +352,7 @@ class App extends Loop {
       );
     }
 
-    // this.shapes.push(this.line);
-    // this.shapes.push(this.image);
+    // this.shapes.push(this.polyline);
     // this.shapes.push(this.rect1);
     // this.shapes.push(this.rect2);
     // this.shapes.push(this.path);
@@ -359,6 +366,7 @@ class App extends Loop {
     // this.shapes.push(this.skewed);
     // this.shapes.push(this.circle);
     // this.shapes.push(this.arc);
+    // this.shapes.push(this.ellipse);
   }
 
   s = 1;
@@ -368,8 +376,8 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      // shape.rotation += 0.001 * this.deltaTime;
-      // shape.update();
+      shape.rotation += 0.001 * this.deltaTime;
+      shape.update();
       // shape.update(true);
     }
 

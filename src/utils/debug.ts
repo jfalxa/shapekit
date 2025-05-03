@@ -22,7 +22,7 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
 
   for (const shape of flattenRenderables(renderables)) {
     if (!(shape instanceof Shape)) continue;
-    if (shape.path.length === 0 || shape.hull.length === 0) continue;
+    if (shape.hull.length === 0) continue;
 
     ctx.beginPath();
     ctx.moveTo(shape.hull[0][0], shape.hull[0][1]);
@@ -55,11 +55,8 @@ export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.shadowOffsetY = 0;
 
   for (const shape of flattenRenderables(renderables)) {
-    if (shape instanceof Group) {
-      renderOBB(ctx, shape.children);
-    }
-
     ctx.beginPath();
+
     ctx.moveTo(shape.obb.a.x, shape.obb.a.y);
     ctx.lineTo(shape.obb.b.x, shape.obb.b.y);
     ctx.lineTo(shape.obb.c.x, shape.obb.c.y);
