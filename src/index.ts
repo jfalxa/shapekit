@@ -9,6 +9,7 @@ export * from "./path/bezier-curve-to";
 export * from "./path/ellipse";
 export * from "./path/line-to";
 export * from "./path/move-to";
+export * from "./path/path";
 export * from "./path/quadratic-curve-to";
 export * from "./path/rect";
 export * from "./path/round-rect";

@@ -1,11 +1,10 @@
 import { Gradient } from "../gradients/gradient";
 import { Point, Vec2 } from "../math/vec2";
 import { rect } from "../path/rect";
-import { Segment, Path } from "../path/segment";
-import { BoundingBox } from "../utils/bounding-box";
 import { isPointInPolyline, doPolylinesOverlap } from "../utils/polyline";
 import { isPointInPolygon, doPolygonsOverlap } from "../utils/polygon";
 import { Renderable, RenderableInit } from "./renderable";
+import { Path, PathLike } from "../path/path";
 
 export interface ShapeStyle {
   fill?: string | Gradient;
@@ -24,7 +23,7 @@ export interface ShapeStyle {
 }
 
 export interface ShapeInit extends RenderableInit, ShapeStyle {
-  path?: Path;
+  path?: PathLike;
   quality?: number;
 }
 
@@ -46,11 +45,7 @@ export class Shape extends Renderable {
   globalAlpha?: number;
   filter?: string;
 
-  path2D!: Path2D;
-  hull: Vec2[];
-
-  _hull: Vec2[]; // local unstransformed hull
-  _obb: BoundingBox; // local unstransformed OBB
+  points: Vec2[];
 
   constructor(init: ShapeInit) {
     // by default, create a rect of width x height
@@ -60,7 +55,7 @@ export class Shape extends Renderable {
 
     super(init);
 
-    this.path = init.path ?? [];
+    this.path = new Path(init.path ?? []);
 
     this.x = init.x ?? 0;
     this.y = init.y ?? 0;
@@ -85,10 +80,7 @@ export class Shape extends Renderable {
     this.filter = init.filter;
     this.quality = init.quality ?? 1;
 
-    this.hull = new Array();
-
-    this._obb = new BoundingBox();
-    this._hull = new Array();
+    this.points = new Array();
 
     this.update(true);
   }
@@ -97,7 +89,7 @@ export class Shape extends Renderable {
     if (!this.obb.mayContain(shape)) return false;
 
     if (shape instanceof Shape) {
-      for (const point of shape.hull) {
+      for (const point of shape.points) {
         if (!this.contains(point)) return false;
       }
       return true;
@@ -118,32 +110,24 @@ export class Shape extends Renderable {
 
   build() {
     const { width, height, baseWidth, baseHeight } = this;
-    const { path, quality, _hull, _obb } = this;
 
     if (width && height && baseWidth && baseHeight) {
-      const sw = width / baseWidth;
-      const sh = height / baseHeight;
-
-      for (const segment of this.path) {
-        segment.scale(sw, sh);
-      }
+      this.path.scale(width / baseWidth, height / baseHeight);
     }
 
-    this.path2D = new Path2D();
+    this.path.build(this.quality);
 
-    Segment.build(path, this.path2D, _hull, _obb, quality);
+    this.width = this.baseWidth = this.path.obb.width;
+    this.height = this.baseHeight = this.path.obb.height;
 
-    this.width = this.baseWidth = _obb.width;
-    this.height = this.baseHeight = _obb.height;
-
-    this.hull.length = _hull.length;
+    this.points.length = this.path.points.length;
   }
 
   update(rebuild = false) {
     if (rebuild) this.build();
 
     this.transform.compose(this);
-    this.obb.copy(this._obb).transform(this.transform);
+    this.obb.copy(this.path.obb).transform(this.transform);
 
     if (this.parent) {
       this.parent.obb.merge(this.obb);
@@ -151,9 +135,9 @@ export class Shape extends Renderable {
       this.obb.transform(this.parent.transform);
     }
 
-    for (let i = 0; i < this.hull.length; i++) {
-      this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
-        .copy(this._hull[i])
+    for (let i = 0; i < this.points.length; i++) {
+      this.points[i] = (this.points[i] ?? new Vec2(0, 0))
+        .copy(this.path.points[i])
         .transform(this.transform);
     }
   }
