@@ -1,4 +1,4 @@
-import { Gradient } from "../gradients";
+import { Gradient } from "../gradients/gradient";
 import { Group } from "../shapes/group";
 import { Image } from "../shapes/image";
 import { Renderable } from "../shapes/renderable";

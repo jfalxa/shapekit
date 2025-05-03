@@ -1,10 +1,11 @@
+import { Gradient } from "../gradients/gradient";
 import { Point, Vec2 } from "../math/vec2";
-import { rect, Path, buildPath } from "../path";
+import { rect } from "../path/rect";
+import { Segment, Path } from "../path/segment";
 import { BoundingBox } from "../utils/bounding-box";
 import { isPointInPolyline, doPolylinesOverlap } from "../utils/polyline";
 import { isPointInPolygon, doPolygonsOverlap } from "../utils/polygon";
 import { Renderable, RenderableInit } from "./renderable";
-import { Gradient } from "../gradients";
 
 export interface ShapeInit extends RenderableInit {
   path?: Path;
@@ -125,7 +126,9 @@ export class Shape extends Renderable {
       }
     }
 
-    this.path2D = buildPath(path, _hull, _obb, quality);
+    this.path2D = new Path2D();
+
+    Segment.build(path, this.path2D, _hull, _obb, quality);
 
     this.width = this.baseWidth = _obb.width;
     this.height = this.baseHeight = _obb.height;

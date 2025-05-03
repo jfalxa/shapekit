@@ -1,4 +1,7 @@
 import { Vec2 } from "../math/vec2";
+import { BoundingBox } from "../utils/bounding-box";
+
+export type Path = Segment[];
 
 export abstract class Segment {
   from: Vec2;
@@ -30,6 +33,32 @@ export abstract class Segment {
   }
 
   abstract apply(path: Path2D): void;
+
+  static build(
+    path: Path,
+    path2D: Path2D,
+    points: Vec2[],
+    obb: BoundingBox,
+    quality: number
+  ) {
+    let previousSegment: Segment | undefined;
+
+    points.length = 0;
+
+    for (const segment of path) {
+      segment.link(previousSegment);
+      segment.apply(path2D);
+      points.push(...segment.sample(quality));
+      previousSegment = segment;
+    }
+
+    obb.min.put(Infinity);
+    obb.max.put(-Infinity);
+
+    for (const point of points) {
+      obb.merge(point);
+    }
+  }
 }
 
 export abstract class ControlledSegment extends Segment {
