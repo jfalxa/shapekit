@@ -120,8 +120,8 @@ function renderText(ctx: Canvas2D, text: Text) {
   for (let i = 0; i < lines.length; i++) {
     y += lineHeight;
 
-    if (y < minY) continue;
-    if (y > maxY) continue;
+    if (y - minY < 1e-6) continue;
+    if (y - maxY > 1e-6) continue;
 
     const line = lines[i];
 

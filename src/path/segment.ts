@@ -4,16 +4,11 @@ export abstract class Segment {
   from: Vec2;
   to: Vec2;
 
-  min: Vec2;
-  max: Vec2;
-
   protected points: Vec2[];
 
   constructor(x: number, y: number) {
     this.from = new Vec2(0, 0);
     this.to = new Vec2(x, y);
-    this.min = this.to.clone();
-    this.max = this.to.clone();
     this.points = [new Vec2(0, 0)];
   }
 

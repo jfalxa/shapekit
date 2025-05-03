@@ -100,9 +100,9 @@ export class Arc extends Segment {
   ) {
     const tolerance = 1 / quality;
     const radius = Math.max(rx, ry);
-    const angleDiff = 2 * Math.acos(1 - tolerance / radius);
+    const step = 2 * Math.acos(1 - tolerance / radius);
     const span = Math.abs(endAngle - startAngle);
-    const segments = Math.ceil(span / angleDiff);
+    const segments = Math.ceil(span / step);
 
     for (let i = 0; i <= segments; i++) {
       const io = offset + i;
