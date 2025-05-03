@@ -1,6 +1,6 @@
-import { Group } from "./shapes/group";
-import { Renderable } from "./shapes/renderable";
-import { Shape } from "./shapes/shape";
+import { Group } from "./renderables/group";
+import { Renderable } from "./renderables/renderable";
+import { Shape } from "./renderables/shape";
 
 type Canvas2D = CanvasRenderingContext2D;
 

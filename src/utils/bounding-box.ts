@@ -1,6 +1,6 @@
 import { Matrix3 } from "../math/mat3";
 import { Point, Vec2 } from "../math/vec2";
-import { Renderable } from "../shapes/renderable";
+import { Renderable } from "../renderables/renderable";
 
 export interface AABB {
   min: Vec2;

@@ -1,24 +1,24 @@
 import { Loop } from "vroum";
-import { renderAll } from "./render/canvas2d";
-import { Shape } from "./shapes/shape";
-import { Text } from "./shapes/text";
-import { Image } from "./shapes/image";
-import { Group } from "./shapes/group";
-import { Renderable } from "./shapes/renderable";
+import { renderAll } from "./renderers/canvas2d";
+import { Shape } from "./renderables/shape";
+import { Text } from "./renderables/text";
+import { Image } from "./renderables/image";
+import { Group } from "./renderables/group";
+import { Renderable } from "./renderables/renderable";
 import { renderHulls, renderOBB } from "./debug";
 import { Matrix3 } from "./math/mat3";
 import { Vec2 } from "./math/vec2";
-import { linearGradient } from "./gradients/linear";
-import { bezierCurveTo } from "./path/bezier-curve-to";
-import { moveTo } from "./path/move-to";
-import { quadraticCurveTo } from "./path/quadratic-curve-to";
-import { arcTo } from "./path/arc-to";
-import { lineTo } from "./path/line-to";
-import { arc } from "./path/arc";
-import { ellipse } from "./path/ellipse";
-import { roundRect } from "./path/round-rect";
-import { closePath } from "./path/close-path";
-import { Path } from "./path/path";
+import { linearGradient } from "./styles/linear-gradient";
+import { bezierCurveTo } from "./paths/bezier-curve-to";
+import { moveTo } from "./paths/move-to";
+import { quadraticCurveTo } from "./paths/quadratic-curve-to";
+import { arcTo } from "./paths/arc-to";
+import { lineTo } from "./paths/line-to";
+import { arc } from "./paths/arc";
+import { ellipse } from "./paths/ellipse";
+import { roundRect } from "./paths/round-rect";
+import { closePath } from "./paths/close-path";
+import { Path } from "./paths/path";
 
 import treeSrc from "./tree.png";
 
@@ -101,7 +101,7 @@ class App extends Loop {
     textFill: "black",
     padding: 12,
     textAlign: "center",
-    textPosition: "bottom",
+    textVerticalAlign: "bottom",
     fontWeight: "bold",
     fontStyle: "italic",
     path: [roundRect(0, 0, 200, 100, 25)],

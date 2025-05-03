@@ -1,5 +1,5 @@
-import { Shape } from "../shapes/shape";
 import { Point, Vec2 } from "../math/vec2";
+import { Shape } from "../renderables/shape";
 
 export function isPointInPolyline(point: Point, polyline: Shape): boolean {
   const radius = polyline.stroke ? (polyline.lineWidth ?? 1) / 2 : 0;

@@ -1,4 +1,4 @@
-import { Transform } from "../shapes/renderable";
+import { Transform } from "../renderables/renderable";
 
 // prettier-ignore
 const IDENTITY = [
