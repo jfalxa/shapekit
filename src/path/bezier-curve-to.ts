@@ -4,7 +4,7 @@ import { solveQuadratic } from "../math/solver";
 import { Segment } from "./segment";
 import { pointToLineDistance } from "../utils/polyline";
 
-export function bezier3(
+export function bezierCurveTo(
   cp1x: number,
   cp1y: number,
   cp2x: number,
@@ -12,10 +12,10 @@ export function bezier3(
   x?: number,
   y?: number
 ) {
-  return new Bezier3(cp1x, cp1y, cp2x, cp2y, x, y);
+  return new BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
 }
 
-export class Bezier3 extends Segment {
+export class BezierCurveTo extends Segment {
   start: Vec2 | undefined;
   end: Vec2;
 
@@ -64,7 +64,7 @@ export class Bezier3 extends Segment {
     const cp2 = this.end;
     const to = this.to;
 
-    return Bezier3.adaptiveSample(from, cp1, cp2, to, quality);
+    return BezierCurveTo.adaptiveSample(from, cp1, cp2, to, quality);
   }
 
   join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined): void {
@@ -89,7 +89,7 @@ export class Bezier3 extends Segment {
 
     for (const t of solveQuadratic(ax, bx, cx)) {
       if (t > 0 && t < 1) {
-        Bezier3.sample(from, cp1, cp2, to, t, point);
+        BezierCurveTo.sample(from, cp1, cp2, to, t, point);
         this.min.min(point);
         this.max.max(point);
       }
@@ -101,7 +101,7 @@ export class Bezier3 extends Segment {
 
     for (const t of solveQuadratic(ay, by, cy)) {
       if (t > 0 && t < 1) {
-        Bezier3.sample(from, cp1, cp2, to, t, point);
+        BezierCurveTo.sample(from, cp1, cp2, to, t, point);
         this.min.min(point);
         this.max.max(point);
       }
@@ -154,7 +154,7 @@ export class Bezier3 extends Segment {
     while (stack.length > 0) {
       const { a, b, c, d } = stack.pop()!;
 
-      const midCurve = Bezier3.sample(a, b, c, d, 0.5);
+      const midCurve = BezierCurveTo.sample(a, b, c, d, 0.5);
       const distance = pointToLineDistance(midCurve, a, d);
 
       if (distance <= tolerance) {

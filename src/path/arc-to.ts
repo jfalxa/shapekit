@@ -3,17 +3,17 @@ import { BoundingBox } from "../utils/bounding-box";
 import { Arc } from "./arc";
 import { Segment } from "./segment";
 
-export function corner(
+export function arcTo(
   x1: number,
   y1: number,
   x2: number,
   y2: number,
   radius = 0
 ) {
-  return new Corner(x1, y1, x2, y2, radius);
+  return new ArcTo(x1, y1, x2, y2, radius);
 }
 
-export class Corner extends Segment {
+export class ArcTo extends Segment {
   control: Vec2;
 
   constructor(
@@ -41,7 +41,7 @@ export class Corner extends Segment {
     const to = this.to;
     const r = this.radius;
 
-    const { center, startAngle, endAngle } = Corner.toArc(from, cp, to, r);
+    const { center, startAngle, endAngle } = ArcTo.toArc(from, cp, to, r);
 
     return Arc.adaptiveSample(
       center,
@@ -59,7 +59,7 @@ export class Corner extends Segment {
     const to = this.to;
     const r = this.radius;
 
-    const arc = Corner.toArc(from, cp, to, r);
+    const arc = ArcTo.toArc(from, cp, to, r);
 
     const extrema = Arc.sampleExtrema(
       arc.center,

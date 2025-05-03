@@ -3,11 +3,16 @@ import { BoundingBox } from "../utils/bounding-box";
 import { pointToLineDistance } from "../utils/polyline";
 import { Segment } from "./segment";
 
-export function bezier2(cpx: number, cpy: number, x?: number, y?: number) {
-  return new Bezier2(cpx, cpy, x, y);
+export function quadraticCurveTo(
+  cpx: number,
+  cpy: number,
+  x?: number,
+  y?: number
+) {
+  return new QuadraticCurveTo(cpx, cpy, x, y);
 }
 
-export class Bezier2 extends Segment {
+export class QuadraticCurveTo extends Segment {
   control: Vec2 | undefined;
 
   constructor(cpx: number, cpy: number, x?: number, y?: number) {
@@ -40,7 +45,13 @@ export class Bezier2 extends Segment {
     const cp = this.control ?? control;
     if (!cp) throw new Error("Control point is missing");
 
-    return Bezier2.adaptiveSample(from, cp, this.to, quality, this.points);
+    return QuadraticCurveTo.adaptiveSample(
+      from,
+      cp,
+      this.to,
+      quality,
+      this.points
+    );
   }
 
   join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined) {
@@ -62,7 +73,7 @@ export class Bezier2 extends Segment {
     if (denomX !== 0) {
       const t = (from.x - cp.x) / denomX;
       if (t > 0 && t < 1) {
-        Bezier2.sample(from, cp, to, t, point);
+        QuadraticCurveTo.sample(from, cp, to, t, point);
         this.min.min(point);
         this.max.max(point);
       }
@@ -72,7 +83,7 @@ export class Bezier2 extends Segment {
     if (denomY !== 0) {
       const t = (from.y - cp.y) / denomY;
       if (t > 0 && t < 1) {
-        Bezier2.sample(from, cp, to, t, point);
+        QuadraticCurveTo.sample(from, cp, to, t, point);
         this.min.min(point);
         this.max.max(point);
       }
@@ -111,7 +122,7 @@ export class Bezier2 extends Segment {
 
     while (stack.length > 0) {
       const { a, b, c } = stack.pop()!;
-      const midCurve = Bezier2.sample(a, b, c, 0.5);
+      const midCurve = QuadraticCurveTo.sample(a, b, c, 0.5);
       const error = pointToLineDistance(midCurve, a, c);
 
       if (error <= tolerance) {
