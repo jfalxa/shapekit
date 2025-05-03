@@ -4,7 +4,15 @@ import { Shape } from "./shapes/shape";
 import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
-import { bezierCurveTo, moveTo, arc, roundRect, arcTo } from "./path";
+import {
+  bezierCurveTo,
+  moveTo,
+  arc,
+  roundRect,
+  arcTo,
+  quadraticCurveTo,
+  lineTo,
+} from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
 import { renderHulls, renderOBB } from "./utils/debug";
@@ -33,23 +41,14 @@ class App extends Loop {
     // shadowColor: "#ccc",
   });
 
-  // image = new Image({
-  //   x: 400,
-  //   y: 450,
-  //   width: 100,
-  //   height: 50,
-  //   fill: "green",
-  //   image: treeImage,
-  // });
-
-  // rect2 = new Shape({
-  //   x: 500,
-  //   y: 300,
-  //   width: 100,
-  //   height: 50,
-  //   fill: "red",
-  //   stroke: "orange",
-  // });
+  rect2 = new Shape({
+    x: 500,
+    y: 300,
+    width: 100,
+    height: 50,
+    fill: "red",
+    stroke: "orange",
+  });
 
   path = new Shape({
     x: 200,
@@ -64,18 +63,19 @@ class App extends Loop {
     ],
   });
 
-  // path2 = new Shape({
-  //   x: 300,
-  //   y: 200,
-  //   stroke: "blue",
-  //   lineWidth: 50,
-  //   lineCap: "round",
-  //   path: [
-  //     move(10, 80),
-  //     bezier2(95, 80, 52.5, 10),
-  //     bezier2(180, 80), //
-  //   ],
-  // });
+  path2 = new Shape({
+    x: 300,
+    y: 200,
+    stroke: "blue",
+    lineWidth: 50,
+    lineCap: "round",
+    path: [
+      moveTo(10, 80),
+      quadraticCurveTo(52.5, 10, 95, 80),
+      quadraticCurveTo(180, 80),
+      quadraticCurveTo(265, 80),
+    ],
+  });
 
   path3 = new Shape({
     x: 300,
@@ -105,19 +105,19 @@ class App extends Loop {
     path: [roundRect(0, 0, 200, 100, 25)],
   });
 
-  // lemon = new Shape({
-  //   x: 400,
-  //   y: 300,
-  //   stroke: "red",
-  //   fill: "yellow",
-  //   lineWidth: 5,
-  //   lineCap: "square",
-  //   path: [
-  //     move(-50, 0),
-  //     corner(50, 0, 0, -50, 50),
-  //     corner(-50, 0, 0, 50, 50), //
-  //   ],
-  // });
+  lemon = new Shape({
+    x: 400,
+    y: 300,
+    stroke: "red",
+    fill: "yellow",
+    lineWidth: 5,
+    lineCap: "square",
+    path: [
+      moveTo(-50, 0),
+      arcTo(50, 0, 0, -50, 50),
+      arcTo(-50, 0, 0, 50, 50), //
+    ],
+  });
 
   roundTriangle = new Shape({
     x: 400,
@@ -133,18 +133,18 @@ class App extends Loop {
     ],
   });
 
-  // line = new Shape({
-  //   x: 400,
-  //   y: 300,
-  //   stroke: "yellow",
-  //   lineWidth: 100,
-  //   path: [
-  //     move(-50, 0),
-  //     line(50, 0),
-  //     line(50, 100),
-  //     line(100, 150), //
-  //   ],
-  // });
+  line = new Shape({
+    x: 400,
+    y: 300,
+    stroke: "yellow",
+    lineWidth: 100,
+    path: [
+      moveTo(-50, 0), //
+      lineTo(50, 0),
+      lineTo(50, 100),
+      lineTo(100, 150),
+    ],
+  });
 
   circle = new Shape({
     x: 400,
@@ -256,6 +256,21 @@ class App extends Loop {
               arcTo(100, 50, 0, 50, 25),
             ],
           }),
+
+          new Shape({
+            x: 50,
+            y: 250,
+            rotation: -Math.PI / 3.5,
+            stroke: "green",
+            lineWidth: 50,
+            lineCap: "round",
+            path: [
+              moveTo(10, 80),
+              quadraticCurveTo(52.5, 10, 95, 80),
+              quadraticCurveTo(180, 80),
+              quadraticCurveTo(265, 80),
+            ],
+          }),
         ],
       }),
     ],
@@ -355,7 +370,7 @@ class App extends Loop {
     for (const shape of this.shapes) {
       // shape.rotation += 0.001 * this.deltaTime;
       // shape.update();
-      shape.update(true);
+      // shape.update(true);
     }
 
     mid = performance.now();
