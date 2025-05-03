@@ -1,14 +1,14 @@
-import { Gradient } from "../gradients/gradient";
 import { Point, Vec2 } from "../math/vec2";
-import { rect } from "../path/rect";
+import { rect } from "../paths/rect";
 import { isPointInPolyline, doPolylinesOverlap } from "../utils/polyline";
 import { isPointInPolygon, doPolygonsOverlap } from "../utils/polygon";
 import { Renderable, RenderableInit } from "./renderable";
-import { Path, PathLike } from "../path/path";
+import { Path, PathLike } from "../paths/path";
+import { Style } from "../styles/style";
 
 export interface ShapeStyle {
-  fill?: string | Gradient;
-  stroke?: string | Gradient;
+  fill?: Style;
+  stroke?: Style;
   lineWidth?: number;
   lineCap?: CanvasLineCap;
   lineJoin?: CanvasLineJoin;
@@ -31,8 +31,8 @@ export class Shape extends Renderable {
   path: Path;
   quality: number;
 
-  fill?: string | Gradient;
-  stroke?: string | Gradient;
+  fill?: Style;
+  stroke?: Style;
   lineWidth?: number;
   lineCap?: CanvasLineCap;
   lineJoin?: CanvasLineJoin;

@@ -1,3 +1,4 @@
+import { Style } from "../styles/style";
 import { fitText, measureText } from "../utils/text";
 import { Shape, ShapeInit } from "./shape";
 
@@ -9,13 +10,13 @@ export interface TextStyle {
   fontVariant?: string;
   fontWeight?: string;
   lineHeight?: number;
-  textFill?: string;
-  textStroke?: string;
+  textFill?: Style;
+  textStroke?: Style;
   textLineWidth?: number;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
   direction?: CanvasDirection;
-  textPosition?: "top" | "middle" | "bottom";
+  textVerticalAlign?: "top" | "middle" | "bottom";
   padding?: number;
 }
 
@@ -33,12 +34,12 @@ export class Text extends Shape {
   fontVariant?: string;
   fontWeight?: string;
   lineHeight?: number;
-  textFill?: string;
-  textStroke?: string;
+  textFill?: Style;
+  textStroke?: Style;
   textLineWidth?: number;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
-  textPosition?: "top" | "middle" | "bottom";
+  textVerticalAlign?: "top" | "middle" | "bottom";
   direction?: CanvasDirection;
   padding?: number;
 
@@ -65,7 +66,7 @@ export class Text extends Shape {
     this.textLineWidth = init.textLineWidth;
     this.textAlign = init.textAlign;
     this.textBaseline = init.textBaseline;
-    this.textPosition = init.textPosition;
+    this.textVerticalAlign = init.textVerticalAlign;
     this.direction = init.direction;
     this.padding = init.padding;
 
