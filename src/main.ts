@@ -346,7 +346,7 @@ class App extends Loop {
 
     this.group.update(true);
 
-    for (let i = 0; i < 0; i++) {
+    for (let i = 0; i < 16000; i++) {
       this.shapes.push(
         new Shape({
           fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
@@ -369,7 +369,7 @@ class App extends Loop {
     // this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    this.shapes.push(this.group);
+    // this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
     // this.shapes.push(this.circle);
@@ -384,9 +384,9 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      // shape.rotation += 0.001 * this.deltaTime;
-      // shape.update();
-      shape.update(true);
+      shape.rotation += 0.001 * this.deltaTime;
+      shape.update();
+      // shape.update(true);
     }
 
     mid = performance.now();
@@ -406,8 +406,8 @@ class App extends Loop {
     // }
 
     renderAll(this.ctx, this.shapes);
-    renderOBB(this.ctx, this.shapes);
-    renderHulls(this.ctx, this.shapes);
+    // renderOBB(this.ctx, this.shapes);
+    // renderHulls(this.ctx, this.shapes);
 
     end = performance.now();
 
@@ -417,7 +417,7 @@ class App extends Loop {
 
     const message = `total = ${total}ms, update = ${update}ms, render = ${render}ms`;
 
-    // console.log(message);
+    console.log(message);
   }
 }
 
