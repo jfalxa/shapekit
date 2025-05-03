@@ -164,11 +164,9 @@ function resolveColor(
 ) {
   if (!color) return "#000000";
   if (typeof color === "string") return color;
+  if (GRADIENTS.has(color)) return GRADIENTS.get(color)!;
 
-  if (!GRADIENTS.has(color)) {
-    const gradient = color.create(ctx);
-    GRADIENTS.set(color, gradient);
-  }
-
-  return GRADIENTS.get(color)!;
+  const gradient = color.create(ctx);
+  GRADIENTS.set(color, gradient);
+  return gradient;
 }
