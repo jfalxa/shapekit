@@ -1,9 +1,9 @@
-import { Gradient } from "../gradients/gradient";
-import { Group } from "../shapes/group";
-import { Image } from "../shapes/image";
-import { Renderable } from "../shapes/renderable";
-import { Shape } from "../shapes/shape";
-import { Text } from "../shapes/text";
+import { Group } from "../renderables/group";
+import { Image } from "../renderables/image";
+import { Renderable } from "../renderables/renderable";
+import { Shape } from "../renderables/shape";
+import { Text } from "../renderables/text";
+import { getStyle } from "../styles/style";
 
 type Canvas2D = CanvasRenderingContext2D;
 
@@ -53,7 +53,7 @@ function renderGroup(ctx: Canvas2D, group: Group) {
 }
 
 function renderFill(ctx: Canvas2D, shape: Shape) {
-  setContext(ctx, "fillStyle", resolveColor(ctx, shape.fill));
+  setContext(ctx, "fillStyle", getStyle(ctx, shape.fill));
   ctx.fill(shape.path.path2D);
 }
 
@@ -63,7 +63,7 @@ function renderStroke(ctx: Canvas2D, shape: Shape) {
   setContext(ctx, "lineJoin", shape.lineJoin);
   setContext(ctx, "lineDashOffset", shape.lineDashOffset);
   setContext(ctx, "miterLimit", shape.miterLimit);
-  setContext(ctx, "strokeStyle", resolveColor(ctx, shape.stroke));
+  setContext(ctx, "strokeStyle", getStyle(ctx, shape.stroke));
   ctx.stroke(shape.path.path2D);
 }
 
@@ -77,7 +77,7 @@ function renderText(ctx: Canvas2D, text: Text) {
     fontSize = 12,
     lineHeight = fontSize,
     textAlign = "left",
-    textPosition = "top",
+    textVerticalAlign: textPosition = "top",
     padding = 0,
   } = text;
 
@@ -96,8 +96,8 @@ function renderText(ctx: Canvas2D, text: Text) {
   setContext(ctx, "font", text.font);
   setContext(ctx, "textAlign", text.textAlign);
   setContext(ctx, "textBaseline", text.textBaseline);
-  setContext(ctx, "fillStyle", text.textFill);
-  setContext(ctx, "strokeStyle", text.textStroke);
+  setContext(ctx, "fillStyle", getStyle(ctx, text.textFill));
+  setContext(ctx, "strokeStyle", getStyle(ctx, text.textStroke));
   setContext(ctx, "lineWidth", text.textLineWidth);
 
   for (let i = 0; i < lines.length; i++) {
@@ -118,21 +118,6 @@ function applyEffects(ctx: Canvas2D, shape: Shape) {
   setContext(ctx, "shadowColor", shape.shadowColor);
   setContext(ctx, "shadowOffsetX", shape.shadowOffsetX);
   setContext(ctx, "shadowOffsetY", shape.shadowOffsetY);
-}
-
-const GRADIENTS = new WeakMap<Gradient, CanvasGradient>();
-
-function resolveColor(
-  ctx: CanvasRenderingContext2D,
-  color: string | Gradient | undefined
-) {
-  if (!color) return undefined;
-  if (typeof color === "string") return color;
-  if (GRADIENTS.has(color)) return GRADIENTS.get(color)!;
-
-  const gradient = color.create(ctx);
-  GRADIENTS.set(color, gradient);
-  return gradient;
 }
 
 function setContext<K extends keyof Canvas2D>(
