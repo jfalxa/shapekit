@@ -1,6 +1,5 @@
 import { Matrix3 } from "../math/mat3";
 import { Point } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
 import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
@@ -15,13 +14,14 @@ export interface GroupInit extends RenderableInit, GroupStyle {
 export class Group extends Renderable {
   children: Renderable[];
   globalCompositeOperation?: GlobalCompositeOperation;
-  invertTransform: Matrix3;
+
+  #transform = new Matrix3();
 
   constructor(init: GroupInit) {
     super(init);
+
     this.children = init.children ?? [];
     this.globalCompositeOperation = init.globalCompositeOperation;
-    this.invertTransform = new Matrix3();
 
     this.update();
   }
@@ -53,41 +53,40 @@ export class Group extends Renderable {
     const { width, height, baseWidth, baseHeight } = this;
 
     if (width && height && baseWidth && baseHeight) {
-      const childTransform = new Matrix3();
-
       if (width !== baseWidth || height !== baseHeight) {
         const sx = width / baseWidth;
         const sy = height / baseHeight;
 
         for (const child of this.children) {
-          childTransform.compose(child).scale(sx, sy).decompose(child);
+          this.#transform.compose(child).scale(sx, sy).decompose(child);
         }
       }
     }
   }
 
   update(rebuild = false): void {
-    super.update(rebuild);
+    if (rebuild) this.build();
 
-    this.invertTransform.set(this.transform);
-    this.invertTransform.invert();
+    this.transform.compose(this);
+    this.#transform.set(this.transform);
+    if (this.parent) this.transform.transform(this.parent.transform);
 
     this.obb.min.put(Infinity);
     this.obb.max.put(-Infinity);
 
-    const childOBB = new BoundingBox();
-
     for (const child of this.children) {
       child.parent = this;
       child.update(rebuild);
-
-      childOBB.copy(child.obb).transform(this.invertTransform);
-      this.obb.merge(childOBB);
     }
 
     this.width = this.baseWidth = this.obb.width;
     this.height = this.baseHeight = this.obb.height;
 
-    this.obb.transform(this.transform);
+    this.obb.transform(this.#transform);
+
+    if (this.parent) {
+      this.parent.obb.merge(this.obb);
+      this.obb.transform(this.parent.transform);
+    }
   }
 }

@@ -63,10 +63,5 @@ export abstract class Renderable {
   abstract contains(shape: Point | Shape): boolean;
   abstract overlaps(shape: Shape): boolean;
   abstract build(): void;
-
-  update(rebuild = false) {
-    if (rebuild) this.build();
-    this.transform.compose(this);
-    if (this.parent) this.transform.transform(this.parent.transform);
-  }
+  abstract update(rebuild?: boolean): void;
 }

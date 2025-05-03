@@ -140,9 +140,16 @@ export class Shape extends Renderable {
   }
 
   update(rebuild = false) {
-    super.update(rebuild);
+    if (rebuild) this.build();
 
+    this.transform.compose(this);
     this.obb.copy(this._obb).transform(this.transform);
+
+    if (this.parent) {
+      this.parent.obb.merge(this.obb);
+      this.transform.transform(this.parent.transform);
+      this.obb.transform(this.parent.transform);
+    }
 
     for (let i = 0; i < this.hull.length; i++) {
       this.hull[i] = (this.hull[i] ?? new Vec2(0, 0))
