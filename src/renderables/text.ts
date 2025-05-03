@@ -48,7 +48,7 @@ export class Text extends Shape {
 
   constructor(init: TextInit) {
     if (init.width === undefined && init.height === undefined) {
-      [init.width, init.height] = measureText(init);
+      [init.width, init.height] = measureText(init.text, init);
     }
 
     super(init);
@@ -83,7 +83,7 @@ export class Text extends Shape {
     this.lines = fitText(this);
   }
 
-  static getFont(style: TextInit) {
+  static getFont(style: TextStyle) {
     const {
       fontSize = 12,
       fontFamily = "serif",

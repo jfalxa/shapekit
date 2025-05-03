@@ -1,4 +1,4 @@
-import { Text, TextInit } from "../shapes/text";
+import { Text, TextStyle } from "../renderables/text";
 
 const textCanvas = document.createElement("canvas");
 textCanvas.width = 1024;
@@ -35,11 +35,11 @@ export function fitText(text: Text): string[] {
   return lines;
 }
 
-export function measureText(text: TextInit) {
-  const font = Text.getFont(text);
-  const { fontSize = 12, lineHeight = fontSize, padding = 0 } = text;
+export function measureText(text: string, style: TextStyle) {
+  const font = Text.getFont(style);
+  const { fontSize = 12, lineHeight = fontSize, padding = 0 } = style;
   if (font !== textCtx.font) textCtx.font = font;
-  const width = textCtx.measureText(text.text ?? "").width + 2 * padding;
+  const width = textCtx.measureText(text ?? "").width + 2 * padding;
   const height = lineHeight + 2 * padding;
   return [Math.ceil(width), height];
 }
