@@ -4,7 +4,7 @@ import { Shape } from "./shapes/shape";
 import treeSrc from "./tree.png";
 import { Text } from "./shapes/text";
 import { Image } from "./shapes/image";
-import { bezier3, move, arc, roundRect, corner } from "./path";
+import { bezierCurveTo, moveTo, arc, roundRect, arcTo } from "./path";
 import { Group } from "./shapes/group";
 import { Renderable } from "./shapes/renderable";
 import { renderHulls, renderOBB } from "./utils/debug";
@@ -58,9 +58,9 @@ class App extends Loop {
     lineWidth: 50,
     lineCap: "round",
     path: [
-      move(10, 80),
-      bezier3(40, 10, 65, 10, 95, 80),
-      bezier3(150, 150, 180, 80),
+      moveTo(10, 80),
+      bezierCurveTo(40, 10, 65, 10, 95, 80),
+      bezierCurveTo(150, 150, 180, 80),
     ],
   });
 
@@ -83,9 +83,9 @@ class App extends Loop {
     stroke: "blue",
     lineCap: "round",
     path: [
-      move(10, 80),
-      bezier3(40, 10, 65, 10, 95, 80),
-      bezier3(150, 150, 180, 80),
+      moveTo(10, 80),
+      bezierCurveTo(40, 10, 65, 10, 95, 80),
+      bezierCurveTo(150, 150, 180, 80),
     ],
   });
 
@@ -126,10 +126,10 @@ class App extends Loop {
     fill: "yellow",
     lineWidth: 3,
     path: [
-      move(0, 50),
-      corner(-100, 50, -50, -50, 25),
-      corner(0, -150, 50, -50, 25),
-      corner(100, 50, 0, 50, 25),
+      moveTo(0, 50),
+      arcTo(-100, 50, -50, -50, 25),
+      arcTo(0, -150, 50, -50, 25),
+      arcTo(100, 50, 0, 50, 25),
     ],
   });
 
@@ -223,9 +223,9 @@ class App extends Loop {
             lineWidth: 50,
             lineCap: "round",
             path: [
-              move(10, 80),
-              bezier3(40, 10, 65, 10, 95, 80),
-              bezier3(150, 150, 180, 80),
+              moveTo(10, 80),
+              bezierCurveTo(40, 10, 65, 10, 95, 80),
+              bezierCurveTo(150, 150, 180, 80),
             ],
           }),
 
@@ -250,10 +250,10 @@ class App extends Loop {
             lineWidth: 3,
             globalAlpha: 0.5,
             path: [
-              move(0, 50),
-              corner(-100, 50, -50, -50, 25),
-              corner(0, -150, 50, -50, 25),
-              corner(100, 50, 0, 50, 25),
+              moveTo(0, 50),
+              arcTo(-100, 50, -50, -50, 25),
+              arcTo(0, -150, 50, -50, 25),
+              arcTo(100, 50, 0, 50, 25),
             ],
           }),
         ],
