@@ -58,9 +58,14 @@ export class BoundingBox {
     this.center.copy(this.min).add(this.max).scale(0.5);
   }
 
-  merge(other: AABB) {
-    this.min.min(other.min);
-    this.max.max(other.max);
+  merge(other: Vec2 | AABB) {
+    if (other instanceof Vec2) {
+      this.min.min(other);
+      this.max.max(other);
+    } else {
+      this.min.min(other.min);
+      this.max.max(other.max);
+    }
 
     this.a.copy(this.min);
     this.b.put(this.max[0], this.min[1]);

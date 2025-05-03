@@ -155,9 +155,9 @@ export class Bezier3 extends Segment {
       const { a, b, c, d } = stack.pop()!;
 
       const midCurve = Bezier3.sample(a, b, c, d, 0.5);
-      const error = pointToLineDistance(midCurve, a, d);
+      const distance = pointToLineDistance(midCurve, a, d);
 
-      if (error <= tolerance) {
+      if (distance <= tolerance) {
         if (!out[i]) out[i] = new Vec2(0, 0);
         out[i++].put(d.x, d.y);
       } else {
