@@ -27,16 +27,13 @@ export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
   const aLen = a.hull.length;
   const bLen = b.hull.length;
 
-  const aOffset = a.fill ? 0 : -1;
-  const bOffset = b.fill ? 0 : -1;
-
-  for (let i = 0; i < aLen + aOffset; i++) {
+  for (let i = 0; i < aLen; i++) {
     const a1 = a.hull[i];
-    const a2 = a.hull[(i + 1) % aLen] ?? a.hull[i];
+    const a2 = a.hull[(i + 1) % aLen];
 
-    for (let j = 0; j < bLen + bOffset; j++) {
+    for (let j = 0; j < bLen; j++) {
       const b1 = b.hull[j];
-      const b2 = b.hull[(j + 1) % bLen] ?? a.hull[j];
+      const b2 = b.hull[(j + 1) % bLen];
 
       if (segmentsDistance(a1, a2, b1, b2) <= threshold) {
         return true;
