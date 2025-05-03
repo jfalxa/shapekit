@@ -1,5 +1,4 @@
 import { v, Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
 import { Arc } from "./arc";
 import { Segment } from "./segment";
 
@@ -25,7 +24,6 @@ export class ArcTo extends Segment {
   ) {
     super(x2, y2);
     this.control = new Vec2(x1, y1);
-    this.points.push(new Vec2(0, 0));
   }
 
   apply(path: Path2D) {
@@ -55,22 +53,6 @@ export class ArcTo extends Segment {
       quality,
       this.points
     );
-  }
-
-  join(aabb: BoundingBox) {
-    const arc = ArcTo.toArc(this.from, this.control, this.to, this.radius);
-
-    const extrema = Arc.sampleExtrema(
-      arc.center,
-      arc.radius,
-      arc.radius,
-      arc.startAngle,
-      arc.endAngle
-    );
-
-    BoundingBox.fit(extrema, this);
-
-    aabb.merge(this);
   }
 
   scale(sx: number, sy: number) {

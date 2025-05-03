@@ -1,5 +1,4 @@
 import { Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
 export function rect(x: number, y: number, width: number, height: number) {
@@ -35,12 +34,6 @@ export class Rect extends Segment {
     this.points[4].copy(this.to);
 
     return this.points;
-  }
-
-  join(aabb: BoundingBox): void {
-    this.min.copy(this.to);
-    this.max.copy(this.to).translate(this.width, this.height);
-    aabb.merge(this);
   }
 
   scale(sx: number, sy: number) {

@@ -1,5 +1,4 @@
 import { Point, Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
 import { pointToLineDistance } from "../utils/polyline";
 import { ControlledSegment } from "./segment";
 
@@ -48,42 +47,6 @@ export class QuadraticCurveTo extends ControlledSegment {
       quality,
       this.points
     );
-  }
-
-  join(aabb: BoundingBox) {
-    const from = this.from;
-    const cp = this._control;
-    const to = this.to;
-
-    this.min.put(Infinity);
-    this.max.put(-Infinity);
-
-    this.min.min(from).min(to);
-    this.max.max(from).max(to);
-
-    const point = new Vec2(0, 0);
-
-    const denomX = to.x - 2 * cp.x + from.x;
-    if (denomX !== 0) {
-      const t = (from.x - cp.x) / denomX;
-      if (t > 0 && t < 1) {
-        QuadraticCurveTo.sample(from, cp, to, t, point);
-        this.min.min(point);
-        this.max.max(point);
-      }
-    }
-
-    const denomY = to.y - 2 * cp.y + from.y;
-    if (denomY !== 0) {
-      const t = (from.y - cp.y) / denomY;
-      if (t > 0 && t < 1) {
-        QuadraticCurveTo.sample(from, cp, to, t, point);
-        this.min.min(point);
-        this.max.max(point);
-      }
-    }
-
-    aabb.merge(this);
   }
 
   scale(sx: number, sy: number) {

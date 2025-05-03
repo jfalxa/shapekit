@@ -16,17 +16,18 @@ export function buildPath(
 
   points.length = 0;
 
+  for (const segment of path) {
+    segment.link(previousSegment);
+    segment.apply(path2D);
+    points.push(...segment.sample(quality));
+    previousSegment = segment;
+  }
+
   obb.min.put(Infinity);
   obb.max.put(-Infinity);
 
-  for (const segment of path) {
-    segment.link(previousSegment);
-
-    segment.apply(path2D);
-    points.push(...segment.sample(quality));
-    segment.join(obb);
-
-    previousSegment = segment;
+  for (const point of points) {
+    obb.merge(point);
   }
 
   return path2D;

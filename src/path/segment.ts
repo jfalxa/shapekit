@@ -1,5 +1,4 @@
 import { Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
 
 export abstract class Segment {
   from: Vec2;
@@ -30,13 +29,12 @@ export abstract class Segment {
     this.to.scale(sx, sy);
   }
 
-  abstract apply(path: Path2D): void;
-  abstract join(aabb: BoundingBox): void;
-
   sample(_quality: number) {
     this.points[0].copy(this.to);
     return this.points;
   }
+
+  abstract apply(path: Path2D): void;
 }
 
 export abstract class ControlledSegment extends Segment {

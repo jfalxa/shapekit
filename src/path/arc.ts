@@ -1,5 +1,4 @@
 import { Point, Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
 export function arc(
@@ -66,20 +65,6 @@ export class Arc extends Segment {
     );
   }
 
-  join(aabb: BoundingBox) {
-    const extrema = Arc.sampleExtrema(
-      this.to,
-      this.radiusX,
-      this.radiusY,
-      this.startAngle,
-      this.endAngle
-    );
-
-    BoundingBox.fit(extrema, this);
-
-    aabb.merge(this);
-  }
-
   scale(sx: number, sy: number) {
     this.to.scale(sx, sy);
     this.radiusX *= sx;
@@ -118,56 +103,14 @@ export class Arc extends Segment {
     const angleDiff = 2 * Math.acos(1 - tolerance / radius);
     const span = Math.abs(endAngle - startAngle);
     const segments = Math.ceil(span / angleDiff);
+
     for (let i = 0; i <= segments; i++) {
-      const t = i / segments;
       const io = offset + i;
+      const t = i / segments;
       out[io] = Arc.sample(center, rx, ry, startAngle, endAngle, t, out[io]);
     }
+
     out.length = offset + segments + 1;
     return out;
-  }
-
-  static sampleExtrema(
-    center: Point,
-    rx: number,
-    ry: number,
-    startAngle: number,
-    endAngle: number
-  ) {
-    const extrema: Vec2[] = [];
-    const twoPi = Math.PI * 2;
-
-    // normalize into [0, 2π)
-    let start = startAngle % twoPi;
-    if (start < 0) start += twoPi;
-    let end = endAngle % twoPi;
-    if (end <= 0) end += twoPi;
-
-    // total swept angle, always positive
-    let sweep = end - start;
-    if (sweep < 0) sweep += twoPi;
-
-    // helper to push a point at a given angle
-    const pushAt = (ang: number) =>
-      extrema.push(
-        new Vec2(center.x + rx * Math.cos(ang), center.y + ry * Math.sin(ang))
-      );
-
-    // always include start and end
-    pushAt(startAngle);
-    pushAt(endAngle);
-
-    // check the four cardinal angles
-    for (let i = 0; i < 4; i++) {
-      const ang = i * (Math.PI / 2);
-      let d = ang - start;
-      if (d < 0) d += twoPi;
-      // if strictly between start and end, include
-      if (d > 0 && d < sweep) {
-        pushAt(ang);
-      }
-    }
-
-    return extrema;
   }
 }

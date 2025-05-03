@@ -1,6 +1,4 @@
 import { Point, Vec2 } from "../math/vec2";
-import { BoundingBox } from "../utils/bounding-box";
-import { solveQuadratic } from "../math/solver";
 import { pointToLineDistance } from "../utils/polyline";
 import { ControlledSegment } from "./segment";
 
@@ -64,47 +62,6 @@ export class BezierCurveTo extends ControlledSegment {
       this.to,
       quality
     );
-  }
-
-  join(aabb: BoundingBox): void {
-    const from = this.from;
-    const cp1 = this._control;
-    const cp2 = this.end;
-    const to = this.to;
-
-    this.min.put(Infinity);
-    this.max.put(-Infinity);
-
-    this.min.min(from).min(to);
-    this.max.max(from).max(to);
-
-    const point = new Vec2(0, 0);
-
-    const ax = -from.x + 3 * cp1.x - 3 * cp2.x + to.x;
-    const bx = 2 * (from.x - 2 * cp1.x + cp2.x);
-    const cx = -from.x + cp1.x;
-
-    for (const t of solveQuadratic(ax, bx, cx)) {
-      if (t > 0 && t < 1) {
-        BezierCurveTo.sample(from, cp1, cp2, to, t, point);
-        this.min.min(point);
-        this.max.max(point);
-      }
-    }
-
-    const ay = -from.y + 3 * cp1.y - 3 * cp2.y + to.y;
-    const by = 2 * (from.y - 2 * cp1.y + cp2.y);
-    const cy = -from.y + cp1.y;
-
-    for (const t of solveQuadratic(ay, by, cy)) {
-      if (t > 0 && t < 1) {
-        BezierCurveTo.sample(from, cp1, cp2, to, t, point);
-        this.min.min(point);
-        this.max.max(point);
-      }
-    }
-
-    aabb.merge(this);
   }
 
   scale(sx: number, sy: number) {
