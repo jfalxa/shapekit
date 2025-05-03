@@ -1,4 +1,4 @@
-import { v, Vec2 } from "../math/vec2";
+import { Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
@@ -12,8 +12,7 @@ export function buildPath(
 ): Path2D {
   const path2D = new Path2D();
 
-  let lastPoint = new Vec2(0, 0);
-  let lastControl: Vec2 | undefined;
+  let previousSegment: Segment | undefined;
 
   points.length = 0;
 
@@ -21,30 +20,14 @@ export function buildPath(
   obb.max.put(-Infinity);
 
   for (const segment of path) {
-    let control = segment.getOptionalControl();
-    if (!control) control = mirrorControl(lastPoint, lastControl);
+    segment.link(previousSegment);
 
-    segment.apply(path2D, control);
-    points.push(...segment.sample(lastPoint, control, quality));
-    segment.join(obb, lastPoint, control);
+    segment.apply(path2D);
+    points.push(...segment.sample(quality));
+    segment.join(obb);
 
-    lastPoint = segment.getEndPoint();
-    lastControl = segment.getSharedControl();
+    previousSegment = segment;
   }
 
   return path2D;
-}
-
-function mirrorControl(
-  lastPoint: Vec2 | undefined,
-  lastControl: Vec2 | undefined
-) {
-  // previous segment is a curve: mirror lastControl by prevPoint
-  if (lastPoint && lastControl) {
-    return v(lastPoint).scale(2).subtract(lastControl);
-  } else if (lastPoint) {
-    return lastPoint;
-  }
-
-  throw new Error("Missing control point data");
 }

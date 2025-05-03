@@ -1,7 +1,7 @@
 import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { pointToLineDistance } from "../utils/polyline";
-import { Segment } from "./segment";
+import { ControlledSegment } from "./segment";
 
 export function quadraticCurveTo(
   cpx: number,
@@ -12,54 +12,48 @@ export function quadraticCurveTo(
   return new QuadraticCurveTo(cpx, cpy, x, y);
 }
 
-export class QuadraticCurveTo extends Segment {
+export class QuadraticCurveTo extends ControlledSegment {
   control: Vec2 | undefined;
 
   constructor(cpx: number, cpy: number, x?: number, y?: number) {
     super(x ?? cpx, y ?? cpy);
 
     if (x !== undefined && y !== undefined) {
-      this.control = new Vec2(x, y);
+      this.control = new Vec2(cpx, cpy);
     }
   }
 
-  getOptionalControl() {
+  getOptionalControlPoint() {
     return this.control;
   }
 
-  getSharedControl() {
-    return this.control;
+  getSharedControlPoint() {
+    return this._control;
   }
 
-  apply(path: Path2D, control: Vec2 | undefined): void {
-    const _control = this.control ?? control;
-    if (!_control) throw new Error("Control point is missing");
-
-    const to = this.to;
-    const cp = _control;
-
-    path.quadraticCurveTo(cp.x, cp.y, to.x, to.y);
+  apply(path: Path2D): void {
+    path.quadraticCurveTo(
+      this._control.x,
+      this._control.y,
+      this.to.x,
+      this.to.y
+    );
   }
 
-  sample(from: Vec2, control: Vec2 | undefined, quality = 1): Vec2[] {
-    const cp = this.control ?? control;
-    if (!cp) throw new Error("Control point is missing");
-
+  sample(quality = 1): Vec2[] {
     return QuadraticCurveTo.adaptiveSample(
-      from,
-      cp,
+      this.from,
+      this._control,
       this.to,
       quality,
       this.points
     );
   }
 
-  join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined) {
-    const _control = this.control ?? control;
-    if (!_control) throw new Error("Control point is missing");
-
+  join(aabb: BoundingBox) {
+    const from = this.from;
+    const cp = this._control;
     const to = this.to;
-    const cp = _control;
 
     this.min.put(Infinity);
     this.max.put(-Infinity);

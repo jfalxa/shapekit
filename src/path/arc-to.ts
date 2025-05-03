@@ -28,25 +28,28 @@ export class ArcTo extends Segment {
     this.points.push(new Vec2(0, 0));
   }
 
-  apply(path: Path2D, _control: Vec2 | undefined) {
-    const control = this.control;
-    const to = this.to;
-
-    path.arcTo(control.x, control.y, to.x, to.y, this.radius);
-    path.lineTo(to.x, to.y);
+  apply(path: Path2D) {
+    path.arcTo(
+      this.control.x,
+      this.control.y,
+      this.to.x,
+      this.to.y,
+      this.radius
+    );
   }
 
-  sample(from: Vec2, _control: Vec2 | undefined, quality: number) {
-    const cp = this.control;
-    const to = this.to;
-    const r = this.radius;
-
-    const { center, startAngle, endAngle } = ArcTo.toArc(from, cp, to, r);
+  sample(quality: number) {
+    const { center, startAngle, endAngle } = ArcTo.toArc(
+      this.from,
+      this.control,
+      this.to,
+      this.radius
+    );
 
     return Arc.adaptiveSample(
       center,
-      r,
-      r,
+      this.radius,
+      this.radius,
       startAngle,
       endAngle,
       quality,
@@ -54,12 +57,8 @@ export class ArcTo extends Segment {
     );
   }
 
-  join(aabb: BoundingBox, from: Vec2, _control: Vec2 | undefined) {
-    const cp = this.control;
-    const to = this.to;
-    const r = this.radius;
-
-    const arc = ArcTo.toArc(from, cp, to, r);
+  join(aabb: BoundingBox) {
+    const arc = ArcTo.toArc(this.from, this.control, this.to, this.radius);
 
     const extrema = Arc.sampleExtrema(
       arc.center,

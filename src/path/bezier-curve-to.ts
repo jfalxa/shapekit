@@ -1,8 +1,8 @@
 import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { solveQuadratic } from "../math/solver";
-import { Segment } from "./segment";
 import { pointToLineDistance } from "../utils/polyline";
+import { ControlledSegment } from "./segment";
 
 export function bezierCurveTo(
   cp1x: number,
@@ -15,7 +15,7 @@ export function bezierCurveTo(
   return new BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
 }
 
-export class BezierCurveTo extends Segment {
+export class BezierCurveTo extends ControlledSegment {
   start: Vec2 | undefined;
   end: Vec2;
 
@@ -37,41 +37,38 @@ export class BezierCurveTo extends Segment {
     }
   }
 
-  getOptionalControl() {
+  getOptionalControlPoint() {
     return this.start;
   }
 
-  getSharedControl() {
+  getSharedControlPoint() {
     return this.end;
   }
 
-  apply(path: Path2D, control: Vec2 | undefined) {
-    const start = this.start ?? control;
-    if (!start) throw new Error("Missing start control point");
-
-    const cp1 = start;
-    const cp2 = this.end;
-    const to = this.to;
-
-    path.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, to.x, to.y);
+  apply(path: Path2D) {
+    path.bezierCurveTo(
+      this._control.x,
+      this._control.y,
+      this.end.x,
+      this.end.y,
+      this.to.x,
+      this.to.y
+    );
   }
 
-  sample(from: Vec2, control: Vec2 | undefined, quality: number): Vec2[] {
-    const start = this.start ?? control;
-    if (!start) throw new Error("Missing start control point");
-
-    const cp1 = start;
-    const cp2 = this.end;
-    const to = this.to;
-
-    return BezierCurveTo.adaptiveSample(from, cp1, cp2, to, quality);
+  sample(quality: number): Vec2[] {
+    return BezierCurveTo.adaptiveSample(
+      this.from,
+      this._control,
+      this.end,
+      this.to,
+      quality
+    );
   }
 
-  join(aabb: BoundingBox, from: Vec2, control: Vec2 | undefined): void {
-    const start = this.start ?? control;
-    if (!start) throw new Error("Missing start control point");
-
-    const cp1 = start;
+  join(aabb: BoundingBox): void {
+    const from = this.from;
+    const cp1 = this._control;
     const cp2 = this.end;
     const to = this.to;
 

@@ -23,11 +23,11 @@ export class Rect extends Segment {
     );
   }
 
-  apply(path: Path2D, _control: Vec2 | undefined): void {
+  apply(path: Path2D): void {
     path.rect(this.to.x, this.to.y, this.width, this.height);
   }
 
-  sample(_from: Vec2, _control: Vec2 | undefined, _quality: number): Vec2[] {
+  sample(_quality: number): Vec2[] {
     this.points[0].copy(this.to);
     this.points[1].copy(this.to).translate(this.width, 0);
     this.points[2].copy(this.to).translate(this.width, this.height);
@@ -37,7 +37,7 @@ export class Rect extends Segment {
     return this.points;
   }
 
-  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined): void {
+  join(aabb: BoundingBox): void {
     this.min.copy(this.to);
     this.max.copy(this.to).translate(this.width, this.height);
     aabb.merge(this);

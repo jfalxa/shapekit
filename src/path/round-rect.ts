@@ -30,11 +30,11 @@ class RoundRect extends Rect {
         : radius;
   }
 
-  apply(path: Path2D, _control: Vec2 | undefined): void {
+  apply(path: Path2D): void {
     path.roundRect(this.to.x, this.to.y, this.width, this.height, this.radii);
   }
 
-  sample(_from: Vec2, _control: Vec2 | undefined, quality: number): Vec2[] {
+  sample(quality: number): Vec2[] {
     const to = this.to;
     const width = this.width;
     const height = this.height;

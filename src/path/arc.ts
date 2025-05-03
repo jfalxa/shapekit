@@ -1,6 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
-import { pointToLineDistance } from "../utils/polyline";
 import { Segment } from "./segment";
 
 export function arc(
