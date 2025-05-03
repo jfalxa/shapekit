@@ -1,6 +1,7 @@
 export * from "./arc-to";
 export * from "./arc";
 export * from "./bezier-curve-to";
+export * from "./ellipse";
 export * from "./line-to";
 export * from "./move-to";
 export * from "./path";
