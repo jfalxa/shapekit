@@ -63,7 +63,7 @@ export abstract class Renderable {
 
   update(rebuild = false) {
     if (rebuild) this.build();
-    this.transform.setTransform(this);
+    this.transform.compose(this);
     if (this.parent) this.transform.transform(this.parent.transform);
   }
 }

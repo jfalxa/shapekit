@@ -74,12 +74,15 @@ export class QuadraticCurveTo extends ControlledSegment {
     out: Vec2[] = []
   ) {
     let i = 0;
+
     const tolerance = 1 / quality;
     const stack = [{ a: from, b: cp, c: to }];
+    const midCurve = new Vec2(0, 0);
 
     while (stack.length > 0) {
       const { a, b, c } = stack.pop()!;
-      const midCurve = QuadraticCurveTo.sample(a, b, c, 0.5);
+
+      QuadraticCurveTo.sample(a, b, c, 0.5, midCurve);
       const error = pointToLineDistance(midCurve, a, c);
 
       if (error <= tolerance) {

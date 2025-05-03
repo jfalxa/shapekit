@@ -84,10 +84,10 @@ export class Arc extends Segment {
     if (angleDiff < 0) angleDiff += 2 * Math.PI;
     const angle = startAngle + angleDiff * t;
 
-    return out.put(
-      center.x + rx * Math.cos(angle),
-      center.y + ry * Math.sin(angle)
-    );
+    out.x = center.x + rx * Math.cos(angle);
+    out.y = center.y + ry * Math.sin(angle);
+
+    return out;
   }
 
   static adaptiveSample(

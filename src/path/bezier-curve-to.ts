@@ -102,13 +102,15 @@ export class BezierCurveTo extends ControlledSegment {
     out: Vec2[] = []
   ) {
     let i = 0;
+
     const tolerance = 1 / quality;
     const stack = [{ a: from, b: cp1, c: cp2, d: to }];
+    const midCurve = new Vec2(0, 0);
 
     while (stack.length > 0) {
       const { a, b, c, d } = stack.pop()!;
 
-      const midCurve = BezierCurveTo.sample(a, b, c, d, 0.5);
+      BezierCurveTo.sample(a, b, c, d, 0.5, midCurve);
       const distance = pointToLineDistance(midCurve, a, d);
 
       if (distance <= tolerance) {

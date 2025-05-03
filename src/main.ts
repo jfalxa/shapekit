@@ -375,8 +375,8 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      shape.rotation += 0.001 * this.deltaTime;
-      shape.update();
+      // shape.rotation += 0.001 * this.deltaTime;
+      // shape.update();
       // shape.update(true);
     }
 

@@ -1,5 +1,5 @@
 import { Matrix3 } from "../math/mat3";
-import { Vec2 } from "../math/vec2";
+import { Point } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
@@ -30,7 +30,7 @@ export class Group extends Renderable {
     }
   }
 
-  contains(shape: Vec2 | Shape): boolean {
+  contains(shape: Point | Shape): boolean {
     if (!this.obb.mayContain(shape)) return false;
     for (const child of this.children) {
       if (child.contains(shape)) return true;
@@ -57,7 +57,7 @@ export class Group extends Renderable {
         const sy = height / baseHeight;
 
         for (const child of this.children) {
-          childTransform.setTransform(child).scale(sx, sy).decompose(child);
+          childTransform.compose(child).scale(sx, sy).decompose(child);
         }
       }
     }

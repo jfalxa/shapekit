@@ -86,10 +86,10 @@ export class Ellipse extends Segment {
     const x = rx * Math.cos(angle);
     const y = ry * Math.sin(angle);
 
-    return out.put(
-      center.x + x * Math.cos(rotation) - y * Math.sin(rotation),
-      center.y + x * Math.sin(rotation) + y * Math.cos(rotation)
-    );
+    out.x = center.x + x * Math.cos(rotation) - y * Math.sin(rotation);
+    out.y = center.y + x * Math.sin(rotation) + y * Math.cos(rotation);
+
+    return out;
   }
 
   /**

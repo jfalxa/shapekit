@@ -47,6 +47,12 @@ export class BoundingBox {
     return this;
   }
 
+  update() {
+    this.center.copy(this.min).add(this.max).scale(0.5);
+    this.width = this.max.x - this.min.x;
+    this.height = this.max.y - this.min.y;
+  }
+
   transform(matrix: Matrix3) {
     this.a.transform(matrix);
     this.b.transform(matrix);
@@ -56,9 +62,7 @@ export class BoundingBox {
     this.min.copy(this.a).min(this.b).min(this.c).min(this.d);
     this.max.copy(this.a).max(this.b).max(this.c).max(this.d);
 
-    this.center.copy(this.min).add(this.max).scale(0.5);
-    this.width = this.max.x - this.min.x;
-    this.height = this.max.y - this.min.y;
+    this.update();
   }
 
   merge(other: Vec2 | AABB | Renderable) {
@@ -74,9 +78,7 @@ export class BoundingBox {
     this.c.copy(this.max);
     this.d.put(this.min.x, this.max.y);
 
-    this.center.copy(this.min).add(this.max).scale(0.5);
-    this.width = this.max.x - this.min.x;
-    this.height = this.max.y - this.min.y;
+    this.update();
   }
 
   mayContain(other: Point | AABB | Renderable) {
