@@ -133,8 +133,8 @@ export class Shape extends Renderable {
 
     if (this.parent) {
       this.parent.obb.merge(this.obb);
-      this.transform.transform(this.parent.transform);
       this.obb.transform(this.parent.transform);
+      this.transform.transform(this.parent.transform);
     }
 
     for (let i = 0; i < this.points.length; i++) {

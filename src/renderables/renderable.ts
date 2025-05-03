@@ -30,15 +30,15 @@ export abstract class Renderable {
   height: number;
   scaleX: number;
   scaleY: number;
-  skewX: number; // in radians
-  skewY: number; // in radians
-  rotation: number; // in radians
+  skewX: number;
+  skewY: number;
+  rotation: number;
 
   baseWidth: number;
   baseHeight: number;
 
   transform: Matrix3;
-  obb: BoundingBox; // transformed OBB in screen coordinates
+  obb: BoundingBox;
 
   constructor(init: RenderableInit) {
     this.id = init.id;
