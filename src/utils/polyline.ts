@@ -27,7 +27,6 @@ export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
   const aLen = a.hull.length;
   const bLen = b.hull.length;
 
-  // add an offset to deal with polygons closing segment
   const aOffset = a.fill ? 0 : -1;
   const bOffset = b.fill ? 0 : -1;
 
@@ -37,7 +36,7 @@ export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
 
     for (let j = 0; j < bLen + bOffset; j++) {
       const b1 = b.hull[j];
-      const b2 = b.hull[(j + 1) % bLen];
+      const b2 = b.hull[(j + 1) % bLen] ?? a.hull[j];
 
       if (segmentsDistance(a1, a2, b1, b2) <= threshold) {
         return true;
@@ -46,6 +45,21 @@ export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
   }
 
   return false;
+}
+
+export function pointToLineDistance(p: Point, a: Point, b: Point): number {
+  const l2 = squaredDistance(a, b);
+  if (l2 === 0) return Math.sqrt(squaredDistance(p, a));
+
+  let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2;
+  t = Math.max(0, Math.min(1, t));
+
+  const projection = {
+    x: a.x + t * (b.x - a.x),
+    y: a.y + t * (b.y - a.y),
+  };
+
+  return Math.sqrt(squaredDistance(p, projection));
 }
 
 function segmentsDistance(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2) {
@@ -75,25 +89,6 @@ function doLinesIntersect(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2): boolean {
   return false;
 }
 
-export function pointToLineDistance(p: Point, a: Point, b: Point): number {
-  const l2 = squaredDistance(a, b);
-
-  // a and b are the same point
-  if (l2 === 0) return Math.sqrt(squaredDistance(p, a));
-
-  // Consider the line extending the segment, parameterized as a + t (b - a).
-  // We find the projection of point p onto the line.
-  let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2;
-  t = Math.max(0, Math.min(1, t));
-
-  const projection = {
-    x: a.x + t * (b.x - a.x),
-    y: a.y + t * (b.y - a.y),
-  };
-
-  return Math.sqrt(squaredDistance(p, projection));
-}
-
 function squaredDistance(p1: Point, p2: Point): number {
   const dx = p1.x - p2.x;
   const dy = p1.y - p2.y;
@@ -101,5 +96,5 @@ function squaredDistance(p1: Point, p2: Point): number {
 }
 
 function crossProduct(p: Vec2, q: Vec2, r: Vec2): number {
-  return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  return (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
 }
