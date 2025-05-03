@@ -21,8 +21,9 @@ export class Image extends Shape {
     const image = new window.Image();
     image.src = src;
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       image.onload = () => resolve(image);
+      image.onerror = (e) => reject(e);
     });
   }
 
