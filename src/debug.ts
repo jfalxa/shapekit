@@ -1,5 +1,4 @@
 import { Group } from "./shapes/group";
-import { Image } from "./shapes/image";
 import { Renderable } from "./shapes/renderable";
 import { Shape } from "./shapes/shape";
 
@@ -29,10 +28,6 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
 
     for (let j = 1; j < shape.hull.length; j++) {
       ctx.lineTo(shape.hull[j][0], shape.hull[j][1]);
-    }
-
-    if (shape.fill || shape instanceof Image) {
-      ctx.lineTo(shape.hull[0][0], shape.hull[0][1]);
     }
 
     ctx.stroke();

@@ -17,6 +17,7 @@ import { lineTo } from "./path/line-to";
 import { arc } from "./path/arc";
 import { ellipse } from "./path/ellipse";
 import { roundRect } from "./path/round-rect";
+import { closePath } from "./path/close-path";
 
 import treeSrc from "./tree.png";
 
@@ -51,7 +52,7 @@ class App extends Loop {
   });
 
   path = new Shape({
-    x: 200,
+    x: 250,
     y: 200,
     stroke: "blue",
     lineWidth: 50,
@@ -130,6 +131,7 @@ class App extends Loop {
       arcTo(-100, 50, -50, -50, 25),
       arcTo(0, -150, 50, -50, 25),
       arcTo(100, 50, 0, 50, 25),
+      closePath(),
     ],
   });
 
@@ -239,8 +241,8 @@ class App extends Loop {
           new Text({
             id: "TEXT",
             y: 75,
-            // width: 50,
-            // height: 200,
+            width: 200,
+            height: 50,
             stroke: "black",
             lineWidth: 5,
             text: "A centered title",
@@ -261,6 +263,13 @@ class App extends Loop {
               arcTo(-100, 50, -50, -50, 25),
               arcTo(0, -150, 50, -50, 25),
               arcTo(100, 50, 0, 50, 25),
+              closePath(),
+
+              moveTo(200, 50),
+              arcTo(100, 50, 150, -50, 25),
+              arcTo(200, -150, 250, -50, 25),
+              arcTo(300, 50, 200, 50, 25),
+              closePath(),
             ],
           }),
 
@@ -328,7 +337,7 @@ class App extends Loop {
       new Image({
         id: "IMAGE",
         x: +100,
-        stroke: "orange",
+        stroke: "purple",
         image: treeImage,
         path: [roundRect(0, 0, 100, 50, 15)],
         filter: "sepia(1) contrast(1.2)",
@@ -377,7 +386,7 @@ class App extends Loop {
     for (const shape of this.shapes) {
       // shape.rotation += 0.001 * this.deltaTime;
       // shape.update();
-      // shape.update(true);
+      shape.update(true);
     }
 
     mid = performance.now();
@@ -402,9 +411,11 @@ class App extends Loop {
 
     end = performance.now();
 
-    const message = `total = ${end - start}ms, update = ${
-      mid - start
-    }ms, render = ${end - mid}ms`;
+    const total = (end - start).toFixed(2);
+    const update = (mid - start).toFixed(2);
+    const render = (end - mid).toFixed(2);
+
+    const message = `total = ${total}ms, update = ${update}ms, render = ${render}ms`;
 
     // console.log(message);
   }
