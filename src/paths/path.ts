@@ -5,16 +5,21 @@ import { Segment } from "./segment";
 export type PathLike = Path | Array<Segment>;
 
 export class Path extends Array<Segment> {
-  path2D: Path2D;
+  path2D!: Path2D;
   points: Vec2[];
   obb: BoundingBox;
 
-  constructor(segments: Segment[]) {
+  constructor(segments: Segment[], quality?: number) {
     super(segments.length);
-    for (let i = 0; i < segments.length; i++) this[i] = segments[i];
+
+    for (let i = 0; i < segments.length; i++) {
+      this[i] = segments[i];
+    }
+
     this.obb = new BoundingBox();
     this.points = [];
-    this.path2D = new Path2D();
+
+    this.build(quality);
   }
 
   scale(sx: number, sy: number) {
