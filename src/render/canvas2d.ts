@@ -12,7 +12,9 @@ export function renderAll(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   for (let i = 0; i < renderables.length; i++) {
+    ctx.save();
     render(ctx, renderables[i]);
+    ctx.restore();
   }
 }
 
@@ -41,69 +43,43 @@ export function render(ctx: Canvas2D, renderable: Renderable) {
 }
 
 function renderGroup(ctx: Canvas2D, group: Group) {
-  const { children, globalCompositeOperation = "source-over" } = group;
+  setContext(ctx, "globalCompositeOperation", group.globalCompositeOperation);
 
-  if (globalCompositeOperation !== ctx.globalCompositeOperation) {
-    ctx.globalCompositeOperation = globalCompositeOperation;
-  }
-
-  for (let i = 0; i < children.length; i++) {
-    render(ctx, children[i]);
+  for (let i = 0; i < group.children.length; i++) {
+    ctx.save();
+    render(ctx, group.children[i]);
+    ctx.restore();
   }
 }
 
 function renderFill(ctx: Canvas2D, shape: Shape) {
-  const fill = resolveColor(ctx, shape.fill);
-  if (fill !== ctx.fillStyle) ctx.fillStyle = fill;
+  setContext(ctx, "fillStyle", resolveColor(ctx, shape.fill));
   ctx.fill(shape.path2D);
 }
 
 function renderStroke(ctx: Canvas2D, shape: Shape) {
-  const {
-    lineWidth = 1,
-    lineCap = "butt",
-    lineJoin = "miter",
-    lineDashOffset = 0,
-    miterLimit = 0,
-  } = shape;
-
-  if (lineWidth !== ctx.lineWidth) ctx.lineWidth = lineWidth;
-  if (lineCap !== ctx.lineCap) ctx.lineCap = lineCap;
-  if (lineJoin !== ctx.lineJoin) ctx.lineJoin = lineJoin;
-  if (lineDashOffset !== ctx.lineDashOffset) ctx.lineDashOffset = lineDashOffset; // prettier-ignore
-  if (miterLimit !== ctx.miterLimit) ctx.miterLimit = miterLimit;
-
-  const stroke = resolveColor(ctx, shape.stroke);
-  if (stroke !== ctx.strokeStyle) ctx.strokeStyle = stroke;
-
+  setContext(ctx, "lineWidth", shape.lineWidth);
+  setContext(ctx, "lineCap", shape.lineCap);
+  setContext(ctx, "lineJoin", shape.lineJoin);
+  setContext(ctx, "lineDashOffset", shape.lineDashOffset);
+  setContext(ctx, "miterLimit", shape.miterLimit);
+  setContext(ctx, "strokeStyle", resolveColor(ctx, shape.stroke));
   ctx.stroke(shape.path2D);
 }
 
 function renderImage(ctx: Canvas2D, image: Image) {
-  const { width, height } = image;
-  ctx.drawImage(image.image, 0, 0, width, height);
+  ctx.drawImage(image.image, 0, 0, image.width, image.height);
 }
 
 function renderText(ctx: Canvas2D, text: Text) {
   const {
     lines,
-    font,
     fontSize = 12,
     lineHeight = fontSize,
-    textFill,
-    textStroke,
-    textLineWidth = 1,
     textAlign = "left",
-    textBaseline = "alphabetic",
     textPosition = "top",
     padding = 0,
   } = text;
-
-  if (font !== ctx.font) ctx.font = font;
-  if (textAlign !== ctx.textAlign) ctx.textAlign = textAlign;
-  if (textBaseline !== ctx.textBaseline) ctx.textBaseline = textBaseline;
-
-  const textHeight = lines.length * lineHeight;
 
   const minY = 0 + padding;
   const maxY = text.height - padding;
@@ -115,45 +91,33 @@ function renderText(ctx: Canvas2D, text: Text) {
   let y = 0;
   if (textPosition === "top") y = padding;
   if (textPosition === "middle") y = -text.height / 2;
-  if (textPosition === "bottom") y = text.height - padding - textHeight;
+  if (textPosition === "bottom") y = text.height - lines.length * lineHeight - padding; // prettier-ignore
+
+  setContext(ctx, "font", text.font);
+  setContext(ctx, "textAlign", text.textAlign);
+  setContext(ctx, "textBaseline", text.textBaseline);
+  setContext(ctx, "fillStyle", text.textFill);
+  setContext(ctx, "strokeStyle", text.textStroke);
+  setContext(ctx, "lineWidth", text.textLineWidth);
 
   for (let i = 0; i < lines.length; i++) {
     y += lineHeight;
-
     if (y - minY < 1e-6) continue;
     if (y - maxY > 1e-6) continue;
 
     const line = lines[i];
-
-    if (textFill) {
-      if (textFill !== ctx.fillStyle) ctx.fillStyle = textFill;
-      ctx.fillText(line, x, y);
-    }
-
-    if (textStroke) {
-      if (textStroke !== ctx.strokeStyle) ctx.strokeStyle = textStroke;
-      if (textLineWidth !== ctx.lineWidth) ctx.lineWidth = textLineWidth;
-      ctx.strokeText(line, x, y);
-    }
+    if (text.textFill) ctx.fillText(line, x, y);
+    if (text.textStroke) ctx.strokeText(line, x, y);
   }
 }
 
 function applyEffects(ctx: Canvas2D, shape: Shape) {
-  const {
-    globalAlpha = 1,
-    filter = "none",
-    shadowBlur = 0,
-    shadowColor = "#000000",
-    shadowOffsetX = 0,
-    shadowOffsetY = 0,
-  } = shape;
-
-  if (globalAlpha !== ctx.globalAlpha) ctx.globalAlpha = globalAlpha;
-  if (filter !== ctx.filter) ctx.filter = filter;
-  if (shadowBlur !== ctx.shadowBlur) ctx.shadowBlur = shadowBlur;
-  if (shadowColor !== ctx.shadowColor) ctx.shadowColor = shadowColor;
-  if (shadowOffsetX !== ctx.shadowOffsetX) ctx.shadowOffsetX = shadowOffsetX;
-  if (shadowOffsetY !== ctx.shadowOffsetY) ctx.shadowOffsetY = shadowOffsetY;
+  setContext(ctx, "globalAlpha", shape.globalAlpha);
+  setContext(ctx, "filter", shape.filter);
+  setContext(ctx, "shadowBlur", shape.shadowBlur);
+  setContext(ctx, "shadowColor", shape.shadowColor);
+  setContext(ctx, "shadowOffsetX", shape.shadowOffsetX);
+  setContext(ctx, "shadowOffsetY", shape.shadowOffsetY);
 }
 
 const GRADIENTS = new WeakMap<Gradient, CanvasGradient>();
@@ -162,11 +126,21 @@ function resolveColor(
   ctx: CanvasRenderingContext2D,
   color: string | Gradient | undefined
 ) {
-  if (!color) return "#000000";
+  if (!color) return undefined;
   if (typeof color === "string") return color;
   if (GRADIENTS.has(color)) return GRADIENTS.get(color)!;
 
   const gradient = color.create(ctx);
   GRADIENTS.set(color, gradient);
   return gradient;
+}
+
+function setContext<K extends keyof Canvas2D>(
+  ctx: Canvas2D,
+  property: K,
+  value: Canvas2D[K] | undefined
+) {
+  if (value !== undefined && ctx[property] !== value) {
+    ctx[property] = value;
+  }
 }
