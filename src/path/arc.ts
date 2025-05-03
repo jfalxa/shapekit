@@ -31,7 +31,7 @@ export class Arc extends Segment {
     this.radiusY = radius;
   }
 
-  apply(path: Path2D, _control: Vec2) {
+  apply(path: Path2D) {
     if (this.radiusX === this.radiusY) {
       path.arc(
         this.to.x,
@@ -55,7 +55,7 @@ export class Arc extends Segment {
     }
   }
 
-  sample(_from: any, _control: any, quality: number): Vec2[] {
+  sample(quality: number): Vec2[] {
     return Arc.adaptiveSample(
       this.to,
       this.radiusX,
@@ -67,7 +67,7 @@ export class Arc extends Segment {
     );
   }
 
-  join(aabb: BoundingBox, _from: Vec2, _control: Vec2 | undefined) {
+  join(aabb: BoundingBox) {
     const extrema = Arc.sampleExtrema(
       this.to,
       this.radiusX,
@@ -114,38 +114,17 @@ export class Arc extends Segment {
     out: Vec2[] = [],
     offset = 0
   ) {
-    out[offset] = new Vec2(
-      center.x + rx * Math.cos(startAngle),
-      center.y + ry * Math.sin(startAngle)
-    );
-
-    let i = offset + 1;
     const tolerance = 1 / quality;
-    const stack = [{ a: startAngle, b: endAngle }];
-
-    while (stack.length > 0) {
-      const { a, b } = stack.pop()!;
-
-      const p0 = Arc.sample(center, rx, ry, a, b, 0);
-      const p1 = Arc.sample(center, rx, ry, a, b, 1);
-      const pm = Arc.sample(center, rx, ry, a, b, 0.5);
-
-      const err = pointToLineDistance(pm, p0, p1);
-
-      if (err <= tolerance) {
-        if (!out[i]) out[i] = new Vec2(0, 0);
-        out[i++].put(p1.x, p1.y);
-      } else {
-        let diff = b - a;
-        if (diff < 0) diff += Math.PI * 2;
-        const midAngle = a + diff * 0.5;
-
-        stack.push({ a: midAngle, b: b });
-        stack.push({ a: a, b: midAngle });
-      }
+    const radius = Math.max(rx, ry);
+    const angleDiff = 2 * Math.acos(1 - tolerance / radius);
+    const span = Math.abs(endAngle - startAngle);
+    const segments = Math.ceil(span / angleDiff);
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const io = offset + i;
+      out[io] = Arc.sample(center, rx, ry, startAngle, endAngle, t, out[io]);
     }
-
-    out.length = i;
+    out.length = offset + segments + 1;
     return out;
   }
 
