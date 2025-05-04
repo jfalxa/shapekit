@@ -1,5 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
-import { pointToLineDistance } from "../utils/polyline";
+import { pointToLineDistance2 } from "../utils/polyline";
 import { ControlledSegment } from "./segment";
 
 export function quadraticCurveTo(
@@ -75,7 +75,7 @@ export class QuadraticCurveTo extends ControlledSegment {
   ) {
     let i = 0;
 
-    const tolerance = 1 / quality;
+    const tolerance2 = (1 / quality) * (1 / quality);
     const stack = [{ a: from, b: cp, c: to }];
     const midCurve = new Vec2(0, 0);
 
@@ -83,9 +83,9 @@ export class QuadraticCurveTo extends ControlledSegment {
       const { a, b, c } = stack.pop()!;
 
       QuadraticCurveTo.sample(a, b, c, 0.5, midCurve);
-      const error = pointToLineDistance(midCurve, a, c);
+      const distance2 = pointToLineDistance2(midCurve, a, c);
 
-      if (error <= tolerance) {
+      if (distance2 <= tolerance2) {
         if (!out[i]) out[i] = new Vec2(0, 0);
         out[i++].put(c.x, c.y);
       } else {

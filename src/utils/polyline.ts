@@ -11,7 +11,7 @@ export function isPointInPolyline(point: Point, polyline: Shape): boolean {
     const p1 = polyline.points[i];
     const p2 = polyline.points[(i + 1) % len] ?? polyline.points[i];
 
-    if (pointToLineDistance(point, p1, p2) <= threshold) {
+    if (pointToLineDistance2(point, p1, p2) <= threshold) {
       return true;
     }
   }
@@ -22,7 +22,7 @@ export function isPointInPolyline(point: Point, polyline: Shape): boolean {
 export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
   const radiusA = a.stroke ? (a.lineWidth ?? 1) / 2 : 0;
   const radiusB = b.stroke ? (b.lineWidth ?? 1) / 2 : 0;
-  const threshold = radiusA + radiusB;
+  const threshold = (radiusA + radiusB) * (radiusA + radiusB);
 
   const aLen = a.points.length;
   const bLen = b.points.length;
@@ -35,7 +35,7 @@ export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
       const b1 = b.points[j];
       const b2 = b.points[(j + 1) % bLen];
 
-      if (segmentsDistance(a1, a2, b1, b2) <= threshold) {
+      if (segmentsDistance2(a1, a2, b1, b2) <= threshold) {
         return true;
       }
     }
@@ -44,9 +44,9 @@ export function doPolylinesOverlap(a: Shape, b: Shape): boolean {
   return false;
 }
 
-export function pointToLineDistance(p: Point, a: Point, b: Point): number {
-  const l2 = squaredDistance(a, b);
-  if (l2 === 0) return Math.sqrt(squaredDistance(p, a));
+export function pointToLineDistance2(p: Point, a: Point, b: Point): number {
+  const l2 = distance2(a, b);
+  if (l2 === 0) return distance2(p, a);
 
   let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2;
   t = Math.max(0, Math.min(1, t));
@@ -56,16 +56,16 @@ export function pointToLineDistance(p: Point, a: Point, b: Point): number {
     y: a.y + t * (b.y - a.y),
   };
 
-  return Math.sqrt(squaredDistance(p, projection));
+  return distance2(p, projection);
 }
 
-function segmentsDistance(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2) {
+function segmentsDistance2(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2) {
   if (doLinesIntersect(a1, a2, b1, b2)) return 0;
 
-  const d1 = pointToLineDistance(a1, b1, b2);
-  const d2 = pointToLineDistance(a2, b1, b2);
-  const d3 = pointToLineDistance(b1, a1, a2);
-  const d4 = pointToLineDistance(b2, a1, a2);
+  const d1 = pointToLineDistance2(a1, b1, b2);
+  const d2 = pointToLineDistance2(a2, b1, b2);
+  const d3 = pointToLineDistance2(b1, a1, a2);
+  const d4 = pointToLineDistance2(b2, a1, a2);
 
   return Math.min(d1, d2, d3, d4);
 }
@@ -86,7 +86,7 @@ function doLinesIntersect(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2): boolean {
   return false;
 }
 
-function squaredDistance(p1: Point, p2: Point): number {
+function distance2(p1: Point, p2: Point): number {
   const dx = p1.x - p2.x;
   const dy = p1.y - p2.y;
   return dx * dx + dy * dy;
