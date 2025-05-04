@@ -73,8 +73,8 @@ export class Text extends Shape {
     this.format();
   }
 
-  update(rebuild?: boolean) {
-    super.update(rebuild);
+  update(rebuild?: boolean, updateParent?: boolean) {
+    super.update(rebuild, updateParent);
     this.format();
   }
 

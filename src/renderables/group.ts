@@ -25,7 +25,7 @@ export class Group extends Renderable {
     this.children = init.children ?? [];
     this.globalCompositeOperation = init.globalCompositeOperation;
 
-    this.update();
+    this.update(false, false, true);
   }
 
   getChildAt(x: number, y: number) {
@@ -66,7 +66,7 @@ export class Group extends Renderable {
     }
   }
 
-  update(rebuild?: boolean): void {
+  update(rebuild?: boolean, updateParent = true, updateChildren = true): void {
     super.update(rebuild);
 
     this.#transform.set(this.transform);
@@ -77,7 +77,7 @@ export class Group extends Renderable {
 
     for (const child of this.children) {
       child.parent = this;
-      child.update(rebuild);
+      if (updateChildren) child.update(rebuild, false, true);
 
       this.#obb.copy(child.obb).transform(this.#transform);
       this.obb.merge(this.#obb);
@@ -87,5 +87,9 @@ export class Group extends Renderable {
     this.height = this.baseHeight = this.obb.height;
 
     this.obb.transform(this.transform);
+
+    if (updateParent) {
+      this.parent?.update(false, true, false);
+    }
   }
 }

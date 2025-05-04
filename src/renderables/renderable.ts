@@ -64,7 +64,7 @@ export abstract class Renderable {
   abstract overlaps(shape: Shape): boolean;
   abstract build(): void;
 
-  update(rebuild = false) {
+  update(rebuild = false, _updateParent?: boolean, _updateChildren?: boolean) {
     if (rebuild) this.build();
     this.transform.compose(this);
     if (this.parent) this.transform.transform(this.parent.transform);

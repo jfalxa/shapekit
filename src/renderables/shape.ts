@@ -83,7 +83,7 @@ export class Shape extends Renderable {
     this.width = this.baseWidth = this.path.obb.width;
     this.height = this.baseHeight = this.path.obb.height;
 
-    this.update();
+    this.update(false, false);
   }
 
   contains(shape: Point | Shape) {
@@ -125,7 +125,7 @@ export class Shape extends Renderable {
     this.height = this.baseHeight = this.path.obb.height;
   }
 
-  update(rebuild?: boolean) {
+  update(rebuild?: boolean, updateParent = true) {
     super.update(rebuild);
 
     this.obb.copy(this.path.obb).transform(this.transform);
@@ -134,6 +134,10 @@ export class Shape extends Renderable {
       this.points[i] = (this.points[i] ?? new Vec2(0, 0))
         .copy(this.path.points[i])
         .transform(this.transform);
+    }
+
+    if (updateParent) {
+      this.parent?.update(false, true, false);
     }
   }
 }
