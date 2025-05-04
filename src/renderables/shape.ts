@@ -125,17 +125,10 @@ export class Shape extends Renderable {
     this.height = this.baseHeight = this.path.obb.height;
   }
 
-  update(rebuild = false) {
-    if (rebuild) this.build();
+  update(rebuild?: boolean) {
+    super.update(rebuild);
 
-    this.transform.compose(this);
     this.obb.copy(this.path.obb).transform(this.transform);
-
-    if (this.parent) {
-      this.parent.obb.merge(this.obb);
-      this.obb.transform(this.parent.transform);
-      this.transform.transform(this.parent.transform);
-    }
 
     for (let i = 0; i < this.points.length; i++) {
       this.points[i] = (this.points[i] ?? new Vec2(0, 0))

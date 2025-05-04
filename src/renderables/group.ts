@@ -1,5 +1,6 @@
 import { Matrix3 } from "../math/mat3";
 import { Point } from "../math/vec2";
+import { BoundingBox } from "../utils/bounding-box";
 import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
@@ -16,6 +17,7 @@ export class Group extends Renderable {
   globalCompositeOperation?: GlobalCompositeOperation;
 
   #transform = new Matrix3();
+  #obb = new BoundingBox();
 
   constructor(init: GroupInit) {
     super(init);
@@ -64,12 +66,11 @@ export class Group extends Renderable {
     }
   }
 
-  update(rebuild = false): void {
-    if (rebuild) this.build();
+  update(rebuild?: boolean): void {
+    super.update(rebuild);
 
-    this.transform.compose(this);
     this.#transform.set(this.transform);
-    if (this.parent) this.transform.transform(this.parent.transform);
+    this.#transform.invert();
 
     this.obb.min.put(Infinity);
     this.obb.max.put(-Infinity);
@@ -77,16 +78,14 @@ export class Group extends Renderable {
     for (const child of this.children) {
       child.parent = this;
       child.update(rebuild);
+
+      this.#obb.copy(child.obb).transform(this.#transform);
+      this.obb.merge(this.#obb);
     }
 
     this.width = this.baseWidth = this.obb.width;
     this.height = this.baseHeight = this.obb.height;
 
-    this.obb.transform(this.#transform);
-
-    if (this.parent) {
-      this.parent.obb.merge(this.obb);
-      this.obb.transform(this.parent.transform);
-    }
+    this.obb.transform(this.transform);
   }
 }

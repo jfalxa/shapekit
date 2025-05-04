@@ -73,7 +73,7 @@ export class Text extends Shape {
     this.format();
   }
 
-  update(rebuild = false) {
+  update(rebuild?: boolean) {
     super.update(rebuild);
     this.format();
   }
