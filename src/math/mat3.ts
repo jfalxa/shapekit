@@ -54,7 +54,7 @@ export class Matrix3 extends Float64Array {
   }
 
   transform(m: Matrix3) {
-    this.multiply(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+    return this.multiply(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
   }
 
   invert() {

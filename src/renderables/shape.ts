@@ -89,17 +89,17 @@ export class Shape extends Renderable {
   contains(shape: Point | Shape) {
     if (!this.obb.mayContain(shape)) return false;
 
-    if (shape instanceof Shape) {
-      for (const point of shape.points) {
-        if (!this.contains(point)) return false;
-      }
-      return true;
+    if (!(shape instanceof Shape)) {
+      if (this.fill && isPointInPolygon(shape, this)) return true;
+      if (this.stroke && isPointInPolyline(shape, this)) return true;
+      return false;
     }
 
-    if (this.fill && isPointInPolygon(shape, this)) return true;
-    if (this.stroke && isPointInPolyline(shape, this)) return true;
+    for (const point of shape.points) {
+      if (!this.contains(point)) return false;
+    }
 
-    return false;
+    return true;
   }
 
   overlaps(shape: Shape) {
