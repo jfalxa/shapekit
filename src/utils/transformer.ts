@@ -13,16 +13,11 @@ interface Snapshot {
   screenTransform: Matrix3;
 }
 
-/**
- * Group‐level transformer.
- */
 export class Transformer {
   x = 0;
   y = 0;
   width = 0;
   height = 0;
-  scaleX = 1;
-  scaleY = 1;
   skewX = 0;
   skewY = 0;
   rotation = 0;

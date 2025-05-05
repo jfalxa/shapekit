@@ -85,7 +85,7 @@ export class Matrix3 extends Float64Array {
     return this;
   }
 
-  compose(renderable: Transform) {
+  compose(renderable: Partial<Transform>) {
     const {
       x = 0,
       y = 0,
