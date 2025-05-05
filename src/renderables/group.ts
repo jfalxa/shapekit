@@ -60,7 +60,11 @@ export class Group extends Renderable {
         const sy = height / baseHeight;
 
         for (const child of this.children) {
-          this.#transform.compose(child).scale(sx, sy).decompose(child);
+          this.#transform
+            .identity()
+            .compose(child)
+            .scale(sx, sy)
+            .decompose(child);
         }
       }
     }
@@ -69,8 +73,7 @@ export class Group extends Renderable {
   update(rebuild?: boolean, updateParent = true, updateChildren = true): void {
     super.update(rebuild);
 
-    this.#transform.set(this.transform);
-    this.#transform.invert();
+    this.#transform.copy(this.transform).invert();
 
     this.obb.min.put(Infinity);
     this.obb.max.put(-Infinity);

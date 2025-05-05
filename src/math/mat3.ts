@@ -1,16 +1,26 @@
 import { Transform } from "../renderables/renderable";
-
-// prettier-ignore
-const IDENTITY = [
-  1, 0, 0, 
-  0, 1, 0, 
-  0, 0, 1
-];
+import { epsilon } from "./num";
 
 export class Matrix3 extends Float64Array {
-  constructor() {
-    super(9);
-    this.set(IDENTITY);
+  // prettier-ignore
+  static IDENTITY = [
+    1, 0, 0, 
+    0, 1, 0, 
+    0, 0, 1
+  ]
+
+  constructor(init: ArrayLike<number> = Matrix3.IDENTITY) {
+    super(init);
+  }
+
+  identity() {
+    this.set(Matrix3.IDENTITY);
+    return this;
+  }
+
+  copy(matrix: Matrix3) {
+    this.set(matrix);
+    return this;
   }
 
   translate(tx: number, ty: number) {
@@ -92,22 +102,24 @@ export class Matrix3 extends Float64Array {
     const tanSkewX = Math.tan(skewX);
     const tanSkewY = Math.tan(skewY);
 
-    this[0] = scaleX * (cos - sin * tanSkewY);
-    this[1] = scaleX * (sin + cos * tanSkewY);
-    this[2] = 0;
+    const a = scaleX * (cos - sin * tanSkewY);
+    const b = scaleX * (sin + cos * tanSkewY);
 
-    this[3] = scaleY * (cos * tanSkewX - sin);
-    this[4] = scaleY * (sin * tanSkewX + cos);
-    this[5] = 0;
+    const c = scaleY * (cos * tanSkewX - sin);
+    const d = scaleY * (sin * tanSkewX + cos);
 
-    this[6] = x;
-    this[7] = y;
-    this[8] = 1;
+    const e = x;
+    const f = y;
 
-    return this;
+    // prettier-ignore
+    return this.multiply(
+      a, b, 0,
+      c, d, 0,
+      e, f, 1
+    );
   }
 
-  decompose(out: Transform = {}) {
+  decompose(out = {} as Transform) {
     const [a, b, , c, d, , e, f] = this;
 
     const _width = out.width || 0;
@@ -119,13 +131,21 @@ export class Matrix3 extends Float64Array {
     const shear = (a * c + b * d) / (scaleX * scaleX);
     const scaleY = Math.hypot(c - shear * a, d - shear * b);
 
-    out.x = e;
-    out.y = f;
-    out.rotation = Math.atan2(b, a);
-    out.skewX = Math.atan((a * c + b * d) / (scaleX * scaleY));
-    out.skewY = 0;
-    out.width = _width * (scaleX / _scaleX);
-    out.height = _height * (scaleY / _scaleY);
+    const x = e;
+    const y = f;
+    const rotation = Math.atan2(b, a);
+    const skewX = Math.atan((a * c + b * d) / (scaleX * scaleY));
+    const skewY = 0;
+    const width = _width * (scaleX / _scaleX);
+    const height = _height * (scaleY / _scaleY);
+
+    if (!epsilon(out.x, x)) out.x = x;
+    if (!epsilon(out.y, y)) out.y = y;
+    if (!epsilon(out.rotation, rotation)) out.rotation = rotation;
+    if (!epsilon(out.skewX, skewX)) out.skewX = skewX;
+    if (!epsilon(out.skewY, skewY)) out.skewY = skewY;
+    if (!epsilon(out.width, width)) out.width = width;
+    if (!epsilon(out.height, height)) out.height = height;
 
     return out;
   }

@@ -5,18 +5,18 @@ import { Group } from "./group";
 import { Shape } from "./shape";
 
 export interface Transform {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  scaleX?: number;
-  scaleY?: number;
-  skewX?: number;
-  skewY?: number;
-  rotation?: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scaleX: number;
+  scaleY: number;
+  skewX: number;
+  skewY: number;
+  rotation: number;
 }
 
-export interface RenderableInit extends Transform {
+export interface RenderableInit extends Partial<Transform> {
   id?: string;
 }
 
@@ -66,7 +66,7 @@ export abstract class Renderable {
 
   update(rebuild = false, _updateParent?: boolean, _updateChildren?: boolean) {
     if (rebuild) this.build();
-    this.transform.compose(this);
+    this.transform.identity().compose(this);
     if (this.parent) this.transform.transform(this.parent.transform);
   }
 }
