@@ -34,10 +34,15 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
   }
 }
 
-export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
+export function renderOBB(
+  ctx: Canvas2D,
+  renderables: Renderable[],
+  color = "orange"
+) {
   ctx.resetTransform();
 
-  ctx.strokeStyle = "orange";
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
   ctx.lineCap = "square";
   ctx.lineWidth = 4;
 
@@ -59,6 +64,10 @@ export function renderOBB(ctx: Canvas2D, renderables: Renderable[]) {
     ctx.closePath();
 
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(shape.obb.center.x, shape.obb.center.y, 5, 0, 2 * Math.PI);
+    ctx.fill();
   }
 }
 
