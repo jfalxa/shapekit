@@ -19,6 +19,7 @@ import { ellipse } from "./paths/ellipse";
 import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
 import { Path } from "./paths/path";
+import { Transformer } from "./utils/transformer";
 
 import treeSrc from "./tree.png";
 
@@ -154,8 +155,15 @@ class App extends Loop {
     y: 300,
     // lineWidth: 5,
     // rotation: Math.PI / 4,
-    fill: "red",
-    path: [arc(0, 0, 200)],
+    // fill: "red",
+    lineWidth: 5,
+    stroke: "red",
+    path: [
+      moveTo(0, 0), //
+      arc(0, 0, 200, rad(0), rad(40), false),
+      closePath(),
+      lineTo(300, 0),
+    ],
   });
 
   arc = new Shape({
@@ -255,6 +263,7 @@ class App extends Loop {
           }),
 
           new Shape({
+            id: "ROUND_TRIANGLES",
             stroke: "red",
             fill: "yellow",
             lineWidth: 3,
@@ -275,6 +284,7 @@ class App extends Loop {
           }),
 
           new Shape({
+            id: "SHOLVA",
             x: 50,
             y: 250,
             rotation: -Math.PI / 3.5,
@@ -331,6 +341,8 @@ class App extends Loop {
     ],
   });
 
+  transformer!: Transformer;
+
   async mount() {
     const treeImage = await Image.load(treeSrc);
 
@@ -346,6 +358,11 @@ class App extends Loop {
     );
 
     this.group.update(true);
+
+    this.transformer = new Transformer(this.group.children[0].children);
+    // this.transformer = new Transformer([this.roundRect, this.roundTriangle]);
+    // this.transformer = new Transformer([this.circle]);
+    // this.transformer = new Transformer([this.roundTriangle]);
 
     for (let i = 0; i < 0; i++) {
       this.shapes.push(
@@ -385,8 +402,8 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.shapes) {
-      shape.rotation += 0.001 * this.deltaTime;
-      shape.update();
+      // shape.rotation += 0.001 * this.deltaTime;
+      // shape.update();
       // shape.update(true);
     }
 
@@ -408,7 +425,8 @@ class App extends Loop {
 
     renderAll(this.ctx, this.shapes);
     // renderOBB(this.ctx, this.shapes);
-    // renderHulls(this.ctx, this.shapes);
+    this.transformer && renderOBB(this.ctx, [this.transformer], "lime");
+    renderHulls(this.ctx, this.shapes);
 
     end = performance.now();
 
@@ -422,17 +440,25 @@ class App extends Loop {
   }
 }
 
-function rand(min: number = 0, max: number = 1) {
+export function rand(min: number = 0, max: number = 1) {
   return min + Math.random() * (max - min);
 }
 
-function rgbToHex(r: number, g: number, b: number) {
+export function rgbToHex(r: number, g: number, b: number) {
   return (
     "#" +
     Math.floor(r).toString(16).padStart(2, "0") +
     Math.floor(g).toString(16).padStart(2, "0") +
     Math.floor(b).toString(16).padStart(2, "0")
   );
+}
+
+export function deg(rad: number) {
+  return Math.round((rad * 180) / Math.PI);
+}
+
+export function rad(deg: number) {
+  return (deg * Math.PI) / 180;
 }
 
 // @ts-ignore
@@ -442,3 +468,5 @@ window.app = new App();
 window.Matrix3 = Matrix3;
 // @ts-ignore
 window.Vec2 = Vec2;
+// @ts-ignore
+window.Transformer = Transformer;

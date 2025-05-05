@@ -5,6 +5,7 @@ import { Shape } from "./renderables/shape";
 type Canvas2D = CanvasRenderingContext2D;
 
 export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
+  ctx.save();
   ctx.resetTransform();
 
   ctx.strokeStyle = "lime";
@@ -32,6 +33,8 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
 
     ctx.stroke();
   }
+
+  ctx.restore();
 }
 
 export function renderOBB(
@@ -39,6 +42,7 @@ export function renderOBB(
   renderables: Renderable[],
   color = "orange"
 ) {
+  ctx.save();
   ctx.resetTransform();
 
   ctx.fillStyle = color;
@@ -69,6 +73,7 @@ export function renderOBB(
     ctx.arc(shape.obb.center.x, shape.obb.center.y, 5, 0, 2 * Math.PI);
     ctx.fill();
   }
+  ctx.restore();
 }
 
 function flattenRenderables(renderables: Renderable[]) {
