@@ -76,6 +76,7 @@ export class ArcTo extends Segment {
       arc.radiusY,
       arc.startAngle,
       arc.endAngle,
+      false,
       quality,
       this.points
     );

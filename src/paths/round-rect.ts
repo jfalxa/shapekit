@@ -46,10 +46,10 @@ class RoundRect extends Rect {
     const cBR = new Vec2(to.x + width - rBR, to.y + height - rBR);
     const cBL = new Vec2(to.x + rBL, to.y + height - rBL);
 
-    Arc.adaptiveSample(cTL, rTL, rTL, Math.PI, (3 * Math.PI) / 2, quality, this.points, 0); // prettier-ignore
-    Arc.adaptiveSample(cTR, rTR, rTR, -Math.PI / 2, 0, quality, this.points, this.points.length); // prettier-ignore
-    Arc.adaptiveSample(cBR, rBR, rBR, 0, Math.PI / 2, quality, this.points, this.points.length); // prettier-ignore
-    Arc.adaptiveSample(cBL, rBL, rBL, Math.PI / 2, Math.PI, quality, this.points, this.points.length); // prettier-ignore
+    Arc.adaptiveSample(cTL, rTL, rTL, Math.PI, (3 * Math.PI) / 2, false, quality, this.points, 0); // prettier-ignore
+    Arc.adaptiveSample(cTR, rTR, rTR, -Math.PI / 2, 0, false, quality, this.points, this.points.length); // prettier-ignore
+    Arc.adaptiveSample(cBR, rBR, rBR, 0, Math.PI / 2, false, quality, this.points, this.points.length); // prettier-ignore
+    Arc.adaptiveSample(cBL, rBL, rBL, Math.PI / 2, Math.PI, false, quality, this.points, this.points.length); // prettier-ignore
 
     this.points.push(new Vec2(to.x, to.y + rTL));
 

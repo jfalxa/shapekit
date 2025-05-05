@@ -5,12 +5,14 @@ export function arc(
   x: number,
   y: number,
   radius: number,
-  startAngle = 0,
-  endAngle = 2 * Math.PI,
+  startAngle?: number,
+  endAngle?: number,
   counterclockwise?: boolean
 ) {
   return new Arc(x, y, radius, startAngle, endAngle, counterclockwise);
 }
+
+const TWO_PI = 2 * Math.PI;
 
 export class Arc extends Segment {
   radiusX: number;
@@ -21,8 +23,8 @@ export class Arc extends Segment {
     y: number,
     radius: number,
     public startAngle = 0,
-    public endAngle = 2 * Math.PI,
-    public counterclockwise?: boolean
+    public endAngle = TWO_PI,
+    public counterclockwise = false
   ) {
     super(x, y);
     this.radiusX = radius;
@@ -66,6 +68,7 @@ export class Arc extends Segment {
       this.radiusY,
       this.startAngle,
       this.endAngle,
+      this.counterclockwise,
       quality,
       this.points
     );
@@ -73,46 +76,69 @@ export class Arc extends Segment {
 
   static sample(
     center: Point,
-    rx: number,
-    ry: number,
+    radiusX: number,
+    radiusY: number,
     startAngle: number,
-    endAngle: number,
+    sweep: number,
     t: number,
     out = new Vec2(0, 0)
   ) {
-    let angleDiff = endAngle - startAngle;
-    if (angleDiff < 0) angleDiff += 2 * Math.PI;
-    const angle = startAngle + angleDiff * t;
-
-    out.x = center.x + rx * Math.cos(angle);
-    out.y = center.y + ry * Math.sin(angle);
-
+    const angle = startAngle + sweep * t;
+    out.x = center.x + radiusX * Math.cos(angle);
+    out.y = center.y + radiusY * Math.sin(angle);
     return out;
   }
 
   static adaptiveSample(
     center: Point,
-    rx: number,
-    ry: number,
+    radiusX: number,
+    radiusY: number,
     startAngle: number,
     endAngle: number,
+    counterclockwise: boolean,
     quality: number,
     out: Vec2[] = [],
     offset = 0
   ) {
+    let sweep = endAngle - startAngle;
+    if (!counterclockwise && sweep >= TWO_PI) {
+      sweep = TWO_PI;
+    } else if (counterclockwise && -sweep >= TWO_PI) {
+      sweep = -TWO_PI;
+    } else if (isExactCircle(sweep)) {
+      sweep = counterclockwise ? -TWO_PI : TWO_PI;
+    } else if (!counterclockwise) {
+      sweep = sweep % TWO_PI;
+      sweep = sweep < 0 ? sweep + TWO_PI : sweep;
+    } else {
+      sweep = sweep % TWO_PI;
+      sweep = sweep > 0 ? sweep - TWO_PI : sweep;
+    }
+
     const tolerance = 1 / quality;
-    const radius = Math.max(rx, ry);
+    const radius = Math.max(radiusX, radiusY);
     const step = 2 * Math.acos(1 - tolerance / radius);
-    const span = Math.abs(endAngle - startAngle);
-    const divisions = Math.ceil(span / step);
+    const divisions = Math.abs(Math.ceil(sweep / step));
 
     for (let i = 0; i <= divisions; i++) {
-      const io = offset + i;
-      const t = i / divisions;
-      out[io] = Arc.sample(center, rx, ry, startAngle, endAngle, t, out[io]);
+      out[i + offset] = Arc.sample(
+        center,
+        radiusX,
+        radiusY,
+        startAngle,
+        sweep,
+        i / divisions,
+        out[i + offset]
+      );
     }
 
     out.length = offset + divisions + 1;
     return out;
   }
+}
+
+function isExactCircle(sweep: number) {
+  if (sweep % TWO_PI === 0) return true;
+  else if (Math.abs((TWO_PI - sweep) % TWO_PI) < 1e-6) return true;
+  else return false;
 }
