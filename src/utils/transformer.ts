@@ -108,8 +108,6 @@ export class Transformer {
     for (const renderable of this.selection) {
       const snapshot = this.snapshots.get(renderable)!;
 
-      const { width, height } = renderable;
-
       renderable.width = snapshot.width;
       renderable.height = snapshot.height;
 
@@ -120,11 +118,7 @@ export class Transformer {
 
       this.#transform.decompose(renderable);
 
-      const rebuild =
-        renderable.width !== width || //
-        renderable.height !== height;
-
-      renderable.update(rebuild, true, true);
+      renderable.update(false, true, true);
 
       this.#obb.copy(renderable.obb).transform(this.invTransform);
       this.obb.merge(this.#obb);

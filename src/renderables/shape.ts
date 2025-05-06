@@ -110,13 +110,9 @@ export class Shape extends Renderable {
   }
 
   build() {
-    const { width, height, baseWidth, baseHeight } = this;
-
-    if (width && height && baseWidth && baseHeight) {
-      if (width !== baseWidth || height !== baseHeight) {
-        this.path.scale(width / baseWidth, height / baseHeight);
-      }
-    }
+    const sx = this.baseWidth !== 0 ? this.width / this.baseWidth : 1;
+    const sy = this.baseHeight !== 0 ? this.height / this.baseHeight : 1;
+    if (sx !== 1 || sy !== 1) this.path.scale(sx, sy);
 
     this.path.build(this.quality);
 

@@ -52,20 +52,16 @@ export class Group extends Renderable {
   }
 
   build() {
-    const { width, height, baseWidth, baseHeight } = this;
+    const sx = this.baseWidth !== 0 ? this.width / this.baseWidth : 1;
+    const sy = this.baseHeight !== 0 ? this.height / this.baseHeight : 1;
 
-    if (width && height && baseWidth && baseHeight) {
-      if (width !== baseWidth || height !== baseHeight) {
-        const sx = width / baseWidth;
-        const sy = height / baseHeight;
-
-        for (const child of this.children) {
-          this.#transform
-            .identity()
-            .compose(child)
-            .scale(sx, sy)
-            .decompose(child);
-        }
+    if (sx !== 1 || sy !== 1) {
+      for (const child of this.children) {
+        this.#transform
+          .identity()
+          .compose(child)
+          .scale(sx, sy)
+          .decompose(child);
       }
     }
   }

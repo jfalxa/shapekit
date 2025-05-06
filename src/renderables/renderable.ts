@@ -47,6 +47,8 @@ export abstract class Renderable {
     this.y = init.y ?? 0;
     this.width = init.width ?? 0;
     this.height = init.height ?? 0;
+    this.baseWidth = init.width ?? 0;
+    this.baseHeight = init.height ?? 0;
     this.scaleX = init.scaleX ?? 1;
     this.scaleY = init.scaleY ?? 1;
     this.skewX = init.skewX ?? 0;
@@ -55,9 +57,6 @@ export abstract class Renderable {
 
     this.transform = new Matrix3();
     this.obb = new BoundingBox();
-
-    this.baseWidth = 0;
-    this.baseHeight = 0;
   }
 
   abstract contains(shape: Point | Shape): boolean;
@@ -65,7 +64,8 @@ export abstract class Renderable {
   abstract build(): void;
 
   update(rebuild = false, _updateParent?: boolean, _updateChildren?: boolean) {
-    if (rebuild) this.build();
+    const resized = this.width !== this.baseWidth || this.height !== this.baseHeight; // prettier-ignore
+    if (rebuild || resized) this.build();
     this.transform.identity().compose(this);
     if (this.parent) this.transform.transform(this.parent.transform);
   }
