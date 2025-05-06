@@ -49,6 +49,12 @@ export class Transformer {
 
     this.snapshots.clear();
 
+    if (this.selection.length === 1) {
+      this.snapshot(this.selection[0]);
+      this.obb.copy(this.selection[0].obb);
+      return;
+    }
+
     this.obb.min.put(+Infinity);
     this.obb.max.put(-Infinity);
 
