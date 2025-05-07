@@ -47,13 +47,14 @@ export abstract class Renderable {
     this.y = init.y ?? 0;
     this.width = init.width ?? 0;
     this.height = init.height ?? 0;
-    this.baseWidth = init.width ?? 0;
-    this.baseHeight = init.height ?? 0;
     this.scaleX = init.scaleX ?? 1;
     this.scaleY = init.scaleY ?? 1;
     this.skewX = init.skewX ?? 0;
     this.skewY = init.skewY ?? 0;
     this.rotation = init.rotation ?? 0;
+
+    this.baseWidth = init.width ?? 0;
+    this.baseHeight = init.height ?? 0;
 
     this.transform = new Matrix3();
     this.obb = new BoundingBox();

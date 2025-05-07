@@ -36,7 +36,7 @@ export class Group extends Renderable {
   }
 
   contains(shape: Point | Shape): boolean {
-    if (!this.obb.mayContain(shape)) return false;
+    if (!this.obb.contains(shape)) return false;
     for (const child of this.children) {
       if (child.contains(shape)) return true;
     }
@@ -44,7 +44,7 @@ export class Group extends Renderable {
   }
 
   overlaps(shape: Shape): boolean {
-    if (!this.obb.mayOverlap(shape)) return false;
+    if (!this.obb.overlaps(shape)) return false;
     for (const child of this.children) {
       if (child.overlaps(shape)) return true;
     }

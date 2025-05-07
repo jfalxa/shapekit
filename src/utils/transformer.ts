@@ -1,5 +1,5 @@
 import { Matrix3 } from "../math/mat3";
-import { v, Vec2 } from "../math/vec2";
+import { Vec2 } from "../math/vec2";
 import { BoundingBox } from "./bounding-box";
 import { Renderable } from "../renderables/renderable";
 

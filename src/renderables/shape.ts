@@ -87,7 +87,7 @@ export class Shape extends Renderable {
   }
 
   contains(shape: Point | Shape) {
-    if (!this.obb.mayContain(shape)) return false;
+    if (!this.obb.contains(shape)) return false;
 
     if (!(shape instanceof Shape)) {
       if (this.fill && isPointInPolygon(shape, this)) return true;
@@ -103,7 +103,7 @@ export class Shape extends Renderable {
   }
 
   overlaps(shape: Shape) {
-    if (!this.obb.mayOverlap(shape)) return false;
+    if (!this.obb.overlaps(shape)) return false;
     if (this.fill && shape.fill && doPolygonsOverlap(shape, this)) return true;
     if (doPolylinesOverlap(shape, this)) return true;
     return shape.contains(this) || this.contains(shape);

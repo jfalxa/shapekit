@@ -81,7 +81,7 @@ export class BoundingBox {
     this.update();
   }
 
-  mayContain(other: Point | AABB | Renderable) {
+  contains(other: Point | AABB | Renderable) {
     const aabb = other instanceof Renderable ? other.obb : other;
     const min = BoundingBox.isAABB(aabb) ? aabb.min : aabb;
     const max = BoundingBox.isAABB(aabb) ? aabb.max : aabb;
@@ -94,7 +94,7 @@ export class BoundingBox {
     );
   }
 
-  mayOverlap(other: AABB | Renderable) {
+  overlaps(other: AABB | Renderable) {
     const aabb = other instanceof Renderable ? other.obb : other;
 
     return (

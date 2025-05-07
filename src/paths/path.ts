@@ -2,14 +2,14 @@ import { Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
-export type PathLike = Path | Array<Segment>;
+export type PathLike = ArrayLike<Segment>;
 
 export class Path extends Array<Segment> {
   path2D!: Path2D;
   points: Vec2[];
   obb: BoundingBox;
 
-  constructor(segments: Segment[], quality?: number) {
+  constructor(segments: PathLike, quality?: number) {
     super(segments.length);
 
     for (let i = 0; i < segments.length; i++) {

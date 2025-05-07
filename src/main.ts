@@ -268,7 +268,7 @@ class App extends Loop {
             fill: "yellow",
             lineWidth: 3,
             globalAlpha: 0.5,
-            path: new Path([
+            path: [
               moveTo(0, 50),
               arcTo(-100, 50, -50, -50, 25),
               arcTo(0, -150, 50, -50, 25),
@@ -280,7 +280,7 @@ class App extends Loop {
               arcTo(200, -150, 250, -50, 25),
               arcTo(300, 50, 200, 50, 25),
               closePath(),
-            ]),
+            ],
           }),
 
           new Shape({
@@ -377,6 +377,52 @@ class App extends Loop {
         })
       );
     }
+
+    const t = this.transformer;
+    const pivot = t.obb.a;
+
+    function debug(label: string) {
+      console.log(label, {
+        x: t.x,
+        y: t.y,
+        w: t.width,
+        h: t.height,
+        r: deg(t.rotation),
+      });
+    }
+
+    setTimeout(() => {
+      t.x = 200;
+      t.y = -35;
+      // t.apply();
+      t.commit();
+      debug("T");
+    }, 1000);
+
+    setTimeout(() => {
+      // t.rotation = rad(45);
+      t.width /= 2;
+      // t.apply(pivot);
+      t.commit(pivot);
+      debug("S * R");
+    }, 2000);
+
+    setTimeout(() => {
+      t.x -= 100;
+      t.y -= 50;
+      // t.apply(pivot);
+      t.commit();
+      debug("T2");
+    }, 3000);
+
+    setTimeout(() => {
+      // t.rotation = 0;
+      // t.width *= 2;
+      // t.x = 0;
+      // t.y = 0;
+      t.revert();
+      debug("-T2 * -R * -S * -T");
+    }, 4000);
 
     // this.shapes.push(this.polyline);
     // this.shapes.push(this.rect1);
