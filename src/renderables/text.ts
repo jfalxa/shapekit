@@ -1,5 +1,5 @@
 import { Style } from "../styles/style";
-import { fitText, measureText } from "../utils/text";
+import { fitText, getFont, measureText } from "../utils/text";
 import { Shape, ShapeInit } from "./shape";
 
 export interface TextStyle {
@@ -79,21 +79,7 @@ export class Text extends Shape {
   }
 
   format() {
-    this.font = Text.getFont(this);
+    this.font = getFont(this);
     this.lines = fitText(this);
-  }
-
-  static getFont(style: TextStyle) {
-    const {
-      fontSize = 12,
-      fontFamily = "serif",
-      fontStyle = "normal",
-      fontVariant = "normal",
-      fontWeight = "normal",
-    } = style;
-
-    return `${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px ${fontFamily}`
-      .replaceAll(/\s+/g, " ")
-      .trim();
   }
 }

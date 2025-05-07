@@ -36,10 +36,24 @@ export function fitText(text: Text): string[] {
 }
 
 export function measureText(text: string, style: TextStyle) {
-  const font = Text.getFont(style);
+  const font = getFont(style);
   const { fontSize = 12, lineHeight = fontSize, padding = 0 } = style;
   if (font !== textCtx.font) textCtx.font = font;
   const width = textCtx.measureText(text ?? "").width + 2 * padding;
   const height = lineHeight + 2 * padding;
   return [Math.ceil(width), height];
+}
+
+export function getFont(style: TextStyle) {
+  const {
+    fontSize = 12,
+    fontFamily = "serif",
+    fontStyle = "normal",
+    fontVariant = "normal",
+    fontWeight = "normal",
+  } = style;
+
+  return `${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px ${fontFamily}`
+    .replaceAll(/\s+/g, " ")
+    .trim();
 }
