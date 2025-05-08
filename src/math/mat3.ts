@@ -119,7 +119,7 @@ export class Matrix3 extends Float64Array {
     );
   }
 
-  decompose(out = {} as Transform) {
+  decompose(out = {} as Transform, useScale = false) {
     const [a, b, , c, d, , e, f] = this;
 
     const _width = out.width || 0;
@@ -136,16 +136,22 @@ export class Matrix3 extends Float64Array {
     const rotation = Math.atan2(b, a);
     const skewX = Math.atan((a * c + b * d) / (scaleX * scaleY));
     const skewY = 0;
-    const width = _width * (scaleX / _scaleX);
-    const height = _height * (scaleY / _scaleY);
 
     if (!epsilon(out.x, x)) out.x = x;
     if (!epsilon(out.y, y)) out.y = y;
     if (!epsilon(out.rotation, rotation)) out.rotation = rotation;
     if (!epsilon(out.skewX, skewX)) out.skewX = skewX;
     if (!epsilon(out.skewY, skewY)) out.skewY = skewY;
-    if (!epsilon(out.width, width)) out.width = width;
-    if (!epsilon(out.height, height)) out.height = height;
+
+    if (useScale) {
+      if (!epsilon(out.scaleX, scaleX)) out.scaleX = scaleX;
+      if (!epsilon(out.scaleY, scaleY)) out.scaleY = scaleY;
+    } else {
+      const width = _width * (scaleX / _scaleX);
+      const height = _height * (scaleY / _scaleY);
+      if (!epsilon(out.width, width)) out.width = width;
+      if (!epsilon(out.height, height)) out.height = height;
+    }
 
     return out;
   }
