@@ -381,6 +381,9 @@ class App extends Loop {
     const t = this.transformer;
     const pivot = t.obb.a;
 
+    // @ts-ignore
+    window.t = t;
+
     function debug(label: string) {
       console.log(label, {
         x: t.x,
@@ -391,38 +394,50 @@ class App extends Loop {
       });
     }
 
-    setTimeout(() => {
-      t.x = 200;
-      t.y = -35;
-      // t.apply();
-      t.commit();
-      debug("T");
-    }, 1000);
-
-    setTimeout(() => {
-      // t.rotation = rad(45);
-      t.width /= 2;
-      // t.apply(pivot);
-      t.commit(pivot);
-      debug("S * R");
-    }, 2000);
-
-    setTimeout(() => {
-      t.x -= 100;
-      t.y -= 50;
-      // t.apply(pivot);
-      t.commit();
-      debug("T2");
-    }, 3000);
-
-    setTimeout(() => {
-      // t.rotation = 0;
-      // t.width *= 2;
-      // t.x = 0;
-      // t.y = 0;
-      t.revert();
-      debug("-T2 * -R * -S * -T");
-    }, 4000);
+    chain(
+      [
+        () => {
+          t.x = 200;
+          t.y = -35;
+          // t.apply();
+          t.commit();
+          debug("T1");
+        },
+        () => {
+          t.width /= 2;
+          // t.apply(pivot);
+          t.commit(t.obb.a);
+          debug("S");
+        },
+        () => {
+          t.rotation = rad(45);
+          // t.apply(pivot);
+          t.commit(t.obb.a);
+          debug("R1");
+        },
+        () => {
+          t.x -= 100;
+          t.y -= 50;
+          // t.apply(pivot);
+          t.commit(t.obb.a);
+          debug("T2");
+        },
+        () => {
+          t.rotation = rad(60);
+          t.commit(t.obb.a);
+          debug("R2");
+        },
+        () => {
+          // t.rotation = 0;
+          // t.width *= 2;
+          // t.x = 0;
+          // t.y = 0;
+          t.revert();
+          debug("REVERT");
+        },
+      ],
+      1000
+    );
 
     // this.shapes.push(this.polyline);
     // this.shapes.push(this.rect1);
@@ -471,8 +486,18 @@ class App extends Loop {
 
     renderAll(this.ctx, this.shapes);
     // renderOBB(this.ctx, this.shapes);
-    this.transformer && renderOBB(this.ctx, [this.transformer], "lime");
     renderHulls(this.ctx, this.shapes);
+
+    if (this.transformer) {
+      renderOBB(this.ctx, [this.transformer], "lime");
+
+      // const a = this.transformer.obb.a.clone().transform(this.transformer._invTransform); // prettier-ignore
+
+      // this.ctx.fillStyle = "hotpink";
+      // this.ctx.beginPath();
+      // this.ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
+      // this.ctx.fill();
+    }
 
     end = performance.now();
 
@@ -505,6 +530,12 @@ export function deg(rad: number) {
 
 export function rad(deg: number) {
   return (deg * Math.PI) / 180;
+}
+
+function chain(functions: Function[], interval = 1000) {
+  for (let i = 0; i <= functions.length; i++) {
+    setTimeout(functions[i], (i + 1) * interval);
+  }
 }
 
 // @ts-ignore
