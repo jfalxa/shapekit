@@ -24,6 +24,12 @@ export class BoundingBox {
 
   width = 0;
   height = 0;
+  skewX = 0;
+  skewY = 0;
+  rotation = 0;
+
+  #ab = new Vec2(0, 0);
+  #ad = new Vec2(0, 0);
 
   static isAABB(value: object): value is AABB {
     return (
@@ -44,13 +50,25 @@ export class BoundingBox {
     this.center.copy(other.center);
     this.width = other.width;
     this.height = other.height;
+    this.skewX = other.skewX;
+    this.skewY = other.skewY;
+    this.rotation = other.rotation;
     return this;
   }
 
   update() {
-    this.center.copy(this.min).add(this.max).scale(0.5);
-    this.width = this.max.x - this.min.x;
-    this.height = this.max.y - this.min.y;
+    const { a, b, c, d } = this;
+
+    this.center.copy(a).add(b).add(c).add(d).scale(0.25);
+
+    const ab = this.#ab.copy(b).subtract(a);
+    const ad = this.#ad.copy(d).subtract(a);
+
+    this.rotation = Math.atan2(ab.y, ab.x);
+    this.width = ab.norm();
+    this.height = ab.cross(ad) / this.width;
+    this.skewX = ab.dot(ad) / (this.width * this.width);
+    this.skewY = 0;
   }
 
   transform(matrix: Matrix3) {
