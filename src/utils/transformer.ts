@@ -11,53 +11,78 @@ interface Snapshot {
 }
 
 export class Transformer {
-  x = 0;
-  y = 0;
-  width = 0;
-  height = 0;
-  skewX = 0;
-  skewY = 0;
-  rotation = 0;
+  x!: number;
+  y!: number;
+  width!: number;
+  height!: number;
+  skewX!: number;
+  skewY!: number;
+  rotation!: number;
 
   obb = new BoundingBox();
 
-  #width = 0;
-  #height = 0;
+  #x!: number;
+  #y!: number;
+  #width!: number;
+  #height!: number;
+  #skewX!: number;
+  #skewY!: number;
+  #rotation!: number;
 
-  #center = new Vec2(0, 0);
-  #pivot = new Vec2(0, 0);
   #snapshots = new Map<Renderable, Snapshot>();
+  #center = new Vec2(0, 0);
+  #delta = new Vec2(0, 0);
+  #obb = new BoundingBox();
   #transform = new Matrix3();
-  #invTransform = new Matrix3();
   #selectionTransform = new Matrix3();
-  #selectionOBB = new BoundingBox();
 
   constructor(public selection: Renderable[]) {
-    this.fit();
+    this.reset();
+  }
 
-    this.width = this.#width = this.obb.width;
-    this.height = this.#height = this.obb.height;
-    this.#center.copy(this.obb.center);
+  reset() {
+    this.#obb.min.put(+Infinity);
+    this.#obb.max.put(-Infinity);
 
     for (const renderable of this.selection) {
       this.snapshot(renderable);
+      this.#obb.merge(renderable.obb);
     }
+
+    this.obb.copy(this.#obb);
+    this.#center.copy(this.obb.center);
+
+    this.x = this.#x = 0;
+    this.y = this.#y = 0;
+    this.width = this.#width = this.obb.width;
+    this.height = this.#height = this.obb.height;
+    this.skewX = this.#skewX = 0;
+    this.skewY = this.#skewY = 0;
+    this.rotation = this.#rotation = 0;
   }
 
-  commit(pivot?: Vec2) {
-    this.apply(pivot);
-    this.x = this.obb.center.x - this.#center.x;
-    this.y = this.obb.center.y - this.#center.y;
+  commit(anchor?: Vec2) {
+    this.apply(anchor);
+    this.x += this.#delta.x;
+    this.y += this.#delta.y;
+    this.#x = this.x;
+    this.#y = this.y;
+    this.#width = this.width;
+    this.#height = this.height;
+    this.#skewX = this.skewX;
+    this.#skewY = this.skewY;
+    this.#rotation = this.rotation;
+    this.#center.copy(this.obb.center);
   }
 
   revert() {
-    this.x = 0;
-    this.y = 0;
+    this.x = this.#x;
+    this.y = this.#y;
     this.width = this.#width;
     this.height = this.#height;
-    this.rotation = 0;
-    this.skewX = 0;
-    this.skewY = 0;
+    this.rotation = this.#rotation;
+    this.skewX = this.#skewX;
+    this.skewY = this.#skewY;
     this.apply();
   }
 
@@ -78,37 +103,31 @@ export class Transformer {
     });
   }
 
-  fit() {
-    if (this.selection.length === 1) {
-      this.obb.copy(this.selection[0].obb);
-      return;
-    }
+  apply(anchor = this.obb.center) {
+    const [cx, cy] = this.#obb.center;
 
-    this.obb.min.put(+Infinity);
-    this.obb.max.put(-Infinity);
+    const sx = this.width / this.#obb.width;
+    const sy = this.height / this.#obb.height;
 
-    for (const renderable of this.selection) {
-      this.#selectionOBB.copy(renderable.obb).transform(this.#invTransform);
-      this.obb.merge(this.#selectionOBB);
-    }
-
-    this.obb.transform(this.#transform);
-  }
-
-  apply(pivot = this.obb.center) {
-    this.#pivot.copy(pivot).transform(this.#invTransform);
-
-    const sx = this.#width !== 0 ? this.width / this.#width : 1;
-    const sy = this.#height !== 0 ? this.height / this.#height : 1;
+    // compute delta necessary to apply non-committed transforms around anchor
+    const [dx, dy] = this.#delta
+      .copy(this.#center)
+      .subtract(anchor)
+      .rotate(-this.rotation)
+      .scale(sx, sy)
+      .skew(this.skewX - this.#skewX, this.skewY - this.#skewY)
+      .rotate(this.rotation - this.#rotation)
+      .rotate(this.rotation)
+      .add(anchor)
+      .subtract(this.#center);
 
     this.#transform
       .identity()
-      .translate(-this.#pivot.x, -this.#pivot.y)
+      .translate(-cx, -cy)
       .scale(sx, sy)
       .compose(this)
-      .translate(+this.#pivot.x, +this.#pivot.y);
-
-    this.#invTransform.copy(this.#transform).invert();
+      .translate(dx, dy)
+      .translate(+cx, +cy);
 
     for (const renderable of this.selection) {
       const snapshot = this.#snapshots.get(renderable)!;
@@ -125,6 +144,6 @@ export class Transformer {
       renderable.update();
     }
 
-    this.fit();
+    this.obb.copy(this.#obb).transform(this.#transform);
   }
 }
