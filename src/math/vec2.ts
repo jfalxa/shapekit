@@ -58,15 +58,15 @@ export class Vec2 extends Float64Array implements Point {
     return this;
   }
 
-  translate(x: number, y: number = x) {
-    this[0] += x;
-    this[1] += y;
+  translate(tx: number, ty: number = tx) {
+    this[0] += tx;
+    this[1] += ty;
     return this;
   }
 
-  scale(x: number, y: number = x) {
-    this[0] *= x;
-    this[1] *= y;
+  scale(sx: number, sy: number = sx) {
+    this[0] *= sx;
+    this[1] *= sy;
     return this;
   }
 
@@ -79,6 +79,16 @@ export class Vec2 extends Float64Array implements Point {
 
     this[0] = cos * x - sin * y;
     this[1] = sin * x + cos * y;
+
+    return this;
+  }
+
+  skew(skx: number, sky: number = 0) {
+    const x = this[0];
+    const y = this[1];
+
+    this[0] = x + y * Math.tan(skx);
+    this[1] = y + x * Math.tan(sky);
 
     return this;
   }
