@@ -1,3 +1,5 @@
+// import * as brush from "./index";
+// console.log(brush);
 import { Loop } from "vroum";
 import { renderAll } from "./renderers/canvas2d";
 import { Shape } from "./renderables/shape";
@@ -154,15 +156,14 @@ class App extends Loop {
     x: 400,
     y: 300,
     // lineWidth: 5,
-    // rotation: Math.PI / 4,
-    // fill: "red",
+    rotation: Math.PI / 4,
+    fill: "red",
     lineWidth: 5,
     stroke: "red",
     path: [
       moveTo(0, 0), //
-      arc(0, 0, 200, rad(0), rad(40), false),
+      arc(0, 0, 100, rad(0), rad(330), false),
       closePath(),
-      lineTo(300, 0),
     ],
   });
 
@@ -357,12 +358,12 @@ class App extends Loop {
       })
     );
 
-    this.group.update(true);
+    this.group.update();
 
-    this.transformer = new Transformer(this.group.children[0].children);
+    // this.transformer = new Transformer(this.group.children[0].children);
     // this.transformer = new Transformer([this.roundRect, this.roundTriangle]);
-    // this.transformer = new Transformer([this.circle]);
-    // this.transformer = new Transformer([this.roundTriangle]);
+    this.transformer = new Transformer([this.circle]);
+    // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
     for (let i = 0; i < 0; i++) {
       this.shapes.push(
@@ -379,65 +380,65 @@ class App extends Loop {
     }
 
     const t = this.transformer;
-    const pivot = t.obb.a;
+    const c = t.selection[0];
 
     // @ts-ignore
     window.t = t;
 
-    function debug(label: string) {
-      console.log(label, {
-        x: t.x,
-        y: t.y,
-        w: t.width,
-        h: t.height,
-        r: deg(t.rotation),
-      });
-    }
+    // this.group.width /= 2;
+    // this.group.update();
 
-    chain(
-      [
-        () => {
-          t.x = 200;
-          t.y = -35;
-          // t.apply();
-          t.commit();
-          debug("T1");
-        },
-        () => {
-          t.width /= 2;
-          // t.apply(pivot);
-          t.commit(t.obb.a);
-          debug("S");
-        },
-        () => {
-          t.rotation = rad(45);
-          // t.apply(pivot);
-          t.commit(t.obb.a);
-          debug("R1");
-        },
-        () => {
-          t.x -= 100;
-          t.y -= 50;
-          // t.apply(pivot);
-          t.commit(t.obb.a);
-          debug("T2");
-        },
-        () => {
-          t.rotation = rad(60);
-          t.commit(t.obb.a);
-          debug("R2");
-        },
-        () => {
-          // t.rotation = 0;
-          // t.width *= 2;
-          // t.x = 0;
-          // t.y = 0;
-          t.revert();
-          debug("REVERT");
-        },
-      ],
-      1000
-    );
+    t.reset();
+
+    chain([
+      () => {
+        t.x -= 100;
+        t.commit();
+      },
+      () => {
+        t.rotation += Math.PI / 16;
+        t.apply(t.obb.a);
+      },
+      () => {
+        t.rotation += Math.PI / 16;
+        t.apply(t.obb.a);
+      },
+      () => {
+        t.x += 100;
+        t.apply(t.obb.a);
+      },
+      () => {
+        t.revert();
+      },
+      () => {
+        t.rotation += Math.PI / 4;
+        t.commit(t.obb.a);
+      },
+      () => {
+        t.width /= 2;
+        t.apply(t.obb.c);
+        console.log("SKEWER", c.skewX);
+      },
+      () => {
+        t.revert();
+        console.log("SKEWER", c.skewX);
+      },
+      () => {
+        t.rotation -= Math.PI / 4;
+        t.commit(t.obb.a);
+      },
+      () => {
+        t.x += 100;
+        t.apply();
+      },
+      () => {
+        t.revert();
+      },
+      () => {
+        t.x += 100;
+        t.commit();
+      },
+    ]);
 
     // this.shapes.push(this.polyline);
     // this.shapes.push(this.rect1);
@@ -448,10 +449,10 @@ class App extends Loop {
     // this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    this.shapes.push(this.group);
+    // this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
-    // this.shapes.push(this.circle);
+    this.shapes.push(this.circle);
     // this.shapes.push(this.arc);
     // this.shapes.push(this.ellipse);
   }
