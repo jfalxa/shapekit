@@ -20,7 +20,6 @@ import { arc } from "./paths/arc";
 import { ellipse } from "./paths/ellipse";
 import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
-import { Path } from "./paths/path";
 import { Transformer } from "./utils/transformer";
 
 import treeSrc from "./tree.png";
@@ -404,10 +403,6 @@ class App extends Loop {
         t.apply(t.obb.a);
       },
       () => {
-        t.x += 100;
-        t.apply(t.obb.a);
-      },
-      () => {
         t.revert();
       },
       () => {
@@ -417,11 +412,9 @@ class App extends Loop {
       () => {
         t.width /= 2;
         t.apply(t.obb.c);
-        console.log("SKEWER", c.skewX);
       },
       () => {
         t.revert();
-        console.log("SKEWER", c.skewX);
       },
       () => {
         t.rotation -= Math.PI / 4;
