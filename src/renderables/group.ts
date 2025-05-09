@@ -28,10 +28,10 @@ export class Group extends Renderable {
     this.update(false, false, true);
   }
 
-  getChildAt(x: number, y: number) {
+  getChildAt(point: Point) {
     for (let i = this.children.length - 1; i >= 0; i--) {
       const child = this.children[i];
-      if (child.contains({ x, y })) return child;
+      if (child.contains(point)) return child;
     }
   }
 
