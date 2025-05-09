@@ -1,7 +1,7 @@
 import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
 import { BoundingBox } from "./bounding-box";
-import { Renderable } from "../renderables/renderable";
+import { Renderable, Transform } from "../renderables/renderable";
 
 interface Snapshot {
   width: number;
@@ -46,7 +46,11 @@ export class Transformer {
 
     for (const renderable of this.selection) {
       this.snapshot(renderable);
-      this.#obb.merge(renderable.obb);
+      if (this.selection.length > 1) this.#obb.merge(renderable.obb);
+    }
+
+    if (this.selection.length === 1) {
+      this.#obb.copy(this.selection[0].obb);
     }
 
     this.obb.copy(this.#obb);
@@ -109,17 +113,53 @@ export class Transformer {
     const sx = this.width / this.#obb.width;
     const sy = this.height / this.#obb.height;
 
+    let rotation = this.#rotation;
+    let transform = {} as Transform;
+    let snapshot: Snapshot | undefined;
+
+    if (this.selection.length === 1) {
+      snapshot = this.#snapshots.get(this.selection[0])!;
+      this.#transform.copy(snapshot.transform).decompose(transform, true);
+      rotation += transform.rotation;
+    }
+
     // compute delta necessary to apply non-committed transforms around anchor
-    const [dx, dy] = this.#delta
+    let [dx, dy] = this.#delta
       .copy(this.#center)
       .subtract(anchor)
-      .rotate(-this.rotation)
+      .rotate(-rotation)
       .scale(sx, sy)
       .skew(this.skewX - this.#skewX, this.skewY - this.#skewY)
       .rotate(this.rotation - this.#rotation)
-      .rotate(this.rotation)
+      .rotate(rotation)
       .add(anchor)
       .subtract(this.#center);
+
+    if (this.selection.length === 1) {
+      const [renderable] = this.selection;
+
+      transform.x! += this.x + dx;
+      transform.y! += this.y + dy;
+      transform.scaleX! *= sx;
+      transform.scaleY! *= sy;
+      transform.skewX! += this.skewX;
+      transform.skewY! += this.skewY;
+      transform.rotation! += this.rotation;
+
+      renderable.width = snapshot!.width;
+      renderable.height = snapshot!.height;
+
+      this.#transform
+        .identity()
+        .compose(transform)
+        .transform(snapshot!.invParentTransform)
+        .decompose(renderable);
+
+      renderable.update();
+      this.obb.copy(renderable.obb);
+
+      return;
+    }
 
     this.#transform
       .identity()
