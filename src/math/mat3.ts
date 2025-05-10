@@ -119,13 +119,8 @@ export class Matrix3 extends Float64Array {
     );
   }
 
-  decompose(out = {} as Transform, useScale = false) {
+  decompose(out = {} as Transform, updateDimensions = false) {
     const [a, b, , c, d, , e, f] = this;
-
-    const _width = out.width || 0;
-    const _height = out.height || 0;
-    const _scaleX = out.scaleX ?? 1;
-    const _scaleY = out.scaleY ?? 1;
 
     const scaleX = Math.hypot(a, b);
     const shear = (a * c + b * d) / (scaleX * scaleX);
@@ -143,14 +138,14 @@ export class Matrix3 extends Float64Array {
     if (!epsilon(out.skewX, skewX)) out.skewX = skewX;
     if (!epsilon(out.skewY, skewY)) out.skewY = skewY;
 
-    if (useScale) {
-      if (!epsilon(out.scaleX, scaleX)) out.scaleX = scaleX;
-      if (!epsilon(out.scaleY, scaleY)) out.scaleY = scaleY;
-    } else {
-      const width = _width * (scaleX / _scaleX);
-      const height = _height * (scaleY / _scaleY);
+    if (updateDimensions) {
+      const width = (out.width ?? 0) * (scaleX / (out.scaleX ?? 1));
+      const height = (out.height ?? 0) * (scaleY / (out.scaleY ?? 1));
       if (!epsilon(out.width, width)) out.width = width;
       if (!epsilon(out.height, height)) out.height = height;
+    } else {
+      if (!epsilon(out.scaleX, scaleX)) out.scaleX = scaleX;
+      if (!epsilon(out.scaleY, scaleY)) out.scaleY = scaleY;
     }
 
     return out;

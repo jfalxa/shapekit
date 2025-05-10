@@ -61,7 +61,7 @@ export class Group extends Renderable {
           .identity()
           .compose(child)
           .scale(sx, sy)
-          .decompose(child);
+          .decompose(child, true);
       }
     }
   }

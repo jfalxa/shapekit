@@ -1,5 +1,5 @@
 import { Matrix3 } from "../math/mat3";
-import { Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "./bounding-box";
 import { Renderable, Transform } from "../renderables/renderable";
 
@@ -30,6 +30,7 @@ export class Transformer {
   #rotation!: number;
 
   #snapshots = new Map<Renderable, Snapshot>();
+  #snapshot?: Snapshot;
   #center = new Vec2(0, 0);
   #delta = new Vec2(0, 0);
   #obb = new BoundingBox();
@@ -44,8 +45,11 @@ export class Transformer {
     this.#obb.min.put(+Infinity);
     this.#obb.max.put(-Infinity);
 
+    this.#snapshots.clear();
+    this.#snapshot = undefined;
+
     for (const renderable of this.selection) {
-      this.snapshot(renderable);
+      this.#snapshot = this.snapshot(renderable);
       if (this.selection.length > 1) this.#obb.merge(renderable.obb);
     }
 
@@ -99,12 +103,9 @@ export class Transformer {
     const invParentTransform = new Matrix3(parentTransform).invert();
     const transform = new Matrix3(localTransform).transform(parentTransform);
 
-    this.#snapshots.set(renderable, {
-      width,
-      height,
-      transform,
-      invParentTransform,
-    });
+    const snapshot = { width, height, transform, invParentTransform };
+    this.#snapshots.set(renderable, snapshot);
+    return snapshot;
   }
 
   apply(anchor = this.obb.center) {
@@ -115,11 +116,9 @@ export class Transformer {
 
     let rotation = this.#rotation;
     let transform = {} as Transform;
-    let snapshot: Snapshot | undefined;
 
     if (this.selection.length === 1) {
-      snapshot = this.#snapshots.get(this.selection[0])!;
-      this.#transform.copy(snapshot.transform).decompose(transform, true);
+      this.#transform.copy(this.#snapshot!.transform).decompose(transform);
       rotation += transform.rotation;
     }
 
@@ -146,14 +145,14 @@ export class Transformer {
       transform.skewY! += this.skewY;
       transform.rotation! += this.rotation;
 
-      renderable.width = snapshot!.width;
-      renderable.height = snapshot!.height;
+      renderable.width = this.#snapshot!.width;
+      renderable.height = this.#snapshot!.height;
 
       this.#transform
         .identity()
         .compose(transform)
-        .transform(snapshot!.invParentTransform)
-        .decompose(renderable);
+        .transform(this.#snapshot!.invParentTransform)
+        .decompose(renderable, true);
 
       renderable.update();
       this.obb.copy(renderable.obb);
@@ -179,7 +178,7 @@ export class Transformer {
         .copy(snapshot.transform)
         .transform(this.#transform)
         .transform(snapshot.invParentTransform)
-        .decompose(renderable);
+        .decompose(renderable, true);
 
       renderable.update();
     }
