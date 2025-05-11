@@ -1,7 +1,7 @@
 // import * as brush from "./index";
 // console.log(brush);
 import { Loop } from "vroum";
-import { renderAll } from "./renderers/canvas2d";
+import { render } from "./renderers/canvas2d";
 import { Shape } from "./renderables/shape";
 import { Text } from "./renderables/text";
 import { Image } from "./renderables/image";
@@ -23,6 +23,7 @@ import { closePath } from "./paths/close-path";
 import { Transformer } from "./utils/transformer";
 
 import treeSrc from "./tree.png";
+import { rect } from "./paths/rect";
 
 class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
@@ -52,6 +53,14 @@ class App extends Loop {
     height: 50,
     fill: "red",
     stroke: "orange",
+  });
+
+  rect3 = new Shape({
+    x: 400,
+    y: 300,
+    fill: "cyan",
+    stroke: "blue",
+    path: [rect(-50, -25, 100, 50)],
   });
 
   path = new Shape({
@@ -94,7 +103,7 @@ class App extends Loop {
   });
 
   roundRect = new Text({
-    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     x: 400,
     y: 300,
     stroke: "blue",
@@ -155,7 +164,7 @@ class App extends Loop {
     x: 400,
     y: 300,
     // lineWidth: 5,
-    rotation: Math.PI / 4,
+    // rotation: Math.PI / 4,
     fill: "red",
     lineWidth: 5,
     stroke: "red",
@@ -361,7 +370,9 @@ class App extends Loop {
 
     // this.transformer = new Transformer(this.group.children[0].children);
     // this.transformer = new Transformer([this.roundRect, this.roundTriangle]);
-    this.transformer = new Transformer([this.circle]);
+    this.transformer = new Transformer([this.roundRect]);
+    // this.transformer = new Transformer([this.rect3]);
+    // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
     for (let i = 0; i < 0; i++) {
@@ -380,72 +391,60 @@ class App extends Loop {
 
     const t = this.transformer;
     const c = t.selection[0];
-
-    // @ts-ignore
-    window.t = t;
-
-    // this.group.width /= 2;
-    // this.group.update();
-
-    t.reset();
+    let h;
 
     chain([
       () => {
-        t.x -= 100;
+        h = t.obb.a.clone();
+        t.resize(-50, 0, h.x, h.y);
         t.commit();
       },
       () => {
-        t.rotation += Math.PI / 16;
-        t.apply(t.obb.a);
+        h = t.obb.a.clone();
+        t.resize(+50, 0, h.x, h.y);
+        t.commit();
       },
       () => {
-        t.rotation += Math.PI / 16;
-        t.apply(t.obb.a);
+        h = t.obb.c.clone().add(t.obb.b).scale(0.5);
+        t.resize(+50, 0, h.x, h.y);
+        t.commit();
       },
       () => {
-        t.revert();
+        h = t.obb.c.clone().add(t.obb.b).scale(0.5);
+        t.resize(-50, 0, h.x, h.y);
+        t.commit();
       },
       () => {
-        t.rotation += Math.PI / 4;
-        t.commit(t.obb.a);
+        h = t.obb.b.clone();
+        t.resize(-300, 0, h.x, h.y);
+        t.commit();
       },
       () => {
-        t.width /= 2;
-        t.apply(t.obb.c);
-      },
-      () => {
-        t.revert();
-      },
-      () => {
-        t.rotation -= Math.PI / 4;
-        t.commit(t.obb.a);
-      },
-      () => {
-        t.x += 100;
-        t.apply();
-      },
-      () => {
-        t.revert();
-      },
-      () => {
-        t.x += 100;
+        h = t.obb.b.clone();
+        t.resize(-50, 0, h.x, h.y);
         t.commit();
       },
     ]);
 
+    // @ts-ignore
+    window.t = t;
+
+    t.reset();
+
     // this.shapes.push(this.polyline);
     // this.shapes.push(this.rect1);
     // this.shapes.push(this.rect2);
+    // this.shapes.push(this.rect3);
     // this.shapes.push(this.path);
     // this.shapes.push(this.path2);
     // this.shapes.push(this.path3);
-    // this.shapes.push(this.roundRect);
+    this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
     // this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
-    this.shapes.push(this.circle);
+    // this.shapes.push(this.circle);
     // this.shapes.push(this.arc);
     // this.shapes.push(this.ellipse);
   }
@@ -478,15 +477,13 @@ class App extends Loop {
     //   this.path.stroke = "blue";
     // }
 
-    renderAll(this.ctx, this.shapes);
+    render(this.ctx, this.shapes);
     // renderOBB(this.ctx, this.shapes);
-    renderHulls(this.ctx, this.shapes);
+    // renderHulls(this.ctx, this.shapes);
 
     if (this.transformer) {
       renderOBB(this.ctx, [this.transformer], "lime");
-
       // const a = this.transformer.obb.a.clone().transform(this.transformer._invTransform); // prettier-ignore
-
       // this.ctx.fillStyle = "hotpink";
       // this.ctx.beginPath();
       // this.ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
@@ -497,9 +494,9 @@ class App extends Loop {
 
     const total = (end - start).toFixed(2);
     const update = (mid - start).toFixed(2);
-    const render = (end - mid).toFixed(2);
+    const rendered = (end - mid).toFixed(2);
 
-    const message = `total = ${total}ms, update = ${update}ms, render = ${render}ms`;
+    const message = `total = ${total}ms, update = ${update}ms, render = ${rendered}ms`;
 
     // console.log(message);
   }

@@ -72,6 +72,10 @@ export function renderOBB(
     ctx.beginPath();
     ctx.arc(shape.obb.center.x, shape.obb.center.y, 5, 0, 2 * Math.PI);
     ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(shape.obb.a.x, shape.obb.a.y, 5, 0, 2 * Math.PI);
+    ctx.fill();
   }
   ctx.restore();
 }
