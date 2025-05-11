@@ -1,5 +1,5 @@
 import { Transform } from "../renderables/renderable";
-import { epsilon } from "./num";
+import { set } from "./num";
 
 export class Matrix3 extends Float64Array {
   // prettier-ignore
@@ -122,30 +122,37 @@ export class Matrix3 extends Float64Array {
   decompose(out = {} as Transform, updateDimensions = false) {
     const [a, b, , c, d, , e, f] = this;
 
-    const scaleX = Math.hypot(a, b);
-    const shear = (a * c + b * d) / (scaleX * scaleX);
-    const scaleY = Math.hypot(c - shear * a, d - shear * b);
+    let r = Math.atan2(b, a);
+    let sx = Math.hypot(a, b);
+    const shear = sx !== 0 ? (a * c + b * d) / (sx * sx) : 0;
+    let sy = Math.hypot(c - shear * a, d - shear * b);
+    let skx = sx * sy !== 0 ? Math.atan((a * c + b * d) / (sx * sy)) : 0;
 
-    const x = e;
-    const y = f;
-    const rotation = Math.atan2(b, a);
-    const skewX = Math.atan((a * c + b * d) / (scaleX * scaleY));
-    const skewY = 0;
+    // adjust for negative scaling
+    if (a * d - b * c < 0) {
+      sx = -sx;
+      skx = -skx;
+      r -= Math.PI;
+    }
 
-    if (!epsilon(out.x, x)) out.x = x;
-    if (!epsilon(out.y, y)) out.y = y;
-    if (!epsilon(out.rotation, rotation)) out.rotation = rotation;
-    if (!epsilon(out.skewX, skewX)) out.skewX = skewX;
-    if (!epsilon(out.skewY, skewY)) out.skewY = skewY;
+    set(out, "x", e);
+    set(out, "y", f);
+    set(out, "rotation", r);
+    set(out, "skewX", skx);
+    set(out, "skewY", 0);
 
     if (updateDimensions) {
-      const width = (out.width ?? 0) * (scaleX / (out.scaleX ?? 1));
-      const height = (out.height ?? 0) * (scaleY / (out.scaleY ?? 1));
-      if (!epsilon(out.width, width)) out.width = width;
-      if (!epsilon(out.height, height)) out.height = height;
+      const scaleX = out.scaleX ?? 1;
+      const scaleY = out.scaleY ?? 1;
+      const width = (out.width ?? 0) * (sx / scaleX);
+      const height = (out.height ?? 0) * (sy / scaleY);
+      set(out, "width", width);
+      set(out, "height", height);
+      set(out, "scaleX", scaleX * Math.sign(sx));
+      set(out, "scaleY", scaleY * Math.sign(sy));
     } else {
-      if (!epsilon(out.scaleX, scaleX)) out.scaleX = scaleX;
-      if (!epsilon(out.scaleY, scaleY)) out.scaleY = scaleY;
+      set(out, "scaleX", sx);
+      set(out, "scaleY", sy);
     }
 
     return out;
@@ -164,17 +171,17 @@ export class Matrix3 extends Float64Array {
   ) {
     const [_a, _b, _c, _d, _e, _f, _g, _h, _i] = this;
 
-    this[0] = _a * a + _b * d + _c * g;
-    this[1] = _a * b + _b * e + _c * h;
-    this[2] = _a * c + _b * f + _c * i;
+    set(this, 0, _a * a + _b * d + _c * g);
+    set(this, 1, _a * b + _b * e + _c * h);
+    set(this, 2, _a * c + _b * f + _c * i);
 
-    this[3] = _d * a + _e * d + _f * g;
-    this[4] = _d * b + _e * e + _f * h;
-    this[5] = _d * c + _e * f + _f * i;
+    set(this, 3, _d * a + _e * d + _f * g);
+    set(this, 4, _d * b + _e * e + _f * h);
+    set(this, 5, _d * c + _e * f + _f * i);
 
-    this[6] = _g * a + _h * d + _i * g;
-    this[7] = _g * b + _h * e + _i * h;
-    this[8] = _g * c + _h * f + _i * i;
+    set(this, 6, _g * a + _h * d + _i * g);
+    set(this, 7, _g * b + _h * e + _i * h);
+    set(this, 8, _g * c + _h * f + _i * i);
 
     return this;
   }
