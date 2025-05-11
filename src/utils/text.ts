@@ -6,30 +6,52 @@ textCanvas.height = 1024;
 
 const textCtx = textCanvas.getContext("2d")!;
 
-export function fitText(text: Text): string[] {
-  const lines: string[] = [];
+export function fitText(text: Text): [string, number, number][] {
+  const {
+    font,
+    fontSize = 12,
+    lineHeight = fontSize,
+    textAlign = "left",
+    textVerticalAlign = "top",
+    padding = 0,
+  } = text;
+
+  const lines: [string, number, number][] = [];
+  const textLines: string[] = [];
   const words = (text.text ?? "").split(" ");
 
   let line = "";
   let maxWidth = text.width - 2 * (text.padding ?? 0);
 
-  const { font } = text;
   if (font !== textCtx.font) textCtx.font = font;
 
-  for (const word of words) {
-    const testLine = line ? `${line} ${word}` : word;
+  for (let i = 0; i <= words.length; i++) {
+    const word = words[i] ?? "";
+    const testLine = line ? `${line} ${word}`.trim() : word;
     const testWidth = textCtx.measureText(testLine).width;
 
-    if (testWidth >= maxWidth) {
-      lines.push(line);
-      line = word;
-    } else {
+    if (testWidth < maxWidth && i < words.length) {
       line = testLine;
+      continue;
     }
+
+    if (line.length > 0) textLines.push(line);
+    line = word;
   }
 
-  if (line.length > 0) {
-    lines.push(line);
+  let x = text.width / 2;
+  if (textAlign === "left") x = padding;
+  if (textAlign === "right") x = text.width - padding;
+
+  let y = 0;
+  if (textVerticalAlign === "top") y = padding;
+  if (textVerticalAlign === "middle") y = -text.height / 2;
+  if (textVerticalAlign === "bottom") y = text.height - textLines.length * lineHeight - padding; // prettier-ignore
+
+  for (let i = 0; i < textLines.length; i++) {
+    y += lineHeight;
+    const text = textLines[i];
+    lines.push([text, x, y]);
   }
 
   return lines;

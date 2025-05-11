@@ -43,8 +43,8 @@ export class Text extends Shape {
   direction?: CanvasDirection;
   padding?: number;
 
-  declare font: string;
-  declare lines: string[];
+  font!: string;
+  lines!: [string, number, number][];
 
   constructor(init: TextInit) {
     if (init.width === undefined && init.height === undefined) {

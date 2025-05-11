@@ -72,26 +72,10 @@ function renderImage(ctx: Canvas2D, image: Image) {
 }
 
 function renderText(ctx: Canvas2D, text: Text) {
-  const {
-    lines,
-    fontSize = 12,
-    lineHeight = fontSize,
-    textAlign = "left",
-    textVerticalAlign: textPosition = "top",
-    padding = 0,
-  } = text;
+  const { lines, padding = 0 } = text;
 
   const minY = 0 + padding;
   const maxY = text.height - padding;
-
-  let x = text.width / 2;
-  if (textAlign === "left") x = padding;
-  if (textAlign === "right") x = text.width - padding;
-
-  let y = 0;
-  if (textPosition === "top") y = padding;
-  if (textPosition === "middle") y = -text.height / 2;
-  if (textPosition === "bottom") y = text.height - lines.length * lineHeight - padding; // prettier-ignore
 
   setContext(ctx, "font", text.font);
   setContext(ctx, "textAlign", text.textAlign);
@@ -101,11 +85,11 @@ function renderText(ctx: Canvas2D, text: Text) {
   setContext(ctx, "lineWidth", text.textLineWidth);
 
   for (let i = 0; i < lines.length; i++) {
-    y += lineHeight;
+    const [line, x, y] = lines[i];
+
     if (y - minY < 1e-6) continue;
     if (y - maxY > 1e-6) continue;
 
-    const line = lines[i];
     if (text.textFill) ctx.fillText(line, x, y);
     if (text.textStroke) ctx.strokeText(line, x, y);
   }
