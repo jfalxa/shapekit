@@ -24,8 +24,8 @@ export class Rect extends Segment {
 
   scale(sx: number, sy: number) {
     this.to.scale(sx, sy);
-    this.width *= sx;
-    this.height *= sy;
+    this.width *= Math.abs(sx);
+    this.height *= Math.abs(sy);
   }
 
   apply(path: Path2D): void {

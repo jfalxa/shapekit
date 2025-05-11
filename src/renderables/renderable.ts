@@ -1,5 +1,5 @@
 import { Matrix3 } from "../math/mat3";
-import { Point } from "../math/vec2";
+import { Point, Vec2 } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
 import { Group } from "./group";
 import { Shape } from "./shape";
@@ -39,6 +39,7 @@ export abstract class Renderable {
 
   transform: Matrix3;
   obb: BoundingBox;
+  center: Vec2;
 
   constructor(init: RenderableInit) {
     this.id = init.id;
@@ -58,6 +59,7 @@ export abstract class Renderable {
 
     this.transform = new Matrix3();
     this.obb = new BoundingBox();
+    this.center = new Vec2(0, 0);
   }
 
   abstract contains(shape: Point | Shape): boolean;
@@ -69,5 +71,6 @@ export abstract class Renderable {
     if (rebuild || resized) this.build();
     this.transform.identity().compose(this);
     if (this.parent) this.transform.transform(this.parent.transform);
+    this.center.put(0).transform(this.transform);
   }
 }
