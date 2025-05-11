@@ -20,6 +20,7 @@ export interface ShapeStyle {
   shadowOffsetY?: number;
   globalAlpha?: number;
   filter?: string;
+  lineDash?: number[];
 }
 
 export interface ShapeInit extends RenderableInit, ShapeStyle {
@@ -44,6 +45,7 @@ export class Shape extends Renderable {
   shadowOffsetY?: number;
   globalAlpha?: number;
   filter?: string;
+  lineDash?: number[];
 
   points: Vec2[];
 
@@ -76,6 +78,7 @@ export class Shape extends Renderable {
     this.shadowOffsetY = init.shadowOffsetY;
     this.globalAlpha = init.globalAlpha;
     this.filter = init.filter;
+    this.lineDash = init.lineDash;
     this.quality = init.quality ?? 1;
 
     this.points = new Array(this.path.points.length);
