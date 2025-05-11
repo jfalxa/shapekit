@@ -1,5 +1,5 @@
 import { Matrix3 } from "../math/mat3";
-import { v, Vec2 } from "../math/vec2";
+import { Point, v, Vec2 } from "../math/vec2";
 import { BoundingBox } from "./bounding-box";
 import { Renderable, Transform } from "../renderables/renderable";
 import { epsilon } from "../math/num";
@@ -33,7 +33,7 @@ export class Transformer {
   #rotation!: number;
 
   #snapshots = new Map<Renderable, Snapshot>();
-  #snapshot!: Snapshot;
+  #single!: Snapshot;
   #center = new Vec2(0, 0);
   #delta = new Vec2(0, 0);
   #obb = new BoundingBox();
@@ -44,67 +44,36 @@ export class Transformer {
     this.reset();
   }
 
-  translate(deltaX: number, deltaY: number) {
-    this.x = this.#x + deltaX;
-    this.y = this.#y + deltaY;
+  apply() {
+    if (this.selection.length === 1) {
+      this.#applySingle();
+    } else {
+      this.#applyMultiple();
+    }
   }
 
-  resize(deltaX: number, deltaY: number, handleX: number, handleY: number) {
-    const delta = new Vec2(deltaX, deltaY);
-    const start = new Vec2(handleX, handleY);
-    const end = v(start).add(delta);
-    const anchor = v(this.#center).scale(2).subtract(start);
+  commit() {
+    this.#x = this.x;
+    this.#y = this.y;
+    this.#width = this.width;
+    this.#height = this.height;
+    this.#scaleX = this.scaleX;
+    this.#scaleY = this.scaleY;
+    this.#skewX = this.skewX;
+    this.#skewY = this.skewY;
+    this.#rotation = this.rotation;
+    this.#center.copy(this.obb.center);
+    this.apply();
+  }
 
-    const { rotation, skewX, skewY } =
-      this.selection.length === 1 ? this.selection[0] : this;
-
-    this.#transform
-      .identity()
-      .skew(skewX, skewY)
-      .rotate(rotation)
-      .translate(this.#center.x, this.#center.y)
-      .invert();
-
-    const startLocal = v(start).transform(this.#transform);
-    const endLocal = v(end).transform(this.#transform);
-    const anchorLocal = v(anchor).transform(this.#transform);
-
-    const startDims = v(startLocal).subtract(anchorLocal);
-    const endDims = v(endLocal).subtract(anchorLocal);
-
-    const signX = Math.sign(startDims.x * endDims.x);
-    const signY = Math.sign(startDims.y * endDims.y);
-
-    const sx = (Math.abs(endDims.x) * signX) / this.#width;
-    const sy = (Math.abs(endDims.y) * signY) / this.#height;
-
-    const center =
-      this.selection.length === 1 //
-        ? this.selection[0].center
-        : this.#center;
-
-    const [dx, dy] = this.#delta
-      .put(0)
-      .add(center)
-      .subtract(anchor)
-      .scale(sx / this.#scaleX, sy / this.#scaleY)
-      .skew(this.skewX - this.#skewX, this.skewY - this.#skewY)
-      .rotate(this.rotation - this.#rotation)
-      .add(anchor)
-      .subtract(center);
-
-    if (!epsilon(startLocal.x)) {
-      this.x = this.#x + dx;
-      this.width = Math.abs(endDims.x);
-      this.scaleX = Math.sign(startDims.x * endDims.x);
-    }
-
-    if (!epsilon(startLocal.y)) {
-      this.y = this.#y + dy;
-      this.height = Math.abs(endDims.y);
-      this.scaleY = Math.sign(startDims.y * endDims.y);
-    }
-
+  revert() {
+    this.x = this.#x;
+    this.y = this.#y;
+    this.width = this.#width;
+    this.height = this.#height;
+    this.rotation = this.#rotation;
+    this.skewX = this.#skewX;
+    this.skewY = this.#skewY;
     this.apply();
   }
 
@@ -115,7 +84,7 @@ export class Transformer {
     this.#snapshots.clear();
 
     for (const renderable of this.selection) {
-      this.#snapshot = this.snapshot(renderable);
+      this.#single = this.#snapshot(renderable);
       if (this.selection.length > 1) this.#obb.merge(renderable.obb);
     }
 
@@ -137,84 +106,103 @@ export class Transformer {
     this.rotation = this.#rotation = 0;
   }
 
-  commit() {
-    this.#x = this.x;
-    this.#y = this.y;
-    this.#width = this.width;
-    this.#height = this.height;
-    this.#scaleX = this.scaleX;
-    this.#scaleY = this.scaleY;
-    this.#skewX = this.skewX;
-    this.#skewY = this.skewY;
-    this.#rotation = this.rotation;
-    this.#center.copy(this.obb.center);
+  translate(delta: Point) {
+    this.x = this.#x + delta.x;
+    this.y = this.#y + delta.y;
   }
 
-  revert() {
-    this.x = this.#x;
-    this.y = this.#y;
-    this.width = this.#width;
-    this.height = this.#height;
-    this.rotation = this.#rotation;
-    this.skewX = this.#skewX;
-    this.skewY = this.#skewY;
+  rotate(handle: Point, delta: Point) {
+    const start = v(handle);
+    const end = v(start).translate(delta.x, delta.y);
+    const anchor = this.#center;
+
+    const [startLocal, endLocal, anchorLocal] = this.#local(start, end, anchor);
+
+    const AB = v(startLocal).subtract(anchorLocal);
+    const AC = v(endLocal).subtract(anchorLocal);
+
+    const startAngle = Math.atan2(AB.y, AB.x);
+    const endAngle = Math.atan2(AC.y, AC.x);
+
+    let angle = endAngle - startAngle;
+    if (angle > Math.PI) angle -= 2 * Math.PI;
+    else if (angle <= -Math.PI) angle += 2 * Math.PI;
+
+    this.rotation = this.#rotation + angle;
+
+    const [dx, dy] = this.#adjust(anchor);
+    this.x = this.#x + dx;
+    this.y = this.#y + dy;
+
     this.apply();
   }
 
-  snapshot(renderable: Renderable) {
-    const localTransform = new Matrix3().compose(renderable);
-    const parentTransform = new Matrix3(renderable.parent?.transform);
-    const invParentTransform = new Matrix3(parentTransform).invert();
-    const transform = new Matrix3(localTransform).transform(parentTransform);
+  resize(handle: Point, delta: Point) {
+    const start = v(handle);
+    const end = v(start).translate(delta.x, delta.y);
+    const anchor = v(this.#center).scale(2).subtract(start);
 
-    const decomposed = transform.decompose();
-    decomposed.width = renderable.width;
-    decomposed.height = renderable.height;
+    const [startLocal, endLocal, anchorLocal] = this.#local(start, end, anchor);
 
-    const snapshot = { ...decomposed, transform, invParentTransform };
-    this.#snapshots.set(renderable, snapshot);
-    return snapshot;
+    const startDims = v(startLocal).subtract(anchorLocal);
+    const endDims = v(endLocal).subtract(anchorLocal);
+
+    const signX = Math.sign(startDims.x * endDims.x);
+    const signY = Math.sign(startDims.y * endDims.y);
+
+    const sx = (Math.abs(endDims.x) * signX) / this.#width;
+    const sy = (Math.abs(endDims.y) * signY) / this.#height;
+
+    const [dx, dy] = this.#adjust(anchor, sx, sy);
+
+    if (!epsilon(startLocal.x)) {
+      this.x = this.#x + dx;
+      this.width = Math.abs(endDims.x);
+      this.scaleX = signX;
+    }
+
+    if (!epsilon(startLocal.y)) {
+      this.y = this.#y + dy;
+      this.height = Math.abs(endDims.y);
+      this.scaleY = signY;
+    }
+
+    this.apply();
   }
 
-  apply() {
-    const [cx, cy] = this.#obb.center;
+  #applySingle() {
+    const [renderable] = this.selection;
 
     const sx = this.scaleX * (this.width / this.#obb.width);
     const sy = this.scaleY * (this.height / this.#obb.height);
 
-    let rotation = this.#rotation;
+    const transform = {
+      x: this.#single.x + this.x,
+      y: this.#single.y + this.y,
+      scaleX: this.#single.scaleX * sx,
+      scaleY: this.#single.scaleY * sy,
+      skewX: this.#single.skewX + this.skewX,
+      skewY: this.#single.skewY + this.skewY,
+      rotation: this.#single.rotation + this.rotation,
+    };
 
-    if (this.selection.length === 1) {
-      rotation += this.#snapshot!.rotation;
-    }
+    renderable.width = this.#single.width;
+    renderable.height = this.#single.height;
 
-    if (this.selection.length === 1) {
-      const [renderable] = this.selection;
+    this.#transform
+      .identity()
+      .compose(transform)
+      .transform(this.#single!.invParentTransform)
+      .decompose(renderable, true);
 
-      const transform = {
-        x: this.#snapshot.x + this.x,
-        y: this.#snapshot.y + this.y,
-        scaleX: this.#snapshot.scaleY * sx,
-        scaleY: this.#snapshot.scaleX * sy,
-        skewX: this.#snapshot.skewX + this.skewX,
-        skewY: this.#snapshot.skewY + this.skewY,
-        rotation: this.#snapshot.rotation + this.rotation,
-      };
+    renderable.update();
+    this.obb.copy(renderable.obb);
+  }
 
-      renderable.width = this.#snapshot.width;
-      renderable.height = this.#snapshot.height;
-
-      this.#transform
-        .identity()
-        .compose(transform)
-        .transform(this.#snapshot!.invParentTransform)
-        .decompose(renderable, true);
-
-      renderable.update();
-      this.obb.copy(renderable.obb);
-
-      return;
-    }
+  #applyMultiple() {
+    const [cx, cy] = this.#obb.center;
+    const sx = this.scaleX * (this.width / this.#obb.width);
+    const sy = this.scaleY * (this.height / this.#obb.height);
 
     this.#transform
       .identity()
@@ -239,5 +227,59 @@ export class Transformer {
     }
 
     this.obb.copy(this.#obb).transform(this.#transform);
+  }
+
+  #snapshot(renderable: Renderable) {
+    const localTransform = new Matrix3().compose(renderable);
+    const parentTransform = new Matrix3(renderable.parent?.transform);
+    const invParentTransform = new Matrix3(parentTransform).invert();
+    const transform = new Matrix3(localTransform).transform(parentTransform);
+
+    const decomposed = transform.decompose();
+    decomposed.width = renderable.width;
+    decomposed.height = renderable.height;
+
+    const snapshot = { ...decomposed, transform, invParentTransform };
+    this.#snapshots.set(renderable, snapshot);
+    return snapshot;
+  }
+
+  #adjust(anchor: Vec2, sx = this.scaleX, sy = this.scaleY) {
+    const center =
+      this.selection.length === 1 //
+        ? this.selection[0].center
+        : this.#center;
+
+    return this.#delta
+      .put(0)
+      .add(center)
+      .subtract(anchor)
+      .scale(sx / this.#scaleX, sy / this.#scaleY)
+      .skew(this.skewX - this.#skewX, this.skewY - this.#skewY)
+      .rotate(this.rotation - this.#rotation)
+      .add(anchor)
+      .subtract(center);
+  }
+
+  #local(...vectors: Vec2[]) {
+    const locals = new Array<Vec2>(vectors.length);
+
+    const { rotation, skewX, skewY } =
+      this.selection.length === 1 //
+        ? this.selection[0]
+        : this;
+
+    this.#transform
+      .identity()
+      .skew(skewX, skewY)
+      .rotate(rotation)
+      .translate(this.#center.x, this.#center.y)
+      .invert();
+
+    for (let i = 0; i < vectors.length; i++) {
+      locals[i] = v(vectors[i]).transform(this.#transform);
+    }
+
+    return locals;
   }
 }
