@@ -1,6 +1,7 @@
 import { Group } from "./renderables/group";
 import { Renderable } from "./renderables/renderable";
 import { Shape } from "./renderables/shape";
+import { Transformer } from "./utils/transformer";
 
 type Canvas2D = CanvasRenderingContext2D;
 
@@ -39,7 +40,7 @@ export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
 
 export function renderOBB(
   ctx: Canvas2D,
-  renderables: Renderable[],
+  renderables: (Renderable | Transformer)[],
   color = "orange"
 ) {
   ctx.save();
@@ -80,8 +81,8 @@ export function renderOBB(
   ctx.restore();
 }
 
-function flattenRenderables(renderables: Renderable[]) {
-  const flat: Renderable[] = [];
+function flattenRenderables(renderables: (Renderable | Transformer)[]) {
+  const flat: (Renderable | Transformer)[] = [];
   for (const renderable of renderables) {
     flat.push(renderable);
     if (renderable instanceof Group) {

@@ -395,33 +395,11 @@ class App extends Loop {
 
     chain([
       () => {
-        h = t.obb.a.clone();
-        t.resize(-50, 0, h.x, h.y);
+        t.rotate(t.obb.a, { x: +50, y: -50 });
         t.commit();
       },
       () => {
-        h = t.obb.a.clone();
-        t.resize(+50, 0, h.x, h.y);
-        t.commit();
-      },
-      () => {
-        h = t.obb.c.clone().add(t.obb.b).scale(0.5);
-        t.resize(+50, 0, h.x, h.y);
-        t.commit();
-      },
-      () => {
-        h = t.obb.c.clone().add(t.obb.b).scale(0.5);
-        t.resize(-50, 0, h.x, h.y);
-        t.commit();
-      },
-      () => {
-        h = t.obb.b.clone();
-        t.resize(-300, 0, h.x, h.y);
-        t.commit();
-      },
-      () => {
-        h = t.obb.b.clone();
-        t.resize(-50, 0, h.x, h.y);
+        t.rotate(t.obb.a, { x: +750, y: 0 });
         t.commit();
       },
     ]);
