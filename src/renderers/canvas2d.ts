@@ -18,6 +18,17 @@ export function render(ctx: Canvas2D, renderables: Renderable[]) {
 }
 
 export function renderOne(ctx: Canvas2D, renderable: Renderable) {
+  if (renderable instanceof Shape) {
+    ctx.setTransform(
+      renderable.transform[0],
+      renderable.transform[1],
+      renderable.transform[3],
+      renderable.transform[4],
+      renderable.transform[6],
+      renderable.transform[7]
+    );
+  }
+
   if (renderable instanceof Mask) {
     return renderMask(ctx, renderable);
   }
@@ -29,15 +40,6 @@ export function renderOne(ctx: Canvas2D, renderable: Renderable) {
   }
 
   if (renderable instanceof Shape) {
-    ctx.setTransform(
-      renderable.transform[0],
-      renderable.transform[1],
-      renderable.transform[3],
-      renderable.transform[4],
-      renderable.transform[6],
-      renderable.transform[7]
-    );
-
     applyEffects(ctx, renderable);
 
     if (renderable.fill) renderFill(ctx, renderable);
