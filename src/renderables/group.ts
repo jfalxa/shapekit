@@ -93,8 +93,10 @@ export class Group extends Renderable {
 
     this.#transform.copy(this.transform).invert();
 
-    this.obb.min.put(Infinity);
-    this.obb.max.put(-Infinity);
+    const hasChildren = this.children.length > 0;
+    this.obb.min.put(hasChildren ? +Infinity : 0);
+    this.obb.max.put(hasChildren ? -Infinity : 0);
+    if (!hasChildren) this.obb.update();
 
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i];
