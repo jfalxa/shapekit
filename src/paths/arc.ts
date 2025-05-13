@@ -13,6 +13,8 @@ export function arc(
 }
 
 const TWO_PI = 2 * Math.PI;
+const HALF_PI = Math.PI / 2;
+const EXTREMA = [0, HALF_PI, Math.PI, 3 * HALF_PI];
 
 export class Arc extends Segment {
   radiusX: number;
@@ -120,19 +122,39 @@ export class Arc extends Segment {
     const step = 2 * Math.acos(1 - tolerance / radius);
     const divisions = Math.abs(Math.ceil(sweep / step));
 
-    for (let i = 0; i <= divisions; i++) {
+    const uniqueSteps = new Set<number>();
+    for (let i = 0; i <= divisions; i++) uniqueSteps.add(i / divisions);
+
+    const base = ((startAngle % TWO_PI) + TWO_PI) % TWO_PI;
+    for (const quad of EXTREMA) {
+      let delta = quad - base;
+      if (delta < 0) delta += TWO_PI;
+      if (counterclockwise) delta = delta - TWO_PI;
+
+      const t = delta / sweep;
+      const isValidPositive = sweep >= 0 && delta >= 0 && delta <= sweep;
+      const isValidNegative = sweep < 0 && delta <= 0 && delta >= sweep;
+
+      if (0 <= t && t <= 1 && (isValidPositive || isValidNegative)) {
+        uniqueSteps.add(t);
+      }
+    }
+
+    const steps = Array.from(uniqueSteps).sort((a, b) => a - b);
+
+    for (let i = 0; i <= steps.length; i++) {
       out[i + offset] = Arc.sample(
         center,
         radiusX,
         radiusY,
         startAngle,
         sweep,
-        i / divisions,
+        steps[i],
         out[i + offset]
       );
     }
 
-    out.length = offset + divisions + 1;
+    out.length = offset + steps.length;
     return out;
   }
 }

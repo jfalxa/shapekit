@@ -79,7 +79,7 @@ export class Shape extends Renderable {
     this.globalAlpha = init.globalAlpha;
     this.filter = init.filter;
     this.lineDash = init.lineDash;
-    this.quality = init.quality ?? 1;
+    this.quality = init.quality ?? 0.5;
 
     this.points = new Array(this.path.points.length);
 
