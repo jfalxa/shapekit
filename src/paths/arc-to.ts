@@ -82,6 +82,25 @@ export class ArcTo extends Segment {
     );
   }
 
+  aabb() {
+    const arc = ArcTo.toArc(
+      this.from,
+      this.control,
+      this.to,
+      this.radiusX,
+      this.radiusY
+    );
+    return Arc.aabb(
+      arc.center,
+      arc.radiusX,
+      arc.radiusY,
+      arc.startAngle,
+      arc.endAngle,
+      false,
+      this
+    ) as this;
+  }
+
   static toArc(from: Vec2, cp: Vec2, to: Vec2, rx: number, ry: number) {
     if (rx === ry) {
       return ArcTo.toCircleArc(from, cp, to, rx);

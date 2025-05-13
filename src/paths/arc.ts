@@ -1,4 +1,5 @@
 import { Point, Vec2 } from "../math/vec2";
+import { AABB } from "../utils/bounding-box";
 import { Segment } from "./segment";
 
 export function arc(
@@ -76,6 +77,18 @@ export class Arc extends Segment {
     );
   }
 
+  aabb() {
+    return Arc.aabb(
+      this.to,
+      this.radiusX,
+      this.radiusY,
+      this.startAngle,
+      this.endAngle,
+      this.counterclockwise,
+      this
+    ) as this;
+  }
+
   static sample(
     center: Point,
     radiusX: number,
@@ -102,6 +115,33 @@ export class Arc extends Segment {
     out: Vec2[] = [],
     offset = 0
   ) {
+    const tolerance = 1 / quality;
+    const radius = Math.max(radiusX, radiusY);
+    const step = 2 * Math.acos(1 - tolerance / radius);
+    const sweep = Arc.sweep(startAngle, endAngle, counterclockwise);
+    const divisions = Math.abs(Math.ceil(sweep / step));
+
+    for (let i = 0; i <= divisions; i++) {
+      out[i + offset] = Arc.sample(
+        center,
+        radiusX,
+        radiusY,
+        startAngle,
+        sweep,
+        i / divisions,
+        out[i + offset]
+      );
+    }
+
+    out.length = offset + divisions + 1;
+    return out;
+  }
+
+  static sweep(
+    startAngle: number,
+    endAngle: number,
+    counterclockwise: boolean
+  ) {
     let sweep = endAngle - startAngle;
     if (!counterclockwise && sweep >= TWO_PI) {
       sweep = TWO_PI;
@@ -116,16 +156,25 @@ export class Arc extends Segment {
       sweep = sweep % TWO_PI;
       sweep = sweep > 0 ? sweep - TWO_PI : sweep;
     }
+    return sweep;
+  }
 
-    const tolerance = 1 / quality;
-    const radius = Math.max(radiusX, radiusY);
-    const step = 2 * Math.acos(1 - tolerance / radius);
-    const divisions = Math.abs(Math.ceil(sweep / step));
-
-    const uniqueSteps = new Set<number>();
-    for (let i = 0; i <= divisions; i++) uniqueSteps.add(i / divisions);
-
+  static aabb(
+    center: Point,
+    radiusX: number,
+    radiusY: number,
+    startAngle: number,
+    endAngle: number,
+    counterclockwise: boolean,
+    out: AABB = { min: new Vec2(), max: new Vec2() }
+  ) {
+    const extremum = new Vec2();
     const base = ((startAngle % TWO_PI) + TWO_PI) % TWO_PI;
+    const sweep = Arc.sweep(startAngle, endAngle, counterclockwise);
+
+    out.min.put(+Infinity);
+    out.max.put(-Infinity);
+
     for (const quad of EXTREMA) {
       let delta = quad - base;
       if (delta < 0) delta += TWO_PI;
@@ -136,25 +185,12 @@ export class Arc extends Segment {
       const isValidNegative = sweep < 0 && delta <= 0 && delta >= sweep;
 
       if (0 <= t && t <= 1 && (isValidPositive || isValidNegative)) {
-        uniqueSteps.add(t);
+        Arc.sample(center, radiusX, radiusY, startAngle, sweep, t, extremum);
+        out.min.min(extremum);
+        out.max.max(extremum);
       }
     }
 
-    const steps = Array.from(uniqueSteps).sort((a, b) => a - b);
-
-    for (let i = 0; i <= steps.length; i++) {
-      out[i + offset] = Arc.sample(
-        center,
-        radiusX,
-        radiusY,
-        startAngle,
-        sweep,
-        steps[i],
-        out[i + offset]
-      );
-    }
-
-    out.length = offset + steps.length;
     return out;
   }
 }
