@@ -52,7 +52,7 @@ export function renderOne(ctx: Canvas2D, renderable: Renderable) {
 }
 
 function renderMask(ctx: Canvas2D, mask: Mask) {
-  ctx.clip(mask.path.path2D);
+  ctx.clip(mask.path.path2D, mask.fillRule);
 }
 
 function renderGroup(ctx: Canvas2D, group: Group) {
