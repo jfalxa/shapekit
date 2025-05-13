@@ -1,6 +1,7 @@
 import { Matrix3 } from "../math/mat3";
 import { Point } from "../math/vec2";
 import { BoundingBox } from "../utils/bounding-box";
+import { Mask } from "./mask";
 import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
@@ -38,7 +39,9 @@ export class Group extends Renderable {
   contains(shape: Point | Shape): boolean {
     if (!this.obb.contains(shape)) return false;
     for (let i = 0; i < this.children.length; i++) {
-      if (this.children[i].contains(shape)) return true;
+      const child = this.children[i];
+      if (child instanceof Mask && !child.contains(shape)) return false;
+      else if (child.contains(shape)) return true;
     }
     return false;
   }
@@ -46,7 +49,9 @@ export class Group extends Renderable {
   overlaps(shape: Shape): boolean {
     if (!this.obb.overlaps(shape)) return false;
     for (let i = 0; i < this.children.length; i++) {
-      if (this.children[i].overlaps(shape)) return true;
+      const child = this.children[i];
+      if (child instanceof Mask && !child.overlaps(shape)) return false;
+      else if (child.overlaps(shape)) return true;
     }
     return false;
   }
