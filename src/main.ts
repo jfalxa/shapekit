@@ -1,12 +1,11 @@
 // import * as brush from "./index";
 // console.log(brush);
 import { Loop } from "vroum";
-import { render } from "./renderers/canvas2d";
+import { Canvas2D } from "./renderers/canvas2d";
 import { Shape } from "./renderables/shape";
 import { Text } from "./renderables/text";
 import { Image } from "./renderables/image";
 import { Group } from "./renderables/group";
-import { Renderable } from "./renderables/renderable";
 import { renderHulls, renderOBB } from "./debug";
 import { Matrix3 } from "./math/mat3";
 import { Vec2 } from "./math/vec2";
@@ -27,10 +26,7 @@ import { rect } from "./paths/rect";
 import { Mask } from "./renderables/mask";
 
 class App extends Loop {
-  canvas = document.getElementById("app") as HTMLCanvasElement;
-  ctx = this.canvas.getContext("2d")!;
-
-  shapes: Renderable[] = [];
+  canvas = new Canvas2D({ width: 800, height: 600 });
 
   rect1 = new Shape({
     x: 400,
@@ -361,6 +357,8 @@ class App extends Loop {
   transformer!: Transformer;
 
   async mount() {
+    document.body.append(this.canvas.element);
+
     const treeImage = await Image.load(treeSrc);
 
     (this.group.children[0] as Group).children.push(
@@ -383,46 +381,51 @@ class App extends Loop {
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
-    for (let i = 0; i < 0; i++) {
-      this.shapes.push(
+    for (let i = 0; i < 10000; i++) {
+      this.canvas.add(
         new Shape({
           fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
           // new Image({
           // image: treeImage,
           x: rand(0, 800),
           y: rand(0, 600),
-          width: rand(10, 20),
-          height: rand(10, 20),
+          // width: rand(10, 20),
+          // height: rand(10, 20),
+          path: [
+            moveTo(0, 0),
+            arc(0, 0, rand(10, 20), 0, rad(315)),
+            closePath(),
+          ],
         })
       );
     }
 
-    // this.shapes.push(this.polyline);
-    // this.shapes.push(this.rect1);
-    // this.shapes.push(this.rect2);
-    // this.shapes.push(this.rect3);
-    // this.shapes.push(this.path);
-    // this.shapes.push(this.path2);
-    // this.shapes.push(this.path3);
-    // this.shapes.push(this.roundRect);
-    // this.shapes.push(this.roundTriangle);
-    // this.shapes.push(this.lemon);
-    this.shapes.push(this.group);
-    // this.shapes.push(this.group2);
-    // this.shapes.push(this.skewed);
-    // this.shapes.push(this.circle);
-    // this.shapes.push(this.arc);
-    // this.shapes.push(this.ellipse);
+    // this.canvas.add(this.polyline);
+    // this.canvas.add(this.rect1);
+    // this.canvas.add(this.rect2);
+    // this.canvas.add(this.rect3);
+    // this.canvas.add(this.path);
+    // this.canvas.add(this.path2);
+    // this.canvas.add(this.path3);
+    // this.canvas.add(this.roundRect);
+    // this.canvas.add(this.roundTriangle);
+    // this.canvas.add(this.lemon);
+    // this.canvas.add(this.group);
+    // this.canvas.add(this.group2);
+    // this.canvas.add(this.skewed);
+    // this.canvas.add(this.circle);
+    // this.canvas.add(this.arc);
+    // this.canvas.add(this.ellipse);
 
-    const box = this.canvas.getBoundingClientRect();
+    const box = this.canvas.element.getBoundingClientRect();
 
-    this.canvas.addEventListener("click", (e) => {
+    this.canvas.element.addEventListener("click", (e) => {
       const x = e.pageX - box.x;
       const y = e.pageY - box.y;
+
+      const renderable = this.canvas.getChildAt({ x, y });
+
       console.log({ x, y });
-
-      const renderable = this.group.getChildAt({ x, y });
-
       console.log("clicked", renderable);
     });
   }
@@ -433,11 +436,11 @@ class App extends Loop {
     let start: number, mid: number, end: number;
     start = performance.now();
 
-    for (const shape of this.shapes) {
-      // shape.rotation += 0.001 * this.deltaTime;
-      // shape.update();
-      // shape.update(true);
+    for (const shape of this.canvas.children) {
+      shape.rotation += 0.001 * this.deltaTime;
     }
+
+    this.canvas.update();
 
     mid = performance.now();
 
@@ -455,12 +458,12 @@ class App extends Loop {
     //   this.path.stroke = "blue";
     // }
 
-    render(this.ctx, this.shapes);
-    renderOBB(this.ctx, this.shapes);
-    // renderHulls(this.ctx, this.shapes);
+    this.canvas.render();
+    // renderOBB(this.canvas.ctx, this.canvas.children);
+    // renderHulls(this.canvas.ctx, this.canvas.children);
 
     if (this.transformer) {
-      renderOBB(this.ctx, [this.transformer], "lime");
+      // renderOBB(this.canvas.ctx, [this.transformer], "lime");
       // const a = this.transformer.obb.a.clone().transform(this.transformer._invTransform); // prettier-ignore
       // this.ctx.fillStyle = "hotpink";
       // this.ctx.beginPath();
@@ -476,7 +479,7 @@ class App extends Loop {
 
     const message = `total = ${total}ms, update = ${update}ms, render = ${rendered}ms`;
 
-    // console.log(message);
+    console.log(message);
   }
 }
 
