@@ -24,6 +24,7 @@ import { Transformer } from "./utils/transformer";
 
 import treeSrc from "./tree.png";
 import { rect } from "./paths/rect";
+import { Mask } from "./renderables/mask";
 
 class App extends Loop {
   canvas = document.getElementById("app") as HTMLCanvasElement;
@@ -227,6 +228,13 @@ class App extends Loop {
         rotation: Math.PI / 4,
 
         children: [
+          new Mask({
+            x: -140,
+            y: -100,
+            width: 400,
+            height: 400,
+          }),
+
           new Shape({
             id: "ARC",
             x: -100,
@@ -370,7 +378,7 @@ class App extends Loop {
 
     // this.transformer = new Transformer(this.group.children[0].children);
     // this.transformer = new Transformer([this.roundRect, this.roundTriangle]);
-    this.transformer = new Transformer([this.roundRect]);
+    // this.transformer = new Transformer([this.roundRect]);
     // this.transformer = new Transformer([this.rect3]);
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
@@ -389,26 +397,6 @@ class App extends Loop {
       );
     }
 
-    const t = this.transformer;
-    const c = t.selection[0];
-    let h;
-
-    chain([
-      () => {
-        t.rotate(t.obb.a, { x: +50, y: -50 });
-        t.commit();
-      },
-      () => {
-        t.rotate(t.obb.a, { x: +750, y: 0 });
-        t.commit();
-      },
-    ]);
-
-    // @ts-ignore
-    window.t = t;
-
-    t.reset();
-
     // this.shapes.push(this.polyline);
     // this.shapes.push(this.rect1);
     // this.shapes.push(this.rect2);
@@ -416,10 +404,10 @@ class App extends Loop {
     // this.shapes.push(this.path);
     // this.shapes.push(this.path2);
     // this.shapes.push(this.path3);
-    this.shapes.push(this.roundRect);
+    // this.shapes.push(this.roundRect);
     // this.shapes.push(this.roundTriangle);
     // this.shapes.push(this.lemon);
-    // this.shapes.push(this.group);
+    this.shapes.push(this.group);
     // this.shapes.push(this.group2);
     // this.shapes.push(this.skewed);
     // this.shapes.push(this.circle);
@@ -456,7 +444,7 @@ class App extends Loop {
     // }
 
     render(this.ctx, this.shapes);
-    // renderOBB(this.ctx, this.shapes);
+    renderOBB(this.ctx, this.shapes);
     // renderHulls(this.ctx, this.shapes);
 
     if (this.transformer) {
