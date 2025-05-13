@@ -100,7 +100,7 @@ export class BoundingBox {
     this.center.copy(a).add(b).add(c).add(d).scale(0.25);
 
     this.width = ab.norm();
-    this.height = ab.cross(ad) / this.width;
+    this.height = this.width !== 0 ? ab.cross(ad) / this.width : 0;
     this.rotation = Math.atan2(ab.y, ab.x);
     this.skew = Math.atan(ab.dot(ad) / (this.width * this.height));
   }
