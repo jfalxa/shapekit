@@ -1,5 +1,6 @@
 import { Matrix3 } from "../math/mat3";
 import { Point } from "../math/vec2";
+import { remove } from "../utils/array";
 import { BoundingBox } from "../utils/bounding-box";
 import { Mask } from "./mask";
 import { Renderable, RenderableInit } from "./renderable";
@@ -27,6 +28,22 @@ export class Group extends Renderable {
     this.globalCompositeOperation = init.globalCompositeOperation;
 
     this.update(false, false, true);
+  }
+
+  add(...children: Renderable[]) {
+    Array.prototype.push.apply(this.children, children);
+  }
+
+  insert(index: number, ...children: Renderable[]) {
+    this.children.splice(index, 0, ...children);
+  }
+
+  remove(...children: Renderable[]) {
+    remove(this.children, children);
+  }
+
+  at(index: number) {
+    return this.children[index];
   }
 
   getChildAt(point: Point) {
