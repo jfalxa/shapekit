@@ -34,16 +34,17 @@ export class Path extends Array<Segment> {
     this.path2D = new Path2D();
     this.points.length = 0;
 
+    this.obb.min.put(Infinity);
+    this.obb.max.put(-Infinity);
+
     for (let i = 0; i < this.length; i++) {
       const segment = this[i];
       segment.link(previousSegment);
       segment.apply(this.path2D);
+      this.obb.merge(segment.aabb());
       this.points.push(...segment.sample(quality));
       previousSegment = segment;
     }
-
-    this.obb.min.put(Infinity);
-    this.obb.max.put(-Infinity);
 
     for (let i = 0; i < this.points.length; i++) {
       this.obb.merge(this.points[i]);
