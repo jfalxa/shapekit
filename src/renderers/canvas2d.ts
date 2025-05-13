@@ -1,5 +1,6 @@
 import { Group } from "../renderables/group";
 import { Image } from "../renderables/image";
+import { Mask } from "../renderables/mask";
 import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
@@ -10,10 +11,19 @@ type Canvas2D = CanvasRenderingContext2D;
 export function render(ctx: Canvas2D, renderables: Renderable[]) {
   ctx.resetTransform();
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  renderAll(ctx, renderables);
+
+  for (let i = 0; i < renderables.length; i++) {
+    renderOne(ctx, renderables[i]);
+  }
 }
 
 export function renderOne(ctx: Canvas2D, renderable: Renderable) {
+  if (renderable instanceof Mask) {
+    return renderMask(ctx, renderable);
+  }
+
+  ctx.save();
+
   if (renderable instanceof Group) {
     renderGroup(ctx, renderable);
   }
@@ -35,19 +45,20 @@ export function renderOne(ctx: Canvas2D, renderable: Renderable) {
     if (renderable instanceof Image) renderImage(ctx, renderable);
     if (renderable instanceof Text) renderText(ctx, renderable);
   }
+
+  ctx.restore();
 }
 
-export function renderAll(ctx: Canvas2D, renderables: Renderable[]) {
-  for (let i = 0; i < renderables.length; i++) {
-    ctx.save();
-    renderOne(ctx, renderables[i]);
-    ctx.restore();
-  }
+function renderMask(ctx: Canvas2D, mask: Mask) {
+  ctx.clip(mask.path.path2D);
 }
 
 function renderGroup(ctx: Canvas2D, group: Group) {
   set(ctx, "globalCompositeOperation", group.globalCompositeOperation);
-  renderAll(ctx, group.children);
+
+  for (let i = 0; i < group.children.length; i++) {
+    renderOne(ctx, group.children[i]);
+  }
 }
 
 function renderFill(ctx: Canvas2D, shape: Shape) {
