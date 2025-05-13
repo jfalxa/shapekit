@@ -122,12 +122,9 @@ export class Transformer {
     const AB = v(startLocal).subtract(anchorLocal);
     const AC = v(endLocal).subtract(anchorLocal);
 
-    const startAngle = Math.atan2(AB.y, AB.x);
-    const endAngle = Math.atan2(AC.y, AC.x);
-
-    let angle = endAngle - startAngle;
-    if (angle > Math.PI) angle -= 2 * Math.PI;
-    else if (angle <= -Math.PI) angle += 2 * Math.PI;
+    const dot = AB.dot(AC);
+    const cross = AB.cross(AC);
+    const angle = Math.atan2(cross, dot);
 
     this.rotation = this.#rotation + angle;
 
