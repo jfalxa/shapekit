@@ -83,7 +83,8 @@ export class Transformer {
 
     this.#snapshots.clear();
 
-    for (const renderable of this.selection) {
+    for (let i = 0; i < this.selection.length; i++) {
+      const renderable = this.selection[i];
       this.#single = this.#snapshot(renderable);
       if (this.selection.length > 1) this.#obb.merge(renderable.obb);
     }
@@ -212,7 +213,8 @@ export class Transformer {
       .compose(this)
       .translate(+cx, +cy);
 
-    for (const renderable of this.selection) {
+    for (let i = 0; i < this.selection.length; i++) {
+      const renderable = this.selection[i];
       const snapshot = this.#snapshots.get(renderable)!;
 
       renderable.width = snapshot.width;

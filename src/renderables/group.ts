@@ -37,16 +37,16 @@ export class Group extends Renderable {
 
   contains(shape: Point | Shape): boolean {
     if (!this.obb.contains(shape)) return false;
-    for (const child of this.children) {
-      if (child.contains(shape)) return true;
+    for (let i = 0; i < this.children.length; i++) {
+      if (this.children[i].contains(shape)) return true;
     }
     return false;
   }
 
   overlaps(shape: Shape): boolean {
     if (!this.obb.overlaps(shape)) return false;
-    for (const child of this.children) {
-      if (child.overlaps(shape)) return true;
+    for (let i = 0; i < this.children.length; i++) {
+      if (this.children[i].overlaps(shape)) return true;
     }
     return false;
   }
@@ -56,12 +56,12 @@ export class Group extends Renderable {
     const sy = this.baseHeight !== 0 ? this.height / this.baseHeight : 1;
 
     if (sx !== 1 || sy !== 1) {
-      for (const child of this.children) {
+      for (let i = 0; i < this.children.length; i++) {
         this.#transform
           .identity()
-          .compose(child)
+          .compose(this.children[i])
           .scale(sx, sy)
-          .decompose(child, true);
+          .decompose(this.children[i], true);
       }
     }
   }
@@ -74,8 +74,10 @@ export class Group extends Renderable {
     this.obb.min.put(Infinity);
     this.obb.max.put(-Infinity);
 
-    for (const child of this.children) {
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i];
       child.parent = this;
+
       if (updateChildren) child.update(rebuild, false, true);
 
       this.#obb.copy(child.obb).transform(this.#transform);

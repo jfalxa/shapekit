@@ -98,8 +98,8 @@ export class Shape extends Renderable {
       return false;
     }
 
-    for (const point of shape.points) {
-      if (!this.contains(point)) return false;
+    for (let i = 0; i < shape.points.length; i++) {
+      if (!this.contains(shape.points[i])) return false;
     }
 
     return true;
