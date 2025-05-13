@@ -54,12 +54,45 @@ export class QuadraticCurveTo extends ControlledSegment {
     );
   }
 
+  aabb() {
+    const p0 = this.from;
+    const p1 = this._control;
+    const p2 = this.to;
+
+    const extremum = new Vec2();
+
+    this.min.put(+Infinity);
+    this.max.put(-Infinity);
+
+    const denomX = p0.x - 2 * p1.x + p2.x;
+    if (denomX !== 0) {
+      const tx = (p0.x - p1.x) / denomX;
+      if (tx > 0 && tx < 1) {
+        QuadraticCurveTo.sample(p0, p1, p2, tx, extremum);
+        this.min.min(extremum);
+        this.max.max(extremum);
+      }
+    }
+
+    const denomY = p0.y - 2 * p1.y + p2.y;
+    if (denomY !== 0) {
+      const ty = (p0.y - p1.y) / denomY;
+      if (ty > 0 && ty < 1) {
+        QuadraticCurveTo.sample(p0, p1, p2, ty, extremum);
+        this.min.min(extremum);
+        this.max.max(extremum);
+      }
+    }
+
+    return this;
+  }
+
   static sample(
     from: Point,
     cp: Point,
     to: Point,
     t: number,
-    out = new Vec2(0, 0)
+    out = new Vec2()
   ) {
     out.x = (1 - t) * (1 - t) * from.x + 2 * (1 - t) * t * cp.x + t * t * to.x;
     out.y = (1 - t) * (1 - t) * from.y + 2 * (1 - t) * t * cp.y + t * t * to.y;
@@ -77,7 +110,7 @@ export class QuadraticCurveTo extends ControlledSegment {
 
     const tolerance2 = (1 / quality) * (1 / quality);
     const stack = [{ a: from, b: cp, c: to }];
-    const midCurve = new Vec2(0, 0);
+    const midCurve = new Vec2();
 
     while (stack.length > 0) {
       const { a, b, c } = stack.pop()!;
@@ -86,7 +119,7 @@ export class QuadraticCurveTo extends ControlledSegment {
       const distance2 = pointToLineDistance2(midCurve, a, c);
 
       if (distance2 <= tolerance2) {
-        if (!out[i]) out[i] = new Vec2(0, 0);
+        if (!out[i]) out[i] = new Vec2();
         out[i++].put(c.x, c.y);
       } else {
         // de Casteljau subdivision
