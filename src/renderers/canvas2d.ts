@@ -5,7 +5,6 @@ import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { getStyle } from "../styles/style";
-import { remove } from "../utils/array";
 
 interface Canvas2DInit {
   width: number;
@@ -13,14 +12,14 @@ interface Canvas2DInit {
   fill?: string;
 }
 
-export class Canvas2D {
+export class Canvas2D extends Group {
   element: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
   fill: string;
-  children: Renderable[];
 
   constructor(init: Canvas2DInit) {
+    super({});
     this.element = document.createElement("canvas");
     this.element.width = init.width;
     this.element.height = init.height;
@@ -30,23 +29,6 @@ export class Canvas2D {
     this.ctx = ctx;
 
     this.fill = init.fill ?? "#ffffff";
-    this.children = [];
-  }
-
-  add(...children: Renderable[]) {
-    Array.prototype.push.apply(this.children, children);
-  }
-
-  insert(index: number, ...children: Renderable[]) {
-    this.children.splice(index, 0, ...children);
-  }
-
-  remove(...children: Renderable[]) {
-    remove(this.children, children);
-  }
-
-  at(index: number) {
-    return this.children[index];
   }
 
   render() {
