@@ -83,7 +83,7 @@ export class Arc extends Segment {
     startAngle: number,
     sweep: number,
     t: number,
-    out = new Vec2(0, 0)
+    out = new Vec2()
   ) {
     const angle = startAngle + sweep * t;
     out.x = center.x + radiusX * Math.cos(angle);

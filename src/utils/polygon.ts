@@ -28,7 +28,7 @@ export function isPointInPolygon(point: Point, shape: Shape): boolean {
 
 // separating axis theorem
 export function doPolygonsOverlap(a: Shape, b: Shape): boolean {
-  const axis = new Vec2(0, 0);
+  const axis = new Vec2();
   const polygons = [a.points, b.points];
 
   for (let i = 0; i < polygons.length; i++) {

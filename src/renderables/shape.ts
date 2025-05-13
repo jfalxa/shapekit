@@ -130,7 +130,7 @@ export class Shape extends Renderable {
     this.obb.copy(this.path.obb).transform(this.transform);
 
     for (let i = 0; i < this.points.length; i++) {
-      this.points[i] = (this.points[i] ?? new Vec2(0, 0))
+      this.points[i] = (this.points[i] ?? new Vec2())
         .copy(this.path.points[i])
         .transform(this.transform);
     }

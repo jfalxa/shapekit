@@ -59,7 +59,7 @@ export abstract class Renderable {
 
     this.transform = new Matrix3();
     this.obb = new BoundingBox();
-    this.center = new Vec2(0, 0);
+    this.center = new Vec2();
   }
 
   abstract contains(shape: Point | Shape): boolean;

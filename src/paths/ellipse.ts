@@ -77,7 +77,7 @@ export class Ellipse extends Segment {
     startAngle: number,
     endAngle: number,
     t: number,
-    out = new Vec2(0, 0)
+    out = new Vec2()
   ) {
     let span = endAngle - startAngle;
     if (span < 0) span += 2 * Math.PI;

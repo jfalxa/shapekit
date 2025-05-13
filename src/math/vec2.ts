@@ -10,7 +10,7 @@ export function v(point: Point) {
 }
 
 export class Vec2 extends Float64Array implements Point {
-  static ZERO = new Vec2(0, 0);
+  static ZERO = new Vec2();
 
   get x() {
     return this[0];
@@ -28,7 +28,7 @@ export class Vec2 extends Float64Array implements Point {
     this[1] = value;
   }
 
-  constructor(x: number, y: number) {
+  constructor(x = 0, y = 0) {
     super(2);
     this[0] = x;
     this[1] = y;

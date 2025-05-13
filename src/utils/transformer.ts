@@ -34,8 +34,8 @@ export class Transformer {
 
   #snapshots = new Map<Renderable, Snapshot>();
   #single!: Snapshot;
-  #center = new Vec2(0, 0);
-  #delta = new Vec2(0, 0);
+  #center = new Vec2();
+  #delta = new Vec2();
   #obb = new BoundingBox();
   #transform = new Matrix3();
   #selectionTransform = new Matrix3();

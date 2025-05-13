@@ -76,7 +76,7 @@ export class BezierCurveTo extends ControlledSegment {
     cp2: Point,
     to: Point,
     t: number,
-    out = new Vec2(0, 0)
+    out = new Vec2()
   ) {
     out.x =
       (1 - t) ** 3 * from.x +
@@ -105,7 +105,7 @@ export class BezierCurveTo extends ControlledSegment {
 
     const tolerance2 = (1 / quality) * (1 / quality);
     const stack = [{ a: from, b: cp1, c: cp2, d: to }];
-    const midCurve = new Vec2(0, 0);
+    const midCurve = new Vec2();
 
     while (stack.length > 0) {
       const { a, b, c, d } = stack.pop()!;
@@ -114,7 +114,7 @@ export class BezierCurveTo extends ControlledSegment {
       const distance2 = pointToLineDistance2(midCurve, a, d);
 
       if (distance2 <= tolerance2) {
-        if (!out[i]) out[i] = new Vec2(0, 0);
+        if (!out[i]) out[i] = new Vec2();
         out[i++].put(d.x, d.y);
       } else {
         // de Casteljau subdivision

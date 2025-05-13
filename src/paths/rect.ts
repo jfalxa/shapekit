@@ -14,12 +14,7 @@ export class Rect extends Segment {
   ) {
     super(x, y);
 
-    this.points.push(
-      new Vec2(0, 0),
-      new Vec2(0, 0),
-      new Vec2(0, 0),
-      new Vec2(0, 0)
-    );
+    this.points.push(new Vec2(), new Vec2(), new Vec2(), new Vec2());
   }
 
   scale(sx: number, sy: number) {

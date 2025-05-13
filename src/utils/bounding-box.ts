@@ -11,24 +11,24 @@ export class BoundingBox {
   static EMPTY = new BoundingBox();
 
   // AABB
-  min = new Vec2(0, 0);
-  max = new Vec2(0, 0);
+  min = new Vec2();
+  max = new Vec2();
 
   // Coordinates of the four corners
-  a = new Vec2(0, 0);
-  b = new Vec2(0, 0);
-  c = new Vec2(0, 0);
-  d = new Vec2(0, 0);
+  a = new Vec2();
+  b = new Vec2();
+  c = new Vec2();
+  d = new Vec2();
 
-  center = new Vec2(0, 0);
+  center = new Vec2();
 
   width = 0;
   height = 0;
   rotation = 0;
   skew = 0;
 
-  #ab = new Vec2(0, 0);
-  #ad = new Vec2(0, 0);
+  #ab = new Vec2();
+  #ad = new Vec2();
 
   static isAABB(value: object): value is AABB {
     return (
