@@ -1,17 +1,19 @@
 import { Vec2 } from "../math/vec2";
 
 export abstract class Segment {
-  from: Vec2;
+  from = new Vec2();
   to: Vec2;
+
+  min = new Vec2();
+  max = new Vec2();
 
   previous?: Segment;
 
   protected points: Vec2[];
 
   constructor(x: number, y: number) {
-    this.from = new Vec2(0, 0);
     this.to = new Vec2(x, y);
-    this.points = [new Vec2(0, 0)];
+    this.points = [new Vec2()];
   }
 
   abstract apply(path: Path2D): void;
@@ -30,6 +32,12 @@ export abstract class Segment {
     if (previous) this.from.copy(previous.to);
     else this.from.put(0);
   }
+
+  aabb() {
+    this.min.copy(this.to);
+    this.max.copy(this.to);
+    return this;
+  }
 }
 
 export abstract class ControlledSegment extends Segment {
@@ -37,7 +45,7 @@ export abstract class ControlledSegment extends Segment {
 
   constructor(x: number, y: number) {
     super(x, y);
-    this._control = new Vec2(0, 0);
+    this._control = new Vec2();
   }
 
   abstract getSharedControlPoint(): Vec2;
