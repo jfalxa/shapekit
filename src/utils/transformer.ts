@@ -150,8 +150,8 @@ export class Transformer {
     const signX = Math.sign(startDims.x * endDims.x);
     const signY = Math.sign(startDims.y * endDims.y);
 
-    const sx = (Math.abs(endDims.x) * signX) / this.#width;
-    const sy = (Math.abs(endDims.y) * signY) / this.#height;
+    const sx = (Math.abs(endDims.x) / this.#width) * signX;
+    const sy = (Math.abs(endDims.y) / this.#height) * signY;
 
     const [dx, dy] = this.#adjust(anchor, sx, sy);
 
@@ -172,9 +172,10 @@ export class Transformer {
 
   #applySingle() {
     const [renderable] = this.selection;
+    const { width, height } = this.#obb;
 
-    const sx = this.scaleX * (this.width / this.#obb.width);
-    const sy = this.scaleY * (this.height / this.#obb.height);
+    const sx = width !== 0 ? this.scaleX * (this.width / width) : 1;
+    const sy = height !== 0 ? this.scaleY * (this.height / height) : 1;
 
     const transform = {
       x: this.#single.x + this.x,
