@@ -5,116 +5,159 @@ import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { getStyle } from "../styles/style";
+import { remove } from "../utils/array";
 
-type Canvas2D = CanvasRenderingContext2D;
-
-export function render(ctx: Canvas2D, renderables: Renderable[]) {
-  ctx.resetTransform();
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-  for (let i = 0; i < renderables.length; i++) {
-    renderOne(ctx, renderables[i]);
-  }
+interface Canvas2DInit {
+  width: number;
+  height: number;
+  fill?: string;
 }
 
-export function renderOne(ctx: Canvas2D, renderable: Renderable) {
-  if (renderable instanceof Shape) {
-    ctx.setTransform(
-      renderable.transform[0],
-      renderable.transform[1],
-      renderable.transform[3],
-      renderable.transform[4],
-      renderable.transform[6],
-      renderable.transform[7]
-    );
-  }
+export class Canvas2D {
+  element: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
 
-  if (renderable instanceof Mask) {
-    return renderMask(ctx, renderable);
-  }
+  fill: string;
+  children: Renderable[];
 
-  ctx.save();
+  constructor(init: Canvas2DInit) {
+    this.element = document.createElement("canvas");
+    this.element.width = init.width;
+    this.element.height = init.height;
 
-  if (renderable instanceof Group) {
-    renderGroup(ctx, renderable);
+    const ctx = this.element.getContext("2d");
+    if (!ctx) throw new Error("Cannot access 2D context");
+    this.ctx = ctx;
+
+    this.fill = init.fill ?? "#ffffff";
+    this.children = [];
   }
 
-  if (renderable instanceof Shape) {
-    applyEffects(ctx, renderable);
-
-    if (renderable.fill) renderFill(ctx, renderable);
-    if (renderable.stroke) renderStroke(ctx, renderable);
-    if (renderable instanceof Image) renderImage(ctx, renderable);
-    if (renderable instanceof Text) renderText(ctx, renderable);
+  add(...children: Renderable[]) {
+    Array.prototype.push.apply(this.children, children);
   }
 
-  ctx.restore();
-}
-
-function renderMask(ctx: Canvas2D, mask: Mask) {
-  ctx.clip(mask.path.path2D, mask.fillRule);
-}
-
-function renderGroup(ctx: Canvas2D, group: Group) {
-  set(ctx, "globalCompositeOperation", group.globalCompositeOperation);
-
-  for (let i = 0; i < group.children.length; i++) {
-    renderOne(ctx, group.children[i]);
+  insert(index: number, ...children: Renderable[]) {
+    this.children.splice(index, 0, ...children);
   }
-}
 
-function renderFill(ctx: Canvas2D, shape: Shape) {
-  set(ctx, "fillStyle", getStyle(ctx, shape.fill));
-  ctx.fill(shape.path.path2D);
-}
-
-function renderStroke(ctx: Canvas2D, shape: Shape) {
-  set(ctx, "lineWidth", shape.lineWidth);
-  set(ctx, "lineCap", shape.lineCap);
-  set(ctx, "lineJoin", shape.lineJoin);
-  set(ctx, "miterLimit", shape.miterLimit);
-  set(ctx, "strokeStyle", getStyle(ctx, shape.stroke));
-  set(ctx, "lineDashOffset", shape.lineDashOffset);
-  if (shape.lineDash) ctx.setLineDash(shape.lineDash);
-  ctx.stroke(shape.path.path2D);
-}
-
-function renderImage(ctx: Canvas2D, image: Image) {
-  ctx.drawImage(image.image, 0, 0, image.width, image.height);
-}
-
-function renderText(ctx: Canvas2D, text: Text) {
-  set(ctx, "font", text.font);
-  set(ctx, "textAlign", text.textAlign);
-  set(ctx, "textBaseline", text.textBaseline);
-  set(ctx, "fillStyle", getStyle(ctx, text.textFill));
-  set(ctx, "strokeStyle", getStyle(ctx, text.textStroke));
-  set(ctx, "lineWidth", text.textLineWidth);
-  set(ctx, "lineDashOffset", text.lineDashOffset);
-  if (text.lineDash) ctx.setLineDash(text.lineDash);
-
-  for (let i = 0; i < text.lines.length; i++) {
-    const [line, x, y] = text.lines[i];
-    if (text.textFill) ctx.fillText(line, x, y);
-    if (text.textStroke) ctx.strokeText(line, x, y);
+  remove(...children: Renderable[]) {
+    remove(this.children, children);
   }
-}
 
-function applyEffects(ctx: Canvas2D, shape: Shape) {
-  set(ctx, "globalAlpha", shape.globalAlpha);
-  set(ctx, "filter", shape.filter);
-  set(ctx, "shadowBlur", shape.shadowBlur);
-  set(ctx, "shadowColor", shape.shadowColor);
-  set(ctx, "shadowOffsetX", shape.shadowOffsetX);
-  set(ctx, "shadowOffsetY", shape.shadowOffsetY);
-}
+  at(index: number) {
+    return this.children[index];
+  }
 
-function set<K extends keyof Canvas2D>(
-  ctx: Canvas2D,
-  property: K,
-  value: Canvas2D[K] | undefined
-) {
-  if (value !== undefined && ctx[property] !== value) {
-    ctx[property] = value;
+  render() {
+    this.ctx.resetTransform();
+
+    this.set("fillStyle", this.fill);
+    this.ctx.fillRect(0, 0, this.element.width, this.element.height);
+
+    for (let i = 0; i < this.children.length; i++) {
+      this.renderOne(this.children[i]);
+    }
+  }
+
+  renderOne(renderable: Renderable) {
+    if (renderable instanceof Shape) {
+      this.ctx.setTransform(
+        renderable.transform[0],
+        renderable.transform[1],
+        renderable.transform[3],
+        renderable.transform[4],
+        renderable.transform[6],
+        renderable.transform[7]
+      );
+    }
+
+    if (renderable instanceof Mask) {
+      return this.renderMask(renderable);
+    }
+
+    this.ctx.save();
+
+    if (renderable instanceof Group) {
+      this.renderGroup(renderable);
+    }
+
+    if (renderable instanceof Shape) {
+      this.applyEffects(renderable);
+
+      if (renderable.fill) this.renderFill(renderable);
+      if (renderable.stroke) this.renderStroke(renderable);
+      if (renderable instanceof Image) this.renderImage(renderable);
+      if (renderable instanceof Text) this.renderText(renderable);
+    }
+
+    this.ctx.restore();
+  }
+
+  renderMask(mask: Mask) {
+    this.ctx.clip(mask.path.path2D, mask.fillRule);
+  }
+
+  renderGroup(group: Group) {
+    this.set("globalCompositeOperation", group.globalCompositeOperation);
+
+    for (let i = 0; i < group.children.length; i++) {
+      this.renderOne(group.children[i]);
+    }
+  }
+
+  renderFill(shape: Shape) {
+    this.set("fillStyle", getStyle(this.ctx, shape.fill));
+    this.ctx.fill(shape.path.path2D);
+  }
+
+  renderStroke(shape: Shape) {
+    this.set("lineWidth", shape.lineWidth);
+    this.set("lineCap", shape.lineCap);
+    this.set("lineJoin", shape.lineJoin);
+    this.set("miterLimit", shape.miterLimit);
+    this.set("strokeStyle", getStyle(this.ctx, shape.stroke));
+    this.set("lineDashOffset", shape.lineDashOffset);
+    if (shape.lineDash) this.ctx.setLineDash(shape.lineDash);
+    this.ctx.stroke(shape.path.path2D);
+  }
+
+  renderImage(image: Image) {
+    this.ctx.drawImage(image.image, 0, 0, image.width, image.height);
+  }
+
+  renderText(text: Text) {
+    this.set("font", text.font);
+    this.set("textAlign", text.textAlign);
+    this.set("textBaseline", text.textBaseline);
+    this.set("fillStyle", getStyle(this.ctx, text.textFill));
+    this.set("strokeStyle", getStyle(this.ctx, text.textStroke));
+    this.set("lineWidth", text.textLineWidth);
+    this.set("lineDashOffset", text.lineDashOffset);
+    if (text.lineDash) this.ctx.setLineDash(text.lineDash);
+
+    for (let i = 0; i < text.lines.length; i++) {
+      const [line, x, y] = text.lines[i];
+      if (text.textFill) this.ctx.fillText(line, x, y);
+      if (text.textStroke) this.ctx.strokeText(line, x, y);
+    }
+  }
+
+  applyEffects(shape: Shape) {
+    this.set("globalAlpha", shape.globalAlpha);
+    this.set("filter", shape.filter);
+    this.set("shadowBlur", shape.shadowBlur);
+    this.set("shadowColor", shape.shadowColor);
+    this.set("shadowOffsetX", shape.shadowOffsetX);
+    this.set("shadowOffsetY", shape.shadowOffsetY);
+  }
+
+  set<K extends keyof CanvasRenderingContext2D>(
+    property: K,
+    value: CanvasRenderingContext2D[K] | undefined
+  ) {
+    if (value !== undefined && this.ctx[property] !== value) {
+      this.ctx[property] = value;
+    }
   }
 }
