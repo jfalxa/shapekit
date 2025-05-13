@@ -413,6 +413,18 @@ class App extends Loop {
     // this.shapes.push(this.circle);
     // this.shapes.push(this.arc);
     // this.shapes.push(this.ellipse);
+
+    const box = this.canvas.getBoundingClientRect();
+
+    this.canvas.addEventListener("click", (e) => {
+      const x = e.pageX - box.x;
+      const y = e.pageY - box.y;
+      console.log({ x, y });
+
+      const renderable = this.group.getChildAt({ x, y });
+
+      console.log("clicked", renderable);
+    });
   }
 
   s = 1;
