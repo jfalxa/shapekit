@@ -45,9 +45,5 @@ export class Path extends Array<Segment> {
       this.points.push(...segment.sample(quality));
       previousSegment = segment;
     }
-
-    for (let i = 0; i < this.points.length; i++) {
-      this.obb.merge(this.points[i]);
-    }
   }
 }

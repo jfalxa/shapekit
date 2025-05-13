@@ -36,4 +36,10 @@ export class Rect extends Segment {
 
     return this.points;
   }
+
+  aabb() {
+    this.min.copy(this.to);
+    this.max.copy(this.to).translate(this.width, this.height);
+    return this;
+  }
 }
