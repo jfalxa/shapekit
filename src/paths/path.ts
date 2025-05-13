@@ -28,7 +28,7 @@ export class Path extends Array<Segment> {
     }
   }
 
-  build(quality = 0.5) {
+  build(quality = 1) {
     let previousSegment: Segment | undefined;
 
     this.path2D = new Path2D();
