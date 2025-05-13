@@ -1,3 +1,4 @@
+import { solveQuadratic } from "../math/num";
 import { Point, Vec2 } from "../math/vec2";
 import { pointToLineDistance2 } from "../utils/polyline";
 import { ControlledSegment } from "./segment";
@@ -68,6 +69,39 @@ export class BezierCurveTo extends ControlledSegment {
       this.to,
       quality
     );
+  }
+
+  aabb() {
+    const p0 = this.from;
+    const p1 = this._control;
+    const p2 = this.end;
+    const p3 = this.to;
+
+    const ts = [];
+    const extremum = new Vec2();
+
+    this.min.copy(p0).min(p3);
+    this.max.copy(p0).max(p3);
+
+    const ax = -p0.x + 3 * p1.x - 3 * p2.x + p3.x;
+    const bx = 2 * (p0.x - 2 * p1.x + p2.x);
+    const cx = -p0.x + p1.x;
+    ts.push(...solveQuadratic(ax, bx, cx));
+
+    const ay = -p0.y + 3 * p1.y - 3 * p2.y + p3.y;
+    const by = 2 * (p0.y - 2 * p1.y + p2.y);
+    const cy = -p0.y + p1.y;
+    ts.push(...solveQuadratic(ay, by, cy));
+
+    for (let i = 0; i < ts.length; i++) {
+      if (ts[i] > 0 && ts[i] < 1) {
+        BezierCurveTo.sample(p0, p1, p2, p3, ts[i], extremum);
+        this.min.min(extremum);
+        this.max.max(extremum);
+      }
+    }
+
+    return this;
   }
 
   static sample(

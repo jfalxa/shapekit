@@ -61,8 +61,8 @@ export class QuadraticCurveTo extends ControlledSegment {
 
     const extremum = new Vec2();
 
-    this.min.put(+Infinity);
-    this.max.put(-Infinity);
+    this.min.copy(p0).min(p2);
+    this.max.copy(p0).max(p2);
 
     const denomX = p0.x - 2 * p1.x + p2.x;
     if (denomX !== 0) {
