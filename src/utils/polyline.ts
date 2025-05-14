@@ -3,7 +3,7 @@ import { Shape } from "../renderables/shape";
 
 export function isPointInPolyline(point: Point, polyline: Shape): boolean {
   const radius = polyline.stroke ? (polyline.lineWidth ?? 1) / 2 : 0;
-  const threshold = radius;
+  const threshold2 = radius * radius;
 
   const len = polyline.points.length;
 
@@ -11,7 +11,7 @@ export function isPointInPolyline(point: Point, polyline: Shape): boolean {
     const p1 = polyline.points[i];
     const p2 = polyline.points[(i + 1) % len] ?? polyline.points[i];
 
-    if (pointToLineDistance2(point, p1, p2) <= threshold) {
+    if (pointToLineDistance2(point, p1, p2) <= threshold2) {
       return true;
     }
   }
