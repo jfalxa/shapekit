@@ -15,7 +15,8 @@ export class Pattern {
   get(ctx: CanvasRenderingContext2D) {
     if (this.#pattern) return this.#pattern;
     const pattern = ctx.createPattern(this.image, this.repetition);
-    if (pattern) this.#pattern = pattern;
-    return pattern ?? undefined;
+    if (!pattern) throw new Error("Pattern image is not loaded yet");
+    this.#pattern = pattern;
+    return pattern;
   }
 }
