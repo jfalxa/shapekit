@@ -1,6 +1,6 @@
 import { Group } from "../renderables/group";
 import { Image } from "../renderables/image";
-import { Mask } from "../renderables/mask";
+import { Clip } from "../renderables/clip";
 import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
@@ -54,8 +54,8 @@ export class Canvas2D extends Group {
       );
     }
 
-    if (renderable instanceof Mask) {
-      return this.renderMask(renderable);
+    if (renderable instanceof Clip) {
+      return this.renderClip(renderable);
     }
 
     this.ctx.save();
@@ -76,8 +76,8 @@ export class Canvas2D extends Group {
     this.ctx.restore();
   }
 
-  renderMask(mask: Mask) {
-    this.ctx.clip(mask.path.path2D, mask.fillRule);
+  renderClip(clip: Clip) {
+    this.ctx.clip(clip.path.path2D, clip.fillRule);
   }
 
   renderGroup(group: Group) {

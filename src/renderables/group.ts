@@ -2,7 +2,7 @@ import { Matrix3 } from "../math/mat3";
 import { Point } from "../math/vec2";
 import { remove } from "../utils/array";
 import { BoundingBox } from "../utils/bounding-box";
-import { Mask } from "./mask";
+import { Clip } from "./clip";
 import { Renderable, RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
@@ -57,7 +57,7 @@ export class Group extends Renderable {
     if (!this.obb.contains(shape)) return false;
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i];
-      if (child instanceof Mask && !child.contains(shape)) return false;
+      if (child instanceof Clip && !child.contains(shape)) return false;
       else if (child.contains(shape)) return true;
     }
     return false;
@@ -67,7 +67,7 @@ export class Group extends Renderable {
     if (!this.obb.overlaps(shape)) return false;
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i];
-      if (child instanceof Mask && !child.overlaps(shape)) return false;
+      if (child instanceof Clip && !child.overlaps(shape)) return false;
       else if (child.overlaps(shape)) return true;
     }
     return false;
