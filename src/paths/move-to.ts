@@ -6,6 +6,6 @@ export function moveTo(x: number, y: number) {
 
 export class MoveTo extends Segment {
   apply(path: Path2D): void {
-    path.moveTo(this.to.x, this.to.y);
+    path.moveTo(this._to.x, this._to.y);
   }
 }

@@ -34,8 +34,8 @@ export abstract class Renderable {
   skewY: number;
   rotation: number;
 
-  baseWidth: number;
-  baseHeight: number;
+  naturalWidth: number;
+  naturalHeight: number;
 
   transform: Matrix3;
   obb: BoundingBox;
@@ -54,8 +54,8 @@ export abstract class Renderable {
     this.skewY = init.skewY ?? 0;
     this.rotation = init.rotation ?? 0;
 
-    this.baseWidth = init.width ?? 0;
-    this.baseHeight = init.height ?? 0;
+    this.naturalWidth = init.width ?? 0;
+    this.naturalHeight = init.height ?? 0;
 
     this.transform = new Matrix3();
     this.obb = new BoundingBox();
@@ -67,8 +67,7 @@ export abstract class Renderable {
   abstract build(): void;
 
   update(rebuild = false, _updateParent?: boolean, _updateChildren?: boolean) {
-    const resized = this.width !== this.baseWidth || this.height !== this.baseHeight; // prettier-ignore
-    if (rebuild || resized) this.build();
+    if (rebuild) this.build();
     this.transform.identity().compose(this);
     if (this.parent) this.transform.transform(this.parent.transform);
     this.center.put(0).transform(this.transform);

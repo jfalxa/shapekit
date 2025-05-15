@@ -28,6 +28,9 @@ export class Group extends Renderable {
     this.globalCompositeOperation = init.globalCompositeOperation;
 
     this.update(false, false, true);
+
+    this.naturalWidth = this.obb.width;
+    this.naturalHeight = this.obb.height;
   }
 
   add(...children: Renderable[]) {
@@ -74,16 +77,23 @@ export class Group extends Renderable {
   }
 
   build() {
-    const sx = this.baseWidth !== 0 ? this.width / this.baseWidth : 1;
-    const sy = this.baseHeight !== 0 ? this.height / this.baseHeight : 1;
+    const sx = this.naturalWidth !== 0 ? this.width / this.naturalWidth : 1;
+    const sy = this.naturalHeight !== 0 ? this.height / this.naturalHeight : 1;
+
+    console.log("group", { sx, sy });
 
     if (sx !== 1 || sy !== 1) {
       for (let i = 0; i < this.children.length; i++) {
+        const child = this.children[i];
+
+        child.width = child.naturalWidth;
+        child.height = child.naturalHeight;
+
         this.#transform
           .identity()
-          .compose(this.children[i])
+          .compose(child)
           .scale(sx, sy)
-          .decompose(this.children[i], true);
+          .decompose(child, true);
       }
     }
   }
@@ -108,8 +118,8 @@ export class Group extends Renderable {
       this.obb.merge(this.#obb);
     }
 
-    this.width = this.baseWidth = this.obb.width;
-    this.height = this.baseHeight = this.obb.height;
+    this.width = this.obb.width;
+    this.height = this.obb.height;
 
     this.obb.transform(this.transform);
 

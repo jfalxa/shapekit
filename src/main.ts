@@ -23,7 +23,7 @@ import { Transformer } from "./utils/transformer";
 
 import treeSrc from "./tree.png";
 import { rect } from "./paths/rect";
-import { Mask } from "./renderables/mask";
+import { Clip } from "./renderables/clip";
 
 class App extends Loop {
   canvas = new Canvas2D({ width: 800, height: 600 });
@@ -224,7 +224,7 @@ class App extends Loop {
         rotation: Math.PI / 4,
 
         children: [
-          new Mask({
+          new Clip({
             x: -140,
             y: -100,
             width: 400,
@@ -359,14 +359,12 @@ class App extends Loop {
   async mount() {
     document.body.append(this.canvas.element);
 
-    const treeImage = await Image.load(treeSrc);
-
     (this.group.children[0] as Group).children.push(
       new Image({
         id: "IMAGE",
         x: +100,
         stroke: "purple",
-        image: treeImage,
+        image: await Image.load(treeSrc),
         path: [roundRect(0, 0, 100, 50, 15)],
         filter: "sepia(1) contrast(1.2)",
       })
@@ -381,7 +379,7 @@ class App extends Loop {
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 0; i++) {
       this.canvas.add(
         new Shape({
           fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
@@ -389,13 +387,13 @@ class App extends Loop {
           // image: treeImage,
           x: rand(0, 800),
           y: rand(0, 600),
-          // width: rand(10, 20),
-          // height: rand(10, 20),
-          path: [
-            moveTo(0, 0),
-            arc(0, 0, rand(10, 20), 0, rad(315)),
-            closePath(),
-          ],
+          width: rand(10, 20),
+          height: rand(10, 20),
+          // path: [
+          //   moveTo(0, 0),
+          //   arc(0, 0, rand(10, 20), 0, rad(315)),
+          //   closePath(),
+          // ],
         })
       );
     }
@@ -410,7 +408,7 @@ class App extends Loop {
     // this.canvas.add(this.roundRect);
     // this.canvas.add(this.roundTriangle);
     // this.canvas.add(this.lemon);
-    // this.canvas.add(this.group);
+    this.canvas.add(this.group);
     // this.canvas.add(this.group2);
     // this.canvas.add(this.skewed);
     // this.canvas.add(this.circle);
@@ -437,10 +435,10 @@ class App extends Loop {
     start = performance.now();
 
     for (const shape of this.canvas.children) {
-      shape.rotation += 0.001 * this.deltaTime;
+      // shape.rotation += 0.001 * this.deltaTime;
     }
 
-    this.canvas.update();
+    // this.canvas.update(true);
 
     mid = performance.now();
 
@@ -479,7 +477,7 @@ class App extends Loop {
 
     const message = `total = ${total}ms, update = ${update}ms, render = ${rendered}ms`;
 
-    console.log(message);
+    // console.log(message);
   }
 }
 

@@ -12,52 +12,62 @@ export function quadraticCurveTo(
 }
 
 export class QuadraticCurveTo extends ControlledSegment {
-  control: Vec2 | undefined;
+  cpx?: number;
+  cpy?: number;
+
+  _control: Vec2 | undefined;
 
   constructor(cpx: number, cpy: number, x?: number, y?: number) {
     super(x ?? cpx, y ?? cpy);
 
     if (x !== undefined && y !== undefined) {
-      this.control = new Vec2(cpx, cpy);
+      this.cpx = cpx;
+      this.cpy = cpy;
+      this._control = new Vec2(cpx, cpy);
     }
   }
 
   getOptionalControlPoint() {
-    return this.control;
-  }
-
-  getSharedControlPoint() {
     return this._control;
   }
 
+  getSharedControlPoint() {
+    return this._currentControl;
+  }
+
   scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.control?.scale(sx, sy);
+    super.scale(sx, sy);
+    if (this.cpx === undefined || this.cpy === undefined) {
+      this._control = undefined;
+    } else {
+      if (this._control === undefined) this._control = new Vec2();
+      this._control.put(this.cpx, this.cpy).scale(sx, sy);
+    }
   }
 
   apply(path: Path2D): void {
     path.quadraticCurveTo(
-      this._control.x,
-      this._control.y,
-      this.to.x,
-      this.to.y
+      this._currentControl.x,
+      this._currentControl.y,
+      this._to.x,
+      this._to.y
     );
   }
 
   sample(quality = 1): Vec2[] {
     return QuadraticCurveTo.adaptiveSample(
-      this.from,
-      this._control,
-      this.to,
+      this._from,
+      this._currentControl,
+      this._to,
       quality,
       this.points
     );
   }
 
   aabb() {
-    const p0 = this.from;
-    const p1 = this._control;
-    const p2 = this.to;
+    const p0 = this._from;
+    const p1 = this._currentControl;
+    const p2 = this._to;
 
     const extremum = new Vec2();
 

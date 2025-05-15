@@ -83,8 +83,8 @@ export class Shape extends Renderable {
 
     this.points = new Array(this.path.points.length);
 
-    this.width = this.baseWidth = this.path.obb.width;
-    this.height = this.baseHeight = this.path.obb.height;
+    this.width = this.path.obb.width;
+    this.height = this.path.obb.height;
 
     this.update(false, false);
   }
@@ -113,15 +113,14 @@ export class Shape extends Renderable {
   }
 
   build() {
-    const sx = this.baseWidth !== 0 ? this.width / this.baseWidth : 1;
-    const sy = this.baseHeight !== 0 ? this.height / this.baseHeight : 1;
-    if (sx !== 1 || sy !== 1) this.path.scale(sx, sy);
-
+    this.path.resize(this.width, this.height);
     this.path.build(this.quality);
 
     this.points.length = this.path.points.length;
-    this.width = this.baseWidth = this.path.obb.width;
-    this.height = this.baseHeight = this.path.obb.height;
+    this.naturalWidth = this.path.naturalWidth;
+    this.naturalHeight = this.path.naturalHeight;
+    this.width = this.path.obb.width;
+    this.height = this.path.obb.height;
   }
 
   update(rebuild?: boolean, updateParent = true) {

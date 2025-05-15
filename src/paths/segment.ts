@@ -1,51 +1,51 @@
 import { Vec2 } from "../math/vec2";
 
 export abstract class Segment {
-  from = new Vec2();
-  to: Vec2;
+  previous?: Segment;
 
   min = new Vec2();
   max = new Vec2();
 
-  previous?: Segment;
+  _from = new Vec2();
+  _to: Vec2;
 
   protected points: Vec2[];
 
-  constructor(x: number, y: number) {
-    this.to = new Vec2(x, y);
+  constructor(public x: number, public y: number) {
+    this._to = new Vec2(x, y);
     this.points = [new Vec2()];
   }
 
   abstract apply(path: Path2D): void;
 
   scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
+    this._to.put(this.x, this.y).scale(sx, sy);
   }
 
   sample(_quality: number) {
-    this.points[0].copy(this.to);
+    this.points[0].copy(this._to);
     return this.points;
   }
 
   link(previous: Segment | undefined) {
     this.previous = previous;
-    if (previous) this.from.copy(previous.to);
-    else this.from.put(0);
+    if (previous) this._from.copy(previous._to);
+    else this._from.put(0);
   }
 
   aabb() {
-    this.min.copy(this.to);
-    this.max.copy(this.to);
+    this.min.copy(this._to);
+    this.max.copy(this._to);
     return this;
   }
 }
 
 export abstract class ControlledSegment extends Segment {
-  _control: Vec2;
+  _currentControl: Vec2;
 
   constructor(x: number, y: number) {
     super(x, y);
-    this._control = new Vec2();
+    this._currentControl = new Vec2();
   }
 
   abstract getSharedControlPoint(): Vec2;
@@ -57,12 +57,12 @@ export abstract class ControlledSegment extends Segment {
     let control = this.getOptionalControlPoint();
 
     if (control) {
-      this._control.copy(control);
+      this._currentControl.copy(control);
     } else if (previous instanceof ControlledSegment) {
       const sharedControl = previous.getSharedControlPoint();
-      this._control.copy(previous.to).scale(2).subtract(sharedControl);
+      this._currentControl.copy(previous._to).scale(2).subtract(sharedControl);
     } else if (previous) {
-      this._control.copy(previous.to);
+      this._currentControl.copy(previous._to);
     } else {
       throw new Error("Control point is missing");
     }

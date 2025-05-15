@@ -24,6 +24,9 @@ export function ellipse(
 }
 
 export class Ellipse extends Segment {
+  public _radiusX: number;
+  public _radiusY: number;
+
   constructor(
     public x: number,
     public y: number,
@@ -35,20 +38,22 @@ export class Ellipse extends Segment {
     public counterclockwise?: boolean
   ) {
     super(x, y);
+    this._radiusX = radiusX;
+    this._radiusY = radiusY;
   }
 
   scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.radiusX *= Math.abs(sx);
-    this.radiusY *= Math.abs(sy);
+    super.scale(sx, sy);
+    this._radiusX = this.radiusX * Math.abs(sx);
+    this._radiusY = this.radiusY * Math.abs(sy);
   }
 
   apply(path: Path2D) {
     path.ellipse(
-      this.to.x,
-      this.to.y,
-      this.radiusX,
-      this.radiusY,
+      this._to.x,
+      this._to.y,
+      this._radiusX,
+      this._radiusY,
       this.rotation,
       this.startAngle,
       this.endAngle,
@@ -58,9 +63,9 @@ export class Ellipse extends Segment {
 
   sample(quality: number): Vec2[] {
     return Ellipse.adaptiveSample(
-      this.to,
-      this.radiusX,
-      this.radiusY,
+      this._to,
+      this._radiusX,
+      this._radiusY,
       this.rotation,
       this.startAngle,
       this.endAngle,

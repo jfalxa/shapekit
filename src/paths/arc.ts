@@ -14,48 +14,47 @@ export function arc(
 }
 
 const TWO_PI = 2 * Math.PI;
-const HALF_PI = Math.PI / 2;
-const EXTREMA = [0, HALF_PI, Math.PI, 3 * HALF_PI];
+const EXTREMA = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
 
 export class Arc extends Segment {
-  radiusX: number;
-  radiusY: number;
+  _radiusX: number;
+  _radiusY: number;
 
   constructor(
     x: number,
     y: number,
-    radius: number,
+    public radius: number,
     public startAngle = 0,
     public endAngle = TWO_PI,
     public counterclockwise = false
   ) {
     super(x, y);
-    this.radiusX = radius;
-    this.radiusY = radius;
+    this._radiusX = radius;
+    this._radiusY = radius;
   }
 
   scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.radiusX *= Math.abs(sx);
-    this.radiusY *= Math.abs(sy);
+    super.scale(sx, sy);
+    this._radiusX = this.radius * Math.abs(sx);
+    this._radiusY = this.radius * Math.abs(sy);
   }
 
   apply(path: Path2D) {
-    if (this.radiusX === this.radiusY) {
+    if (this._radiusX === this._radiusY) {
       path.arc(
-        this.to.x,
-        this.to.y,
-        this.radiusX,
+        this._to.x,
+        this._to.y,
+        this._radiusX,
         this.startAngle,
         this.endAngle,
         this.counterclockwise
       );
     } else {
       path.ellipse(
-        this.to.x,
-        this.to.y,
-        this.radiusX,
-        this.radiusY,
+        this._to.x,
+        this._to.y,
+        this._radiusX,
+        this._radiusY,
         0,
         this.startAngle,
         this.endAngle,
@@ -66,9 +65,9 @@ export class Arc extends Segment {
 
   sample(quality: number): Vec2[] {
     return Arc.adaptiveSample(
-      this.to,
-      this.radiusX,
-      this.radiusY,
+      this._to,
+      this._radiusX,
+      this._radiusY,
       this.startAngle,
       this.endAngle,
       this.counterclockwise,
@@ -79,9 +78,9 @@ export class Arc extends Segment {
 
   aabb() {
     return Arc.aabb(
-      this.to,
-      this.radiusX,
-      this.radiusY,
+      this._to,
+      this._radiusX,
+      this._radiusY,
       this.startAngle,
       this.endAngle,
       this.counterclockwise,
@@ -115,11 +114,18 @@ export class Arc extends Segment {
     out: Vec2[] = [],
     offset = 0
   ) {
-    const tolerance = 1 / quality;
     const radius = Math.max(radiusX, radiusY);
+
+    if (radius === 0) {
+      if (!out[offset]) out[offset] = new Vec2();
+      out[offset].put(center.x, center.y);
+      return out;
+    }
+
+    const tolerance = 1 / quality;
     const step = 2 * Math.acos(1 - tolerance / radius);
     const sweep = Arc.sweep(startAngle, endAngle, counterclockwise);
-    const divisions = Math.abs(Math.ceil(sweep / step));
+    const divisions = Math.abs(Math.ceil(sweep / step)) || 0;
 
     for (let i = 0; i <= divisions; i++) {
       out[i + offset] = Arc.sample(

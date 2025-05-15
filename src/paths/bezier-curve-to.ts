@@ -15,8 +15,13 @@ export function bezierCurveTo(
 }
 
 export class BezierCurveTo extends ControlledSegment {
-  start: Vec2 | undefined;
-  end: Vec2;
+  cp1x?: number;
+  cp1y?: number;
+  cp2x: number;
+  cp2y: number;
+
+  _start: Vec2 | undefined;
+  _end: Vec2;
 
   constructor(
     cp1x: number,
@@ -29,56 +34,66 @@ export class BezierCurveTo extends ControlledSegment {
     super(x ?? cp2x, y ?? cp2y);
 
     if (x !== undefined && y !== undefined) {
-      this.start = new Vec2(cp1x, cp1y);
-      this.end = new Vec2(cp2x, cp2y);
+      this.cp1x = cp1x;
+      this.cp1y = cp1y;
+      this.cp2x = cp2x;
+      this.cp2y = cp2y;
+      this._start = new Vec2(cp1x, cp1y);
+      this._end = new Vec2(cp2x, cp2y);
     } else {
-      this.end = new Vec2(cp1x, cp1y);
+      this.cp2x = cp1x;
+      this.cp2y = cp1y;
+      this._end = new Vec2(cp1x, cp1y);
     }
   }
 
   getOptionalControlPoint() {
-    return this.start;
+    return this._start;
   }
 
   getSharedControlPoint() {
-    return this.end;
+    return this._end;
   }
 
   scale(sx: number, sy: number) {
-    this.to.scale(sx, sy);
-    this.start?.scale(sx, sy);
-    this.end.scale(sx, sy);
+    super.scale(sx, sy);
+    this._end.put(this.cp2x, this.cp2y).scale(sx, sy);
+    if (this.cp1x === undefined || this.cp1y === undefined) {
+      this._start = undefined;
+    } else {
+      if (this._start === undefined) this._start = new Vec2();
+      this._start.put(this.cp1x, this.cp1y).scale(sx, sy);
+    }
   }
 
   apply(path: Path2D) {
     path.bezierCurveTo(
-      this._control.x,
-      this._control.y,
-      this.end.x,
-      this.end.y,
-      this.to.x,
-      this.to.y
+      this._currentControl.x,
+      this._currentControl.y,
+      this._end.x,
+      this._end.y,
+      this._to.x,
+      this._to.y
     );
   }
 
   sample(quality: number): Vec2[] {
     return BezierCurveTo.adaptiveSample(
-      this.from,
-      this._control,
-      this.end,
-      this.to,
+      this._from,
+      this._currentControl,
+      this._end,
+      this._to,
       quality
     );
   }
 
   aabb() {
-    const p0 = this.from;
-    const p1 = this._control;
-    const p2 = this.end;
-    const p3 = this.to;
+    const p0 = this._from;
+    const p1 = this._currentControl;
+    const p2 = this._end;
+    const p3 = this._to;
 
     const ts = [];
-    const extremum = new Vec2();
 
     this.min.copy(p0).min(p3);
     this.max.copy(p0).max(p3);
@@ -92,6 +107,8 @@ export class BezierCurveTo extends ControlledSegment {
     const by = 2 * (p0.y - 2 * p1.y + p2.y);
     const cy = -p0.y + p1.y;
     ts.push(...solveQuadratic(ay, by, cy));
+
+    const extremum = new Vec2();
 
     for (let i = 0; i < ts.length; i++) {
       if (ts[i] > 0 && ts[i] < 1) {

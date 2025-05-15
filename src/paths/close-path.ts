@@ -23,14 +23,14 @@ export class ClosePath extends Segment {
       if (current instanceof ClosePath) {
         throw new Error("Path is already closed");
       } else if (current instanceof MoveTo) {
-        beginning = current.to;
+        beginning = current._to;
         break;
       }
       current = current.previous;
     }
 
     if (!beginning) throw new Error("Initial moveTo is missing");
-    this.to.copy(beginning);
+    this._to.copy(beginning);
   }
 
   apply(path: Path2D): void {

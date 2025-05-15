@@ -13,33 +13,35 @@ export function roundRect(
 }
 
 class RoundRect extends Rect {
-  radii: [number, number, number, number];
-
   constructor(
     x: number,
     y: number,
     width: number,
     height: number,
-    radius: number | [number, number, number, number]
+    public radius: number | [number, number, number, number]
   ) {
     super(x, y, width, height);
-
-    this.radii =
-      typeof radius === "number" //
-        ? [radius, radius, radius, radius]
-        : radius;
   }
 
   apply(path: Path2D): void {
-    path.roundRect(this.to.x, this.to.y, this.width, this.height, this.radii);
+    path.roundRect(
+      this._to.x,
+      this._to.y,
+      this._width,
+      this._height,
+      this.radius
+    );
   }
 
   sample(quality: number): Vec2[] {
-    const to = this.to;
-    const width = this.width;
-    const height = this.height;
+    const to = this._to;
+    const width = this._width;
+    const height = this._height;
 
-    const [rTL, rTR, rBR, rBL] = this.radii;
+    const [rTL, rTR, rBR, rBL] =
+      typeof this.radius === "number"
+        ? new Array(4).fill(this.radius)
+        : this.radius;
 
     const cTL = new Vec2(to.x + rTL, to.y + rTL);
     const cTR = new Vec2(to.x + width - rTR, to.y + rTR);

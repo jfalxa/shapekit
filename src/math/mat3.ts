@@ -71,6 +71,7 @@ export class Matrix3 extends Float64Array {
     const [a, b, , c, d, , e, f] = this;
 
     const det = a * d - b * c;
+    if (det === 0) return;
     if (det === 0) throw new Error("Matrix is not invertible");
     const invDet = 1 / det;
 

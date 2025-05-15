@@ -6,8 +6,11 @@ export type PathLike = ArrayLike<Segment>;
 
 export class Path extends Array<Segment> {
   path2D!: Path2D;
-  points: Vec2[];
-  obb: BoundingBox;
+  points = new Array<Vec2>();
+  obb = new BoundingBox();
+
+  naturalWidth!: number;
+  naturalHeight!: number;
 
   constructor(segments: PathLike, quality?: number) {
     super(segments.length);
@@ -16,13 +19,16 @@ export class Path extends Array<Segment> {
       this[i] = segments[i];
     }
 
-    this.obb = new BoundingBox();
-    this.points = [];
-
     this.build(quality);
+
+    this.naturalWidth = this.obb.width;
+    this.naturalHeight = this.obb.height;
   }
 
-  scale(sx: number, sy: number) {
+  resize(width: number, height: number) {
+    const sx = this.naturalWidth !== 0 ? width / this.naturalWidth : 1;
+    const sy = this.naturalHeight !== 0 ? height / this.naturalHeight : 1;
+
     for (let i = 0; i < this.length; i++) {
       this[i].scale(sx, sy);
     }
