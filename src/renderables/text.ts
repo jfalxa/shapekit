@@ -1,6 +1,6 @@
 import { Style } from "../styles/style";
 import { fitText, getFont, measureText } from "../utils/text";
-import { Shape, ShapeInit } from "./shape";
+import { Renderable, RenderableInit } from "./renderable";
 
 export interface TextStyle {
   fontFamily?: string;
@@ -20,11 +20,11 @@ export interface TextStyle {
   padding?: number;
 }
 
-export interface TextInit extends ShapeInit, TextStyle {
+export interface TextInit extends RenderableInit, TextStyle {
   text: string;
 }
 
-export class Text extends Shape {
+export class Text extends Renderable {
   text: string;
 
   fontFamily?: string;
@@ -73,13 +73,13 @@ export class Text extends Shape {
     this.format();
   }
 
-  update(rebuild?: boolean, updateParent?: boolean) {
-    super.update(rebuild, updateParent);
-    this.format();
-  }
-
   format() {
     this.font = getFont(this);
     this.lines = fitText(this);
+  }
+
+  update() {
+    super.update();
+    this.format();
   }
 }

@@ -1,93 +1,46 @@
-import { Group } from "./renderables/group";
-import { Renderable } from "./renderables/renderable";
-import { Shape } from "./renderables/shape";
-import { Transformer } from "./utils/transformer";
+export class Perf {
+  logs: { name: string; time: number; duration: number }[] = [];
 
-type Canvas2D = CanvasRenderingContext2D;
-
-export function renderHulls(ctx: Canvas2D, renderables: Renderable[]) {
-  ctx.save();
-  ctx.resetTransform();
-
-  ctx.strokeStyle = "lime";
-  ctx.lineCap = "square";
-  ctx.lineWidth = 3;
-
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "source-over";
-  ctx.filter = "none";
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = "black";
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-
-  for (const shape of flattenRenderables(renderables)) {
-    if (!(shape instanceof Shape)) continue;
-    if (shape.points.length === 0) continue;
-
-    ctx.beginPath();
-    ctx.moveTo(shape.points[0][0], shape.points[0][1]);
-
-    for (let j = 1; j < shape.points.length; j++) {
-      ctx.lineTo(shape.points[j][0], shape.points[j][1]);
-    }
-
-    ctx.stroke();
+  time(name: string) {
+    const time = performance.now();
+    const previous = this.logs[this.logs.length - 1];
+    const duration = previous ? previous.time - time : 0;
+    this.logs.push({ name, time, duration });
+    return duration;
   }
 
-  ctx.restore();
-}
-
-export function renderOBB(
-  ctx: Canvas2D,
-  renderables: (Renderable | Transformer)[],
-  color = "orange"
-) {
-  ctx.save();
-  ctx.resetTransform();
-
-  ctx.fillStyle = color;
-  ctx.strokeStyle = color;
-  ctx.lineCap = "square";
-  ctx.lineWidth = 4;
-
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "source-over";
-  ctx.filter = "none";
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = "black";
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-
-  for (const shape of flattenRenderables(renderables)) {
-    ctx.beginPath();
-
-    ctx.moveTo(shape.obb.a.x, shape.obb.a.y);
-    ctx.lineTo(shape.obb.b.x, shape.obb.b.y);
-    ctx.lineTo(shape.obb.c.x, shape.obb.c.y);
-    ctx.lineTo(shape.obb.d.x, shape.obb.d.y);
-    ctx.closePath();
-
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(shape.obb.center.x, shape.obb.center.y, 5, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(shape.obb.a.x, shape.obb.a.y, 5, 0, 2 * Math.PI);
-    ctx.fill();
+  averageOf(name: string) {
+    const logs = this.logs.filter((log) => log.name === name);
+    if (logs.length === 0) return 0;
+    const total = logs.reduce((total, log) => total + log.duration, 0);
+    return total / logs.length;
   }
-  ctx.restore();
-}
 
-function flattenRenderables(renderables: (Renderable | Transformer)[]) {
-  const flat: (Renderable | Transformer)[] = [];
-  for (const renderable of renderables) {
-    flat.push(renderable);
-    if (renderable instanceof Group) {
-      flat.push(...flattenRenderables(renderable.children));
-    }
+  average() {
+    if (this.logs.length === 0) return 0;
+    const first = this.logs[0];
+    const logs = this.logs.filter((log) => log.name === first.name);
+    if (logs.length <= 1) return 0;
+    const last = logs[logs.length - 1];
+    const total = last.time - first.time;
+    return total / logs.length;
   }
-  return flat;
+
+  log(interval: number) {
+    setInterval(() => {
+      const named: string[] = [];
+      const total = this.average().toFixed(2);
+
+      const names = new Set(this.logs.map((log) => log.name));
+      names.delete(this.logs[0].name);
+
+      for (const name of names) {
+        const average = this.averageOf(name).toFixed(2);
+        named.push(`${name}: ${average}ms`);
+      }
+
+      console.log(`> ${total}ms [${named.join(" | ")}]`);
+    }, interval);
+    console.log(`> Log started`);
+  }
 }

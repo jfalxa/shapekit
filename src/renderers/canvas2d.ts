@@ -5,6 +5,17 @@ import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { getStyle } from "../styles/style";
+import { Path } from "../paths/segment";
+import { ArcTo } from "../paths/arc-to";
+import { BezierCurveTo } from "../paths/bezier-curve-to";
+import { Arc } from "../paths/arc";
+import { ClosePath } from "../paths/close-path";
+import { Ellipse } from "../paths/ellipse";
+import { LineTo } from "../paths/line-to";
+import { MoveTo } from "../paths/move-to";
+import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
+import { Rect } from "../paths/rect";
+import { RoundRect } from "../paths/round-rect";
 
 interface Canvas2DInit {
   width: number;
@@ -12,14 +23,17 @@ interface Canvas2DInit {
   fill?: string;
 }
 
-export class Canvas2D extends Group {
+export class Canvas2D {
+  scene: Group;
   element: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
   fill: string;
 
-  constructor(init: Canvas2DInit) {
-    super({});
+  #path2Ds = new WeakMap<Shape, Path2D>();
+
+  constructor(scene: Group, init: Canvas2DInit) {
+    this.scene = scene;
     this.element = document.createElement("canvas");
     this.element.width = init.width;
     this.element.height = init.height;
@@ -31,18 +45,18 @@ export class Canvas2D extends Group {
     this.fill = init.fill ?? "#ffffff";
   }
 
-  render() {
+  update() {
+    this.#update();
+
     this.ctx.resetTransform();
 
     this.set("fillStyle", this.fill);
     this.ctx.fillRect(0, 0, this.element.width, this.element.height);
 
-    for (let i = 0; i < this.children.length; i++) {
-      this.renderOne(this.children[i]);
-    }
+    this.render(this.scene);
   }
 
-  renderOne(renderable: Renderable) {
+  render(renderable: Renderable) {
     if (renderable instanceof Shape) {
       this.ctx.setTransform(
         renderable.transform[0],
@@ -66,9 +80,10 @@ export class Canvas2D extends Group {
 
     if (renderable instanceof Shape) {
       this.applyEffects(renderable);
+      const path2D = this.#path2Ds.get(renderable)!;
 
-      if (renderable.fill) this.renderFill(renderable);
-      if (renderable.stroke) this.renderStroke(renderable);
+      if (renderable.fill) this.renderFill(renderable, path2D);
+      if (renderable.stroke) this.renderStroke(renderable, path2D);
       if (renderable instanceof Image) this.renderImage(renderable);
       if (renderable instanceof Text) this.renderText(renderable);
     }
@@ -77,23 +92,23 @@ export class Canvas2D extends Group {
   }
 
   renderClip(clip: Clip) {
-    this.ctx.clip(clip.path.path2D, clip.fillRule);
+    this.ctx.clip(this.#path2Ds.get(clip)!, clip.fillRule);
   }
 
   renderGroup(group: Group) {
     this.set("globalCompositeOperation", group.globalCompositeOperation);
 
     for (let i = 0; i < group.children.length; i++) {
-      this.renderOne(group.children[i]);
+      this.render(group.children[i]);
     }
   }
 
-  renderFill(shape: Shape) {
+  renderFill(shape: Shape, path2D: Path2D) {
     this.set("fillStyle", getStyle(this.ctx, shape.fill));
-    this.ctx.fill(shape.path.path2D);
+    this.ctx.fill(path2D);
   }
 
-  renderStroke(shape: Shape) {
+  renderStroke(shape: Shape, path2D: Path2D) {
     this.set("lineWidth", shape.lineWidth);
     this.set("lineCap", shape.lineCap);
     this.set("lineJoin", shape.lineJoin);
@@ -101,7 +116,7 @@ export class Canvas2D extends Group {
     this.set("strokeStyle", getStyle(this.ctx, shape.stroke));
     this.set("lineDashOffset", shape.lineDashOffset);
     if (shape.lineDash) this.ctx.setLineDash(shape.lineDash);
-    this.ctx.stroke(shape.path.path2D);
+    this.ctx.stroke(path2D);
   }
 
   renderImage(image: Image) {
@@ -115,8 +130,6 @@ export class Canvas2D extends Group {
     this.set("fillStyle", getStyle(this.ctx, text.textFill));
     this.set("strokeStyle", getStyle(this.ctx, text.textStroke));
     this.set("lineWidth", text.textLineWidth);
-    this.set("lineDashOffset", text.lineDashOffset);
-    if (text.lineDash) this.ctx.setLineDash(text.lineDash);
 
     for (let i = 0; i < text.lines.length; i++) {
       const [line, x, y] = text.lines[i];
@@ -142,4 +155,46 @@ export class Canvas2D extends Group {
       this.ctx[property] = value;
     }
   }
+
+  #update() {
+    this.scene.walk((r) => {
+      if (r instanceof Shape && !this.#path2Ds.has(r)) {
+        const path2D = buildPath2D(r.path);
+        this.#path2Ds.set(r, path2D);
+      }
+
+      if (r.dirty) r.dirty = false;
+    });
+  }
+}
+
+function buildPath2D(path: Path) {
+  const path2D = new Path2D();
+
+  for (let i = 0; i < path.length; i++) {
+    const s = path[i];
+    if (s instanceof ArcTo) {
+      path2D.arcTo(s.x1, s.y1, s.x2, s.y2, s.radius);
+    } else if (s instanceof Arc) {
+      path2D.arc(s.x, s.y, s.radius, s.startAngle, s.endAngle, s.counterclockwise); // prettier-ignore
+    } else if (s instanceof BezierCurveTo) {
+      path2D.bezierCurveTo(s.cp1x, s.cp1y, s.cp2x, s.cp2y, s.x, s.y);
+    } else if (s instanceof ClosePath) {
+      path2D.closePath();
+    } else if (s instanceof Ellipse) {
+      path2D.ellipse(s.x, s.y, s.radiusX, s.radiusY, s.rotation, s.startAngle, s.endAngle, s.counterclockwise); // prettier-ignore
+    } else if (s instanceof LineTo) {
+      path2D.lineTo(s.x, s.y);
+    } else if (s instanceof MoveTo) {
+      path2D.moveTo(s.x, s.y);
+    } else if (s instanceof QuadraticCurveTo) {
+      path2D.quadraticCurveTo(s.cpx, s.cpy, s.x, s.y);
+    } else if (s instanceof Rect) {
+      path2D.rect(s.x, s.y, s.width, s.height);
+    } else if (s instanceof RoundRect) {
+      path2D.roundRect(s.x, s.y, s.width, s.height, s.radius);
+    }
+  }
+
+  return path2D;
 }

@@ -1,9 +1,6 @@
-import { Point, Vec2 } from "../math/vec2";
 import { rect } from "../paths/rect";
-import { isPointInPolyline, doPolylinesOverlap } from "../utils/polyline";
-import { isPointInPolygon, doPolygonsOverlap } from "../utils/polygon";
 import { Renderable, RenderableInit } from "./renderable";
-import { Path, PathLike } from "../paths/path";
+import { Path } from "../paths/segment";
 import { Style } from "../styles/style";
 
 export interface ShapeStyle {
@@ -24,13 +21,11 @@ export interface ShapeStyle {
 }
 
 export interface ShapeInit extends RenderableInit, ShapeStyle {
-  path?: PathLike;
-  quality?: number;
+  path?: Path;
 }
 
 export class Shape extends Renderable {
   path: Path;
-  quality: number;
 
   fill?: Style;
   stroke?: Style;
@@ -47,8 +42,6 @@ export class Shape extends Renderable {
   filter?: string;
   lineDash?: number[];
 
-  points: Vec2[];
-
   constructor(init: ShapeInit) {
     // by default, create a rect of width x height
     if (!init.path && init.width !== undefined && init.height !== undefined) {
@@ -57,13 +50,7 @@ export class Shape extends Renderable {
 
     super(init);
 
-    this.path = new Path(init.path ?? [], init.quality);
-
-    this.x = init.x ?? 0;
-    this.y = init.y ?? 0;
-    this.scaleX = init.scaleX ?? 1;
-    this.scaleY = init.scaleY ?? 1;
-    this.rotation = init.rotation ?? 0;
+    this.path = init.path ?? [];
 
     this.fill = init.fill;
     this.stroke = init.stroke;
@@ -79,63 +66,5 @@ export class Shape extends Renderable {
     this.globalAlpha = init.globalAlpha;
     this.filter = init.filter;
     this.lineDash = init.lineDash;
-    this.quality = init.quality ?? 1;
-
-    this.points = new Array(this.path.points.length);
-
-    this.width = this.path.obb.width;
-    this.height = this.path.obb.height;
-
-    this.update(false, false);
-  }
-
-  contains(shape: Point | Shape) {
-    if (!this.obb.contains(shape)) return false;
-
-    if (!(shape instanceof Shape)) {
-      if (this.fill && isPointInPolygon(shape, this)) return true;
-      if (this.stroke && isPointInPolyline(shape, this)) return true;
-      return false;
-    }
-
-    for (let i = 0; i < shape.points.length; i++) {
-      if (!this.contains(shape.points[i])) return false;
-    }
-
-    return true;
-  }
-
-  overlaps(shape: Shape) {
-    if (!this.obb.overlaps(shape)) return false;
-    if (this.fill && shape.fill && doPolygonsOverlap(shape, this)) return true;
-    if (doPolylinesOverlap(shape, this)) return true;
-    return shape.contains(this) || this.contains(shape);
-  }
-
-  build() {
-    this.path.resize(this.width, this.height);
-    this.path.build(this.quality);
-
-    this.points.length = this.path.points.length;
-    this.naturalWidth = this.path.naturalWidth;
-    this.naturalHeight = this.path.naturalHeight;
-    this.width = this.path.obb.width;
-    this.height = this.path.obb.height;
-  }
-
-  update(rebuild?: boolean, updateParent = true) {
-    super.update(rebuild);
-
-    this.obb.copy(this.path.obb).transform(this.transform);
-
-    for (let i = 0; i < this.points.length; i++) {
-      this.points[i] = (this.points[i] ?? new Vec2())
-        .copy(this.path.points[i])
-        .transform(this.transform);
-    }
-
-    if (updateParent) {
-      this.parent?.update(false, true, false);
-    }
   }
 }

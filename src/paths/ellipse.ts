@@ -1,4 +1,3 @@
-import { Point, Vec2 } from "../math/vec2";
 import { Segment } from "./segment";
 
 export function ellipse(
@@ -24,12 +23,9 @@ export function ellipse(
 }
 
 export class Ellipse extends Segment {
-  public _radiusX: number;
-  public _radiusY: number;
-
   constructor(
-    public x: number,
-    public y: number,
+    x: number,
+    y: number,
     public radiusX: number,
     public radiusY: number,
     public rotation: number = 0,
@@ -38,101 +34,5 @@ export class Ellipse extends Segment {
     public counterclockwise?: boolean
   ) {
     super(x, y);
-    this._radiusX = radiusX;
-    this._radiusY = radiusY;
-  }
-
-  scale(sx: number, sy: number) {
-    super.scale(sx, sy);
-    this._radiusX = this.radiusX * Math.abs(sx);
-    this._radiusY = this.radiusY * Math.abs(sy);
-  }
-
-  apply(path: Path2D) {
-    path.ellipse(
-      this._to.x,
-      this._to.y,
-      this._radiusX,
-      this._radiusY,
-      this.rotation,
-      this.startAngle,
-      this.endAngle,
-      this.counterclockwise
-    );
-  }
-
-  sample(quality: number): Vec2[] {
-    return Ellipse.adaptiveSample(
-      this._to,
-      this._radiusX,
-      this._radiusY,
-      this.rotation,
-      this.startAngle,
-      this.endAngle,
-      quality,
-      this.points
-    );
-  }
-
-  static sample(
-    center: Point,
-    rx: number,
-    ry: number,
-    rotation: number,
-    startAngle: number,
-    endAngle: number,
-    t: number,
-    out = new Vec2()
-  ) {
-    let span = endAngle - startAngle;
-    if (span < 0) span += 2 * Math.PI;
-    const angle = startAngle + span * t;
-
-    const x = rx * Math.cos(angle);
-    const y = ry * Math.sin(angle);
-
-    out.x = center.x + x * Math.cos(rotation) - y * Math.sin(rotation);
-    out.y = center.y + x * Math.sin(rotation) + y * Math.cos(rotation);
-
-    return out;
-  }
-
-  /**
-   * Adaptive sampling along rotated ellipse arc.
-   */
-  static adaptiveSample(
-    center: Point,
-    radiusX: number,
-    radiusY: number,
-    rotation: number,
-    startAngle: number,
-    endAngle: number,
-    quality: number,
-    out: Vec2[] = [],
-    offset = 0
-  ) {
-    const tolerance = 1 / quality;
-    const radius = Math.max(radiusX, radiusY);
-    const step = 2 * Math.acos(1 - tolerance / radius);
-    const span = Math.abs(endAngle - startAngle);
-    const divisions = Math.ceil(span / step);
-
-    for (let i = 0; i <= divisions; i++) {
-      const io = offset + i;
-      const t = i / divisions;
-      out[io] = Ellipse.sample(
-        center,
-        radiusX,
-        radiusY,
-        rotation,
-        startAngle,
-        endAngle,
-        t,
-        out[io]
-      );
-    }
-
-    out.length = offset + divisions + 1;
-    return out;
   }
 }

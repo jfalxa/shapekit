@@ -1,5 +1,9 @@
 import { Transform } from "../renderables/renderable";
-import { set } from "./num";
+
+export interface Point {
+  x: number;
+  y: number;
+}
 
 export class Matrix3 extends Float64Array {
   // prettier-ignore
@@ -23,70 +27,14 @@ export class Matrix3 extends Float64Array {
     return this;
   }
 
-  translate(tx: number, ty: number) {
-    // prettier-ignore
-    return this.multiply(
-      1, 0, 0, 
-      0, 1, 0, 
-      tx, ty, 1
-    );
+  point(point: Point) {
+    const { x, y } = point;
+    point.x = x * this[0] + y * this[3] + this[6];
+    point.y = x * this[1] + y * this[4] + this[7];
+    return point;
   }
 
-  rotate(angle: number) {
-    const c = Math.cos(angle);
-    const s = Math.sin(angle);
-    // prettier-ignore
-    return this.multiply(
-      c, s, 0,
-      -s, c, 0, 
-      0, 0, 1
-    );
-  }
-
-  scale(sx: number, sy: number) {
-    // prettier-ignore
-    return this.multiply(
-      sx, 0, 0, 
-      0, sy, 0, 
-      0, 0, 1
-    );
-  }
-
-  skew(ax: number, ay: number) {
-    const tanx = Math.tan(ax);
-    const tany = Math.tan(ay);
-    // prettier-ignore
-    return this.multiply(
-      1, tany, 0, 
-      tanx, 1, 0, 
-      0, 0, 1
-    );
-  }
-
-  transform(m: Matrix3) {
-    return this.multiply(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
-  }
-
-  invert() {
-    const [a, b, , c, d, , e, f] = this;
-
-    const det = a * d - b * c;
-    if (det === 0) return;
-    if (det === 0) throw new Error("Matrix is not invertible");
-    const invDet = 1 / det;
-
-    this[0] = d * invDet;
-    this[1] = -b * invDet;
-    this[3] = -c * invDet;
-    this[4] = a * invDet;
-
-    this[6] = -(e * this[0] + f * this[3]);
-    this[7] = -(e * this[1] + f * this[4]);
-
-    return this;
-  }
-
-  compose(renderable: Partial<Transform>) {
+  compose(transform: Partial<Transform>) {
     const {
       x = 0,
       y = 0,
@@ -95,7 +43,7 @@ export class Matrix3 extends Float64Array {
       skewX = 0,
       skewY = 0,
       rotation = 0,
-    } = renderable;
+    } = transform;
 
     const cos = Math.cos(rotation);
     const sin = Math.sin(rotation);
@@ -120,43 +68,8 @@ export class Matrix3 extends Float64Array {
     );
   }
 
-  decompose(out = {} as Transform, updateDimensions = false) {
-    const [a, b, , c, d, , e, f] = this;
-
-    let r = Math.atan2(b, a);
-    let sx = Math.hypot(a, b);
-    const shear = sx !== 0 ? (a * c + b * d) / (sx * sx) : 0;
-    let sy = Math.hypot(c - shear * a, d - shear * b);
-    let skx = sx * sy !== 0 ? Math.atan((a * c + b * d) / (sx * sy)) : 0;
-
-    // adjust for negative scaling
-    if (a * d - b * c < 0) {
-      sx = -sx;
-      skx = -skx;
-      r -= Math.PI;
-    }
-
-    set(out, "x", e);
-    set(out, "y", f);
-    set(out, "rotation", r);
-    set(out, "skewX", skx);
-    set(out, "skewY", 0);
-
-    if (updateDimensions) {
-      const scaleX = out.scaleX ?? 1;
-      const scaleY = out.scaleY ?? 1;
-      const width = (out.width ?? 0) * (sx / scaleX);
-      const height = (out.height ?? 0) * (sy / scaleY);
-      set(out, "width", width);
-      set(out, "height", height);
-      set(out, "scaleX", scaleX * Math.sign(sx));
-      set(out, "scaleY", scaleY * Math.sign(sy));
-    } else {
-      set(out, "scaleX", sx);
-      set(out, "scaleY", sy);
-    }
-
-    return out;
+  transform(m: Matrix3) {
+    return this.multiply(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
   }
 
   multiply(
@@ -172,17 +85,17 @@ export class Matrix3 extends Float64Array {
   ) {
     const [_a, _b, _c, _d, _e, _f, _g, _h, _i] = this;
 
-    set(this, 0, _a * a + _b * d + _c * g);
-    set(this, 1, _a * b + _b * e + _c * h);
-    set(this, 2, _a * c + _b * f + _c * i);
+    this[0] = _a * a + _b * d + _c * g;
+    this[1] = _a * b + _b * e + _c * h;
+    this[2] = _a * c + _b * f + _c * i;
 
-    set(this, 3, _d * a + _e * d + _f * g);
-    set(this, 4, _d * b + _e * e + _f * h);
-    set(this, 5, _d * c + _e * f + _f * i);
+    this[3] = _d * a + _e * d + _f * g;
+    this[4] = _d * b + _e * e + _f * h;
+    this[5] = _d * c + _e * f + _f * i;
 
-    set(this, 6, _g * a + _h * d + _i * g);
-    set(this, 7, _g * b + _h * e + _i * h);
-    set(this, 8, _g * c + _h * f + _i * i);
+    this[6] = _g * a + _h * d + _i * g;
+    this[7] = _g * b + _h * e + _i * h;
+    this[8] = _g * c + _h * f + _i * i;
 
     return this;
   }

@@ -6,7 +6,6 @@ import { Shape } from "./renderables/shape";
 import { Text } from "./renderables/text";
 import { Image } from "./renderables/image";
 import { Group } from "./renderables/group";
-import { renderHulls, renderOBB } from "./debug";
 import { Matrix3 } from "./math/mat3";
 import { Vec2 } from "./math/vec2";
 import { linearGradient } from "./styles/linear-gradient";
@@ -19,14 +18,15 @@ import { arc } from "./paths/arc";
 import { ellipse } from "./paths/ellipse";
 import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
-import { Transformer } from "./utils/transformer";
 
 import treeSrc from "./tree.png";
 import { rect } from "./paths/rect";
 import { Clip } from "./renderables/clip";
+import { Perf } from "./debug";
 
 class App extends Loop {
-  canvas = new Canvas2D({ width: 800, height: 600 });
+  scene = new Group();
+  canvas = new Canvas2D(this.scene, { width: 800, height: 600 });
 
   rect1 = new Shape({
     x: 400,
@@ -69,7 +69,7 @@ class App extends Loop {
     path: [
       moveTo(10, 80),
       bezierCurveTo(40, 10, 65, 10, 95, 80),
-      bezierCurveTo(150, 150, 180, 80),
+      bezierCurveTo(10, 95, 150, 150, 180, 80),
     ],
   });
 
@@ -82,8 +82,8 @@ class App extends Loop {
     path: [
       moveTo(10, 80),
       quadraticCurveTo(52.5, 10, 95, 80),
-      quadraticCurveTo(180, 80),
-      quadraticCurveTo(265, 80),
+      quadraticCurveTo(180, 80, 95, 80),
+      quadraticCurveTo(265, 80, 95, 80),
     ],
   });
 
@@ -95,7 +95,7 @@ class App extends Loop {
     path: [
       moveTo(10, 80),
       bezierCurveTo(40, 10, 65, 10, 95, 80),
-      bezierCurveTo(150, 150, 180, 80),
+      bezierCurveTo(150, 150, 180, 80, 95, 80),
     ],
   });
 
@@ -103,16 +103,8 @@ class App extends Loop {
     text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     x: 400,
     y: 300,
-    stroke: "blue",
-    fill: "yellow",
-    lineWidth: 6,
-    textFill: "black",
-    padding: 12,
-    textAlign: "center",
-    textVerticalAlign: "bottom",
-    fontWeight: "bold",
-    fontStyle: "italic",
-    path: [roundRect(0, 0, 200, 100, 25)],
+    width: 200,
+    height: 100,
   });
 
   lemon = new Shape({
@@ -199,7 +191,6 @@ class App extends Loop {
         text: "Skewed",
         width: 100,
         height: 100,
-        fill: "#ff0000",
         textFill: "#000000",
         fontSize: 18,
         padding: 8,
@@ -249,14 +240,13 @@ class App extends Loop {
             id: "PATH",
             x: -100,
             y: 100,
-
             stroke: "blue",
             lineWidth: 50,
             lineCap: "round",
             path: [
               moveTo(10, 80),
               bezierCurveTo(40, 10, 65, 10, 95, 80),
-              bezierCurveTo(150, 150, 180, 80),
+              bezierCurveTo(150, 150, 180, 80, 95, 80),
             ],
           }),
 
@@ -265,8 +255,6 @@ class App extends Loop {
             y: 75,
             width: 200,
             height: 50,
-            stroke: "black",
-            lineWidth: 5,
             text: "A centered title",
             textFill: "blue",
             textAlign: "center",
@@ -307,8 +295,8 @@ class App extends Loop {
             path: [
               moveTo(10, 80),
               quadraticCurveTo(52.5, 10, 95, 80),
-              quadraticCurveTo(180, 80),
-              quadraticCurveTo(265, 80),
+              quadraticCurveTo(180, 80, 95, 80),
+              quadraticCurveTo(265, 80, 95, 80),
             ],
           }),
         ],
@@ -356,7 +344,11 @@ class App extends Loop {
 
   transformer!: Transformer;
 
+  perf = new Perf();
+
   async mount() {
+    this.perf.log(1500);
+
     document.body.append(this.canvas.element);
 
     (this.group.children[0] as Group).children.push(
@@ -379,68 +371,63 @@ class App extends Loop {
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
-    for (let i = 0; i < 0; i++) {
-      this.canvas.add(
-        new Shape({
-          fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
-          // new Image({
-          // image: treeImage,
-          x: rand(0, 800),
-          y: rand(0, 600),
-          width: rand(10, 20),
-          height: rand(10, 20),
-          // path: [
-          //   moveTo(0, 0),
-          //   arc(0, 0, rand(10, 20), 0, rad(315)),
-          //   closePath(),
-          // ],
+    for (let i = 0; i < 16000; i++) {
+      // for (let i = 0; i < 0; i++) {
+      this.scene.add(
+        new Group({
+          children: [
+            new Shape({
+              fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
+              // new Image({
+              // image: treeImage,
+              x: rand(0, 800),
+              y: rand(0, 600),
+              width: rand(10, 20),
+              height: rand(10, 20),
+              // path: [
+              //   moveTo(0, 0),
+              //   arc(0, 0, rand(10, 20), 0, rad(315)),
+              //   closePath(),
+              // ],
+            }),
+          ],
         })
       );
     }
 
-    // this.canvas.add(this.polyline);
-    // this.canvas.add(this.rect1);
-    // this.canvas.add(this.rect2);
-    // this.canvas.add(this.rect3);
-    // this.canvas.add(this.path);
-    // this.canvas.add(this.path2);
-    // this.canvas.add(this.path3);
-    // this.canvas.add(this.roundRect);
-    // this.canvas.add(this.roundTriangle);
-    // this.canvas.add(this.lemon);
-    this.canvas.add(this.group);
-    // this.canvas.add(this.group2);
-    // this.canvas.add(this.skewed);
-    // this.canvas.add(this.circle);
-    // this.canvas.add(this.arc);
-    // this.canvas.add(this.ellipse);
-
-    const box = this.canvas.element.getBoundingClientRect();
-
-    this.canvas.element.addEventListener("click", (e) => {
-      const x = e.pageX - box.x;
-      const y = e.pageY - box.y;
-
-      const renderable = this.canvas.getChildAt({ x, y });
-
-      console.log({ x, y });
-      console.log("clicked", renderable);
-    });
+    // this.scene.add(this.polyline);
+    // this.scene.add(this.rect1);
+    // this.scene.add(this.rect2);
+    // this.scene.add(this.rect3);
+    // this.scene.add(this.path);
+    // this.scene.add(this.path2);
+    // this.scene.add(this.path3);
+    // this.scene.add(this.roundRect);
+    // this.scene.add(this.roundTriangle);
+    // this.scene.add(this.lemon);
+    // this.scene.add(this.group);
+    // this.scene.add(this.group2);
+    // this.scene.add(this.skewed);
+    // this.scene.add(this.circle);
+    // this.scene.add(this.arc);
+    // this.scene.add(this.ellipse);
   }
 
   s = 1;
 
   tick() {
-    let start: number, mid: number, end: number;
-    start = performance.now();
+    this.perf.time("start");
 
-    for (const shape of this.canvas.children) {
-      // shape.rotation += 0.001 * this.deltaTime;
+    for (const shape of this.scene.children) {
+      shape.rotation += 0.001 * this.deltaTime;
+      // shape.id = 1000;
     }
 
-    // this.canvas.update(true);
+    this.perf.time("rotate");
 
-    mid = performance.now();
+    this.scene.update();
+
+    this.perf.time("update");
 
     // if (this.rect1.overlaps(this.rect2)) {
     //   this.rect1.fill = "lime";
@@ -456,7 +443,10 @@ class App extends Loop {
     //   this.path.stroke = "blue";
     // }
 
-    this.canvas.render();
+    this.canvas.update();
+
+    this.perf.time("render");
+
     // renderOBB(this.canvas.ctx, this.canvas.children);
     // renderHulls(this.canvas.ctx, this.canvas.children);
 
@@ -468,16 +458,6 @@ class App extends Loop {
       // this.ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
       // this.ctx.fill();
     }
-
-    end = performance.now();
-
-    const total = (end - start).toFixed(2);
-    const update = (mid - start).toFixed(2);
-    const rendered = (end - mid).toFixed(2);
-
-    const message = `total = ${total}ms, update = ${update}ms, render = ${rendered}ms`;
-
-    // console.log(message);
   }
 }
 
@@ -515,5 +495,3 @@ window.app = new App();
 window.Matrix3 = Matrix3;
 // @ts-ignore
 window.Vec2 = Vec2;
-// @ts-ignore
-window.Transformer = Transformer;

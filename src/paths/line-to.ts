@@ -4,8 +4,4 @@ export function lineTo(x: number, y: number) {
   return new LineTo(x, y);
 }
 
-export class LineTo extends Segment {
-  apply(path: Path2D): void {
-    path.lineTo(this._to.x, this._to.y);
-  }
-}
+export class LineTo extends Segment {}

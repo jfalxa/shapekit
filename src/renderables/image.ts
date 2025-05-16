@@ -1,10 +1,11 @@
-import { Shape, ShapeInit } from "./shape";
+import { Renderable } from "./renderable";
+import { ShapeInit } from "./shape";
 
 export interface ImageInit extends ShapeInit {
   image: CanvasImageSource;
 }
 
-export class Image extends Shape {
+export class Image extends Renderable {
   image: CanvasImageSource;
 
   constructor(init: ImageInit) {

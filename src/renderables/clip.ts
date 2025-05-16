@@ -1,11 +1,10 @@
-import { PathLike } from "../paths/path";
+import { Path } from "../paths/segment";
 import { RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
 export interface ClipInit extends RenderableInit {
   fillRule?: CanvasFillRule;
-  path?: PathLike;
-  quality?: number;
+  path?: Path;
 }
 
 export class Clip extends Shape {
@@ -13,7 +12,6 @@ export class Clip extends Shape {
 
   constructor(init: ClipInit) {
     super(init);
-    this.fill = "transparent";
     this.fillRule = init.fillRule;
   }
 }
