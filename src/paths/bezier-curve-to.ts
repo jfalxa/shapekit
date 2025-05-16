@@ -23,3 +23,5 @@ export class BezierCurveTo extends Segment {
     super(x, y);
   }
 }
+
+BezierCurveTo.track("cp1x", "cp1y", "cp2x", "cp2y");

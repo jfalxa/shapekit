@@ -21,3 +21,5 @@ export class ArcTo extends Segment {
     super(x2, y2);
   }
 }
+
+ArcTo.track("cpx", "cpy");

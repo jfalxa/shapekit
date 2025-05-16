@@ -14,3 +14,5 @@ export class QuadraticCurveTo extends Segment {
     super(x, y);
   }
 }
+
+QuadraticCurveTo.track("cpx", "cpy");

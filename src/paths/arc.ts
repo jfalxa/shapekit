@@ -25,3 +25,5 @@ export class Arc extends Segment {
     super(x, y);
   }
 }
+
+Arc.track("x", "y", "radius", "startAngle", "endAngle", "counterclockwise");

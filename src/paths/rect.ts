@@ -14,3 +14,5 @@ export class Rect extends Segment {
     super(x, y);
   }
 }
+
+Rect.track("width", "height");

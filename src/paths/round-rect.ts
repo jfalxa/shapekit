@@ -21,3 +21,5 @@ export class RoundRect extends Rect {
     super(x, y, width, height);
   }
 }
+
+RoundRect.track("radius");

@@ -36,3 +36,14 @@ export class Ellipse extends Segment {
     super(x, y);
   }
 }
+
+Ellipse.track(
+  "x",
+  "y",
+  "radiusX",
+  "radiusY",
+  "rotation",
+  "startAngle",
+  "endAngle",
+  "counterclockwise"
+);
