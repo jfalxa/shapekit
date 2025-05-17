@@ -45,8 +45,8 @@ export class Perf {
   }
 }
 
-export function rand(min: number = 0, max: number = 1) {
-  return min + Math.random() * (max - min);
+export function rand(min: number = 0, max: number = 1, seed: number) {
+  return min + random(seed) * (max - min);
 }
 
 export function rgbToHex(r: number, g: number, b: number) {
@@ -56,6 +56,28 @@ export function rgbToHex(r: number, g: number, b: number) {
     Math.floor(g).toString(16).padStart(2, "0") +
     Math.floor(b).toString(16).padStart(2, "0")
   );
+}
+
+function random(seed: number): number {
+  seed ^= seed >>> 16;
+  seed *= 0x85ebca6b;
+  seed ^= seed >>> 13;
+  seed *= 0xc2b2ae35;
+  seed ^= seed >>> 16;
+  seed = seed >>> 0;
+  const a = 1664525;
+  const c = 1013904223;
+  const m = 2 ** 32;
+  seed = (a * seed + c) % m;
+  return seed / m;
+}
+
+export function getColor(seed: number): string {
+  const r = Math.floor(random(seed) * 256);
+  const g = Math.floor(random(seed + 10) * 256);
+  const b = Math.floor(random(seed + 100) * 256);
+
+  return rgbToHex(r, g, b);
 }
 
 export function deg(rad: number) {

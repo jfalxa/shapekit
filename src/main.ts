@@ -20,12 +20,13 @@ import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
 import { rect } from "./paths/rect";
 import { Clip } from "./renderables/clip";
-import { Perf, rad, rand, rgbToHex } from "./debug";
+import { getColor, Perf, rad, rand, rgbToHex } from "./debug";
 
 import treeSrc from "./tree.png";
 
 class App extends Loop {
   scene = new Group();
+
   canvas = new Canvas2D(this.scene, { width: 800, height: 600 });
 
   rect1 = new Shape({
@@ -353,8 +354,6 @@ class App extends Loop {
       })
     );
 
-    this.group.update();
-
     // this.transformer = new Transformer(this.group.children[0].children);
     // this.transformer = new Transformer([this.roundRect, this.roundTriangle]);
     // this.transformer = new Transformer([this.roundRect]);
@@ -370,12 +369,12 @@ class App extends Loop {
         // new Group({
         //   children: [
         new Shape({
-          fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
+          fill: getColor(i),
           // new Image({
           // image: treeImage,
-          x: rand(0, 800),
-          y: rand(0, 600),
-          path: [rect(0, 0, rand(10, 20), rand(10, 20))],
+          x: rand(0, 800, i),
+          y: rand(0, 600, i * 2),
+          path: [rect(0, 0, rand(10, 20, i), rand(10, 20, i * i))],
           // path: [
           //   moveTo(0, 0),
           //   arc(0, 0, rand(10, 20), 0, rad(315)),
@@ -413,14 +412,9 @@ class App extends Loop {
 
     for (const shape of this.scene.children) {
       shape.rotation += 0.001 * this.deltaTime;
-      // shape.id = 1000;
     }
 
     this.perf.time("rotate");
-
-    this.scene.update();
-
-    this.perf.time("update");
 
     // if (this.rect1.overlaps(this.rect2)) {
     //   this.rect1.fill = "lime";
@@ -436,6 +430,8 @@ class App extends Loop {
     //   this.path.stroke = "blue";
     // }
 
+    this.perf.time("update");
+
     this.canvas.update();
 
     this.perf.time("render");
@@ -443,14 +439,14 @@ class App extends Loop {
     // renderOBB(this.canvas.ctx, this.canvas.children);
     // renderHulls(this.canvas.ctx, this.canvas.children);
 
-    if (this.transformer) {
-      // renderOBB(this.canvas.ctx, [this.transformer], "lime");
-      // const a = this.transformer.obb.a.clone().transform(this.transformer._invTransform); // prettier-ignore
-      // this.ctx.fillStyle = "hotpink";
-      // this.ctx.beginPath();
-      // this.ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
-      // this.ctx.fill();
-    }
+    // if (this.transformer) {
+    // renderOBB(this.canvas.ctx, [this.transformer], "lime");
+    // const a = this.transformer.obb.a.clone().transform(this.transformer._invTransform); // prettier-ignore
+    // this.ctx.fillStyle = "hotpink";
+    // this.ctx.beginPath();
+    // this.ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
+    // this.ctx.fill();
+    // }
   }
 }
 
