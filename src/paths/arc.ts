@@ -1,4 +1,4 @@
-import { Segment } from "./segment";
+import { Segment, trackSegment } from "./segment";
 
 export function arc(
   x: number,
@@ -26,4 +26,11 @@ export class Arc extends Segment {
   }
 }
 
-Arc.track("x", "y", "radius", "startAngle", "endAngle", "counterclockwise");
+trackSegment(Arc, [
+  "x",
+  "y",
+  "radius",
+  "startAngle",
+  "endAngle",
+  "counterclockwise",
+]);

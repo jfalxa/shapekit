@@ -1,4 +1,4 @@
-import { Segment } from "./segment";
+import { Segment, trackSegment } from "./segment";
 
 export function quadraticCurveTo(
   cpx: number,
@@ -15,4 +15,4 @@ export class QuadraticCurveTo extends Segment {
   }
 }
 
-QuadraticCurveTo.track("cpx", "cpy");
+trackSegment(QuadraticCurveTo, ["cpx", "cpy"]);

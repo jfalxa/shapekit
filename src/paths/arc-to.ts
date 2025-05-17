@@ -1,4 +1,4 @@
-import { Segment } from "./segment";
+import { Segment, trackSegment } from "./segment";
 
 export function arcTo(
   x1: number,
@@ -22,4 +22,4 @@ export class ArcTo extends Segment {
   }
 }
 
-ArcTo.track("cpx", "cpy");
+trackSegment(ArcTo, ["cpx", "cpy"]);

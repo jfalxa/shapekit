@@ -1,4 +1,5 @@
 import { Rect } from "./rect";
+import { trackSegment } from "./segment";
 
 export function roundRect(
   x: number,
@@ -22,4 +23,4 @@ export class RoundRect extends Rect {
   }
 }
 
-RoundRect.track("radius");
+trackSegment(RoundRect, ["radius"]);

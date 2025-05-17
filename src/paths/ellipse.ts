@@ -1,4 +1,4 @@
-import { Segment } from "./segment";
+import { Segment, trackSegment } from "./segment";
 
 export function ellipse(
   x: number,
@@ -37,7 +37,7 @@ export class Ellipse extends Segment {
   }
 }
 
-Ellipse.track(
+trackSegment(Ellipse, [
   "x",
   "y",
   "radiusX",
@@ -45,5 +45,5 @@ Ellipse.track(
   "rotation",
   "startAngle",
   "endAngle",
-  "counterclockwise"
-);
+  "counterclockwise",
+]);

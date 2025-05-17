@@ -1,4 +1,4 @@
-import { Segment } from "./segment";
+import { Segment, trackSegment } from "./segment";
 
 export function bezierCurveTo(
   cp1x: number,
@@ -24,4 +24,4 @@ export class BezierCurveTo extends Segment {
   }
 }
 
-BezierCurveTo.track("cp1x", "cp1y", "cp2x", "cp2y");
+trackSegment(BezierCurveTo, ["cp1x", "cp1y", "cp2x", "cp2y"]);

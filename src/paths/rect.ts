@@ -1,4 +1,4 @@
-import { Segment } from "./segment";
+import { Segment, trackSegment } from "./segment";
 
 export function rect(x: number, y: number, width: number, height: number) {
   return new Rect(x, y, width, height);
@@ -15,4 +15,4 @@ export class Rect extends Segment {
   }
 }
 
-Rect.track("width", "height");
+trackSegment(Rect, ["width", "height"]);
