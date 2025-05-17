@@ -9,7 +9,7 @@ export interface GroupInit extends RenderableInit, GroupStyle {
   children?: Renderable[];
 }
 
-export class Group<T = any> extends Renderable<T> {
+export class Group extends Renderable {
   children: Renderable[];
   globalCompositeOperation?: GlobalCompositeOperation;
 

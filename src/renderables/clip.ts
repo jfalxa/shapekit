@@ -7,7 +7,7 @@ export interface ClipInit extends RenderableInit {
   fillRule?: CanvasFillRule;
 }
 
-export class Clip<T = any> extends Shape<T> {
+export class Clip extends Shape {
   fillRule?: CanvasFillRule;
 
   constructor(init: ClipInit) {
