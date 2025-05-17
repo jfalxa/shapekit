@@ -347,10 +347,9 @@ class App extends Loop {
       new Image({
         id: "IMAGE",
         x: +100,
-        stroke: "purple",
+        width: 100,
+        height: 50,
         image: await Image.load(treeSrc),
-        path: [roundRect(0, 0, 100, 50, 15)],
-        filter: "sepia(1) contrast(1.2)",
       })
     );
 
