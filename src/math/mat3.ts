@@ -1,10 +1,5 @@
 import { Transform } from "../renderables/renderable";
 
-export interface Point {
-  x: number;
-  y: number;
-}
-
 export class Matrix3 extends Float64Array {
   // prettier-ignore
   static IDENTITY = [
@@ -25,13 +20,6 @@ export class Matrix3 extends Float64Array {
   copy(matrix: Matrix3) {
     this.set(matrix);
     return this;
-  }
-
-  point(point: Point) {
-    const { x, y } = point;
-    point.x = x * this[0] + y * this[3] + this[6];
-    point.y = x * this[1] + y * this[4] + this[7];
-    return point;
   }
 
   compose(transform: Partial<Transform>) {

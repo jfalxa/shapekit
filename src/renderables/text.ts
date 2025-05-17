@@ -22,10 +22,15 @@ export interface TextStyle {
 
 export interface TextInit extends RenderableInit, TextStyle {
   text: string;
+  width?: number;
+  height?: number;
 }
 
 export class Text extends Renderable {
   text: string;
+
+  width: number;
+  height: number;
 
   fontFamily?: string;
   fontSize?: number;
@@ -47,13 +52,17 @@ export class Text extends Renderable {
   lines!: [string, number, number][];
 
   constructor(init: TextInit) {
-    if (init.width === undefined && init.height === undefined) {
-      [init.width, init.height] = measureText(init.text, init);
-    }
-
     super(init);
 
     this.text = init.text;
+
+    if (init.width === undefined || init.height === undefined) {
+      [this.width, this.height] = measureText(this.text, init);
+    } else {
+      this.width = init.width;
+      this.height = init.height;
+    }
+
     this.fontFamily = init.fontFamily;
     this.fontSize = init.fontSize;
     this.fontStretch = init.fontStretch;

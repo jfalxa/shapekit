@@ -5,7 +5,7 @@ import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { getStyle } from "../styles/style";
-import { Path } from "../paths/segment";
+import { Path } from "../paths/path";
 import { ArcTo } from "../paths/arc-to";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
 import { Arc } from "../paths/arc";
@@ -46,7 +46,7 @@ export class Canvas2D {
   }
 
   update() {
-    this.#update();
+    this.#flushChanges();
 
     this.ctx.resetTransform();
 
@@ -156,14 +156,17 @@ export class Canvas2D {
     }
   }
 
-  #update() {
+  #flushChanges() {
     this.scene.walk((r) => {
-      if (r instanceof Shape && !this.#path2Ds.has(r)) {
+      if (r instanceof Shape && r.path.dirty) {
         const path2D = buildPath2D(r.path);
         this.#path2Ds.set(r, path2D);
+        r.path.dirty = false;
       }
 
-      if (r.dirty) r.dirty = false;
+      if (r.dirty) {
+        r.dirty = false;
+      }
     });
   }
 }
@@ -173,6 +176,7 @@ function buildPath2D(path: Path) {
 
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
+    s.dirty = false;
     if (s instanceof ArcTo) {
       path2D.arcTo(s.x1, s.y1, s.x2, s.y2, s.radius);
     } else if (s instanceof Arc) {

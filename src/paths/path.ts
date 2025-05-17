@@ -9,10 +9,14 @@ export class Path extends Array<Segment> {
     super(segments.length);
     for (let i = 0; i < segments.length; i++) {
       this[i] = segments[i];
-      this[i].path = this;
-      this[i].previous = segments[i - 1];
     }
+    this.update();
   }
 
-  update() {}
+  update() {
+    for (let i = 0; i < this.length; i++) {
+      this[i].path = this;
+      this[i].previous = this[i - 1];
+    }
+  }
 }

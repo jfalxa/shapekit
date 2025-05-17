@@ -3,19 +3,26 @@ import { ShapeInit } from "./shape";
 
 export interface ImageInit extends ShapeInit {
   image: CanvasImageSource;
+  width?: number;
+  height?: number;
 }
 
 export class Image extends Renderable {
   image: CanvasImageSource;
+  width: number;
+  height: number;
 
   constructor(init: ImageInit) {
-    if (init.width === undefined && init.height === undefined) {
-      [init.width, init.height] = Image.dimensions(init.image);
-    }
-
     super(init);
 
     this.image = init.image;
+
+    if (init.width === undefined || init.height === undefined) {
+      [this.width, this.height] = Image.dimensions(init.image);
+    } else {
+      this.width = init.width;
+      this.height = init.height;
+    }
   }
 
   static load(src: string): Promise<HTMLImageElement> {
