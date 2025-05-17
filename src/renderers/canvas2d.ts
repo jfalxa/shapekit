@@ -18,15 +18,18 @@ import { Rect } from "../paths/rect";
 import { RoundRect } from "../paths/round-rect";
 import { Matrix3 } from "../math/mat3";
 
-interface Canvas2DInit {
+interface CanvasCache {
+  transform: Matrix3;
+  path2D: Path2D;
+  dirtyTransform: boolean;
+  dirtyPath: boolean;
+  dirtyText: boolean;
+}
+
+export interface Canvas2DInit {
   width: number;
   height: number;
   fill?: Style;
-}
-
-interface CanvasData {
-  transform: Matrix3;
-  path2D: Path2D;
 }
 
 export class Canvas2D {
@@ -49,10 +52,26 @@ export class Canvas2D {
     this.fill = init.fill ?? "#ffffff";
   }
 
+  set<K extends keyof CanvasRenderingContext2D>(
+    property: K,
+    value: CanvasRenderingContext2D[K] | undefined
+  ) {
+    if (value !== undefined && this.ctx[property] !== value) {
+      this.ctx[property] = value;
+    }
+  }
+
   update() {
     this.scene.walk((r) => {
-      if (r.__dirty) this._updateTransform(r);
-      if (r instanceof Shape && r.path.__dirty) this._updatePath2D(r);
+      const {
+        dirtyTransform = true,
+        dirtyPath = true,
+        dirtyText = true,
+      } = r.__cache as CanvasCache;
+
+      if (dirtyTransform) this._updateTransform(r);
+      if (r instanceof Shape && dirtyPath) this._updatePath2D(r);
+      if (r instanceof Text && dirtyText) this._updateText(r);
     });
 
     this.ctx.resetTransform();
@@ -63,9 +82,9 @@ export class Canvas2D {
     this.render(this.scene);
   }
 
-  render(renderable: Renderable<CanvasData>) {
+  render(renderable: Renderable) {
     if (renderable instanceof Shape) {
-      const t = renderable.__cache.transform;
+      const t = (renderable.__cache as CanvasCache).transform;
       this.ctx.setTransform(t[0], t[1], t[3], t[4], t[6], t[7]);
     }
 
@@ -91,8 +110,8 @@ export class Canvas2D {
     this.ctx.restore();
   }
 
-  private _renderClip(clip: Clip<CanvasData>) {
-    this.ctx.clip(clip.__cache.path2D, clip.fillRule);
+  private _renderClip(clip: Clip) {
+    this.ctx.clip((clip.__cache as CanvasCache).path2D, clip.fillRule);
   }
 
   private _renderGroup(group: Group) {
@@ -103,12 +122,12 @@ export class Canvas2D {
     }
   }
 
-  private _renderFill(shape: Shape<CanvasData>) {
+  private _renderFill(shape: Shape) {
     this.set("fillStyle", getStyle(this.ctx, shape.fill));
-    this.ctx.fill(shape.__cache.path2D);
+    this.ctx.fill((shape.__cache as CanvasCache).path2D);
   }
 
-  private _renderStroke(shape: Shape<CanvasData>) {
+  private _renderStroke(shape: Shape) {
     this.set("lineWidth", shape.lineWidth);
     this.set("lineCap", shape.lineCap);
     this.set("lineJoin", shape.lineJoin);
@@ -116,7 +135,7 @@ export class Canvas2D {
     this.set("strokeStyle", getStyle(this.ctx, shape.stroke));
     this.set("lineDashOffset", shape.lineDashOffset);
     if (shape.lineDash) this.ctx.setLineDash(shape.lineDash);
-    this.ctx.stroke(shape.__cache.path2D);
+    this.ctx.stroke((shape.__cache as CanvasCache).path2D);
   }
 
   private _renderImage(image: Image) {
@@ -147,33 +166,31 @@ export class Canvas2D {
     this.set("shadowOffsetY", shape.shadowOffsetY);
   }
 
-  set<K extends keyof CanvasRenderingContext2D>(
-    property: K,
-    value: CanvasRenderingContext2D[K] | undefined
-  ) {
-    if (value !== undefined && this.ctx[property] !== value) {
-      this.ctx[property] = value;
-    }
-  }
+  private _updateTransform(renderable: Renderable) {
+    const cache = renderable.__cache as CanvasCache;
 
-  private _updateTransform(renderable: Renderable<CanvasData>) {
-    if (renderable.parent?.__dirty) renderable.__dirty = true;
-    if (!renderable.__dirty) return;
+    if (!cache.transform) cache.transform = new Matrix3();
+    cache.transform.identity().compose(renderable);
 
-    let t = renderable.__cache.transform;
-    if (!t) {
-      t = new Matrix3();
-      renderable.__cache.transform = t;
+    if (renderable.parent) {
+      const parentCache = renderable.parent.__cache as CanvasCache;
+      cache.transform.transform(parentCache.transform);
     }
 
-    t.identity().compose(renderable);
-    if (renderable.parent) t.transform(renderable.parent.__cache.transform);
+    cache.dirtyTransform = false;
   }
 
-  private _updatePath2D(shape: Shape<CanvasData>) {
+  private _updatePath2D(shape: Shape) {
+    const cache = shape.__cache as CanvasCache;
     const path2D = buildPath2D(shape.path);
-    shape.__cache.path2D = path2D;
-    shape.path.__dirty = false;
+    cache.path2D = path2D;
+    cache.dirtyPath = false;
+  }
+
+  private _updateText(text: Text) {
+    const cache = text.__cache as CanvasCache;
+    text.format();
+    cache.dirtyText = false;
   }
 }
 
@@ -182,7 +199,6 @@ function buildPath2D(path: Path) {
 
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
-    s.__dirty = false;
     if (s instanceof ArcTo) {
       path2D.arcTo(s.x1, s.y1, s.x2, s.y2, s.radius);
     } else if (s instanceof Arc) {
