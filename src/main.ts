@@ -18,11 +18,11 @@ import { arc } from "./paths/arc";
 import { ellipse } from "./paths/ellipse";
 import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
-
-import treeSrc from "./tree.png";
 import { rect } from "./paths/rect";
 import { Clip } from "./renderables/clip";
-import { Perf } from "./debug";
+import { Perf, rad, rand, rgbToHex } from "./debug";
+
+import treeSrc from "./tree.png";
 
 class App extends Loop {
   scene = new Group();
@@ -451,33 +451,6 @@ class App extends Loop {
       // this.ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
       // this.ctx.fill();
     }
-  }
-}
-
-export function rand(min: number = 0, max: number = 1) {
-  return min + Math.random() * (max - min);
-}
-
-export function rgbToHex(r: number, g: number, b: number) {
-  return (
-    "#" +
-    Math.floor(r).toString(16).padStart(2, "0") +
-    Math.floor(g).toString(16).padStart(2, "0") +
-    Math.floor(b).toString(16).padStart(2, "0")
-  );
-}
-
-export function deg(rad: number) {
-  return Math.round((rad * 180) / Math.PI);
-}
-
-export function rad(deg: number) {
-  return (deg * Math.PI) / 180;
-}
-
-function chain(functions: Function[], interval = 1000) {
-  for (let i = 0; i <= functions.length; i++) {
-    setTimeout(functions[i], (i + 1) * interval);
   }
 }
 
