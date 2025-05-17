@@ -31,12 +31,11 @@ class App extends Loop {
   rect1 = new Shape({
     x: 400,
     y: 300,
-    width: 100,
-    height: 50,
     fill: "green",
     stroke: "red",
     // lineWidth: 10,
     lineCap: "square",
+    path: [rect(0, 0, 100, 50)],
     // shadowBlur: 1,
     // shadowOffsetX: 3,
     // shadowOffsetY: 3,
@@ -46,10 +45,9 @@ class App extends Loop {
   rect2 = new Shape({
     x: 500,
     y: 300,
-    width: 100,
-    height: 50,
     fill: "red",
     stroke: "orange",
+    path: [rect(0, 0, 100, 50)],
   });
 
   rect3 = new Shape({
@@ -218,8 +216,7 @@ class App extends Loop {
           new Clip({
             x: -140,
             y: -100,
-            width: 400,
-            height: 400,
+            path: [rect(0, 0, 400, 400)],
           }),
 
           new Shape({
@@ -312,32 +309,28 @@ class App extends Loop {
       new Shape({
         x: -100,
         y: -100,
-        width: 100,
-        height: 50,
         fill: "red",
         rotation: Math.PI / 4,
+        path: [rect(0, 0, 100, 50)],
       }),
       new Shape({
         x: 100,
         y: -100,
-        width: 100,
-        height: 50,
         fill: "green",
+        path: [rect(0, 0, 100, 50)],
       }),
       new Shape({
         x: 100,
         y: 100,
-        width: 100,
-        height: 50,
         fill: "blue",
         rotation: Math.PI / 4,
+        path: [rect(0, 0, 100, 50)],
       }),
       new Shape({
         x: -100,
         y: 100,
-        width: 100,
-        height: 50,
         fill: "yellow",
+        path: [rect(0, 0, 100, 50)],
       }),
     ],
   });
@@ -347,8 +340,6 @@ class App extends Loop {
   perf = new Perf();
 
   async mount() {
-    this.perf.log(1500);
-
     document.body.append(this.canvas.element);
 
     (this.group.children[0] as Group).children.push(
@@ -371,27 +362,28 @@ class App extends Loop {
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
-    for (let i = 0; i < 16000; i++) {
-      // for (let i = 0; i < 0; i++) {
+    this.perf.log(1500);
+
+    // for (let i = 0; i < 16000; i++) {
+    for (let i = 0; i < 0; i++) {
       this.scene.add(
-        new Group({
-          children: [
-            new Shape({
-              fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
-              // new Image({
-              // image: treeImage,
-              x: rand(0, 800),
-              y: rand(0, 600),
-              width: rand(10, 20),
-              height: rand(10, 20),
-              // path: [
-              //   moveTo(0, 0),
-              //   arc(0, 0, rand(10, 20), 0, rad(315)),
-              //   closePath(),
-              // ],
-            }),
-          ],
+        // new Group({
+        //   children: [
+        new Shape({
+          fill: rgbToHex(rand(0, 255), rand(0, 255), rand(0, 255)),
+          // new Image({
+          // image: treeImage,
+          x: rand(0, 800),
+          y: rand(0, 600),
+          path: [rect(0, 0, rand(10, 20), rand(10, 20))],
+          // path: [
+          //   moveTo(0, 0),
+          //   arc(0, 0, rand(10, 20), 0, rad(315)),
+          //   closePath(),
+          // ],
         })
+        //   ],
+        // })
       );
     }
 
@@ -414,6 +406,7 @@ class App extends Loop {
   }
 
   s = 1;
+  analyzer = { update() {} };
 
   tick() {
     this.perf.time("start");

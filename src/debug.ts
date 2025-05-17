@@ -4,7 +4,7 @@ export class Perf {
   time(name: string) {
     const time = performance.now();
     const previous = this.logs[this.logs.length - 1];
-    const duration = previous ? previous.time - time : 0;
+    const duration = previous ? time - previous.time : 0;
     this.logs.push({ name, time, duration });
     return duration;
   }
@@ -23,7 +23,7 @@ export class Perf {
     if (logs.length <= 1) return 0;
     const last = logs[logs.length - 1];
     const total = last.time - first.time;
-    return total / logs.length;
+    return total / (logs.length - 1);
   }
 
   log(interval: number) {
