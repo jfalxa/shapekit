@@ -1,10 +1,10 @@
-import { Path } from "../paths/segment";
+import { PathLike } from "../paths/path";
 import { RenderableInit } from "./renderable";
 import { Shape } from "./shape";
 
 export interface ClipInit extends RenderableInit {
+  path: PathLike;
   fillRule?: CanvasFillRule;
-  path?: Path;
 }
 
 export class Clip extends Shape {
