@@ -1,4 +1,5 @@
 export * from "./math/mat3";
+export * from "./math/vec2";
 export * from "./paths/arc-to";
 export * from "./paths/arc";
 export * from "./paths/bezier-curve-to";
@@ -21,4 +22,3 @@ export * from "./styles/gradient";
 export * from "./styles/linear-gradient";
 export * from "./styles/pattern";
 export * from "./styles/radial-gradient";
-export * from "./styles/style";

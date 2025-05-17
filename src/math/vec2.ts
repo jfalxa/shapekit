@@ -10,12 +10,9 @@ export function v(point: Point) {
 }
 
 export class Vec2 extends Float64Array implements Point {
-  static ZERO = new Vec2();
-
   get x() {
     return this[0];
   }
-
   set x(value: number) {
     this[0] = value;
   }
@@ -23,7 +20,6 @@ export class Vec2 extends Float64Array implements Point {
   get y() {
     return this[1];
   }
-
   set y(value: number) {
     this[1] = value;
   }
@@ -71,25 +67,25 @@ export class Vec2 extends Float64Array implements Point {
   }
 
   rotate(angle: number) {
-    const x = this[0];
-    const y = this[1];
-
+    const [x, y] = this;
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
-
     this[0] = cos * x - sin * y;
     this[1] = sin * x + cos * y;
-
     return this;
   }
 
   skew(skx: number, sky: number = 0) {
-    const x = this[0];
-    const y = this[1];
-
+    const [x, y] = this;
     this[0] = x + y * Math.tan(skx);
     this[1] = y + x * Math.tan(sky);
+    return this;
+  }
 
+  transform(matrix: Matrix3) {
+    const [x, y] = this;
+    this[0] = x * matrix[0] + y * matrix[3] + matrix[6];
+    this[1] = x * matrix[1] + y * matrix[4] + matrix[7];
     return this;
   }
 
@@ -102,7 +98,7 @@ export class Vec2 extends Float64Array implements Point {
   }
 
   norm() {
-    return Math.sqrt(this[0] * this[0] + this[1] * this[1]);
+    return Math.hypot(this[0], this[1]);
   }
 
   norm2() {
@@ -110,27 +106,20 @@ export class Vec2 extends Float64Array implements Point {
   }
 
   normalize() {
-    const norm = this.norm();
+    const norm = Math.hypot(this[0], this[1]);
     if (norm < 1e-6) return this.put(0);
     else return this.scale(1 / norm);
   }
 
-  project(u: Vec2) {
-    const dot = this.dot(u);
-    const norm2 = u.norm2();
-    return v(u).scale(dot / norm2);
-  }
-
   perpendicular() {
-    return new Vec2(-this[1], this[0]);
+    const [x, y] = this;
+    this[0] = -y;
+    this[1] = x;
+    return this;
   }
 
   equals(u: Vec2) {
     return this[0] === u[0] && this[1] === u[1];
-  }
-
-  is(x: number, y: number = x) {
-    return this[0] === x && this[1] === y;
   }
 
   clone() {
@@ -165,47 +154,5 @@ export class Vec2 extends Float64Array implements Point {
     this[0] = this[0] > u[0] ? this[0] : u[0];
     this[1] = this[1] > u[1] ? this[1] : u[1];
     return this;
-  }
-
-  clamp(min: Vec2, max: Vec2) {
-    return this.max(min).min(max);
-  }
-
-  floor(precision: number = 0) {
-    const pow = Math.pow(10, precision);
-    this[0] = Math.floor(this[0] * pow) / pow;
-    this[1] = Math.floor(this[1] * pow) / pow;
-    return this;
-  }
-
-  ceil(precision: number = 0) {
-    const pow = Math.pow(10, precision);
-    this[0] = Math.ceil(this[0] * pow) / pow;
-    this[1] = Math.ceil(this[1] * pow) / pow;
-    return this;
-  }
-
-  round(precision: number = 0) {
-    const pow = Math.pow(10, precision);
-    this[0] = Math.round(this[0] * pow) / pow;
-    this[1] = Math.round(this[1] * pow) / pow;
-    return this;
-  }
-
-  transform(matrix: Matrix3) {
-    const x = this[0];
-    const y = this[1];
-    this[0] = x * matrix[0] + y * matrix[3] + matrix[6];
-    this[1] = x * matrix[1] + y * matrix[4] + matrix[7];
-    return this;
-  }
-
-  between(p: Vec2, q: Vec2) {
-    return (
-      Math.min(p[0], q[0]) <= this[0] &&
-      this[0] <= Math.max(p[0], q[0]) &&
-      Math.min(p[1], q[1]) <= this[1] &&
-      this[1] <= Math.max(p[1], q[1])
-    );
   }
 }
