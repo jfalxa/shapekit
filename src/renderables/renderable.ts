@@ -1,5 +1,4 @@
-import { Matrix3 } from "../math/mat3";
-import { trackDirty } from "../utils/dirty";
+import { Dirty, trackDirty } from "../utils/dirty";
 import { Group } from "./group";
 
 export interface Transform {
@@ -16,11 +15,12 @@ export interface RenderableInit extends Partial<Transform> {
   id?: string;
 }
 
-export abstract class Renderable {
+export abstract class Renderable<C = any> implements Dirty {
   id?: string;
   parent?: Group;
 
-  dirty = false;
+  __dirty = false;
+  __cache = {} as C;
 
   declare x: number;
   declare y: number;
@@ -29,8 +29,6 @@ export abstract class Renderable {
   declare skewX: number;
   declare skewY: number;
   declare rotation: number;
-
-  transform: Matrix3;
 
   constructor(init: RenderableInit = {}) {
     this.id = init.id;
@@ -42,16 +40,6 @@ export abstract class Renderable {
     this.skewX = init.skewX ?? 0;
     this.skewY = init.skewY ?? 0;
     this.rotation = init.rotation ?? 0;
-
-    this.transform = new Matrix3();
-  }
-
-  update() {
-    if (this.parent?.dirty) this.dirty = true;
-    if (!this.dirty) return;
-
-    this.transform.identity().compose(this);
-    if (this.parent) this.transform.transform(this.parent.transform);
   }
 }
 

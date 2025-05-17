@@ -23,7 +23,7 @@ export interface ShapeInit extends RenderableInit, ShapeStyle {
   path: PathLike;
 }
 
-export class Shape extends Renderable {
+export class Shape<T = any> extends Renderable<T> {
   path: Path;
 
   fill?: Style;

@@ -16,11 +16,17 @@ import { MoveTo } from "../paths/move-to";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Rect } from "../paths/rect";
 import { RoundRect } from "../paths/round-rect";
+import { Matrix3 } from "../math/mat3";
 
 interface Canvas2DInit {
   width: number;
   height: number;
   fill?: string;
+}
+
+interface CanvasData {
+  transform: Matrix3;
+  path2D: Path2D;
 }
 
 export class Canvas2D {
@@ -29,8 +35,6 @@ export class Canvas2D {
   ctx: CanvasRenderingContext2D;
 
   fill: string;
-
-  #path2Ds = new WeakMap<Shape, Path2D>();
 
   constructor(scene: Group, init: Canvas2DInit) {
     this.scene = scene;
@@ -46,7 +50,10 @@ export class Canvas2D {
   }
 
   update() {
-    this.#flushChanges();
+    this.scene.walk((r) => {
+      if (r.__dirty) this._updateTransform(r);
+      if (r instanceof Shape && r.path.__dirty) this._updatePath2D(r);
+    });
 
     this.ctx.resetTransform();
 
@@ -56,16 +63,10 @@ export class Canvas2D {
     this.render(this.scene);
   }
 
-  render(renderable: Renderable) {
+  render(renderable: Renderable<CanvasData>) {
     if (renderable instanceof Shape) {
-      this.ctx.setTransform(
-        renderable.transform[0],
-        renderable.transform[1],
-        renderable.transform[3],
-        renderable.transform[4],
-        renderable.transform[6],
-        renderable.transform[7]
-      );
+      const t = renderable.__cache.transform;
+      this.ctx.setTransform(t[0], t[1], t[3], t[4], t[6], t[7]);
     }
 
     if (renderable instanceof Clip) {
@@ -80,10 +81,9 @@ export class Canvas2D {
 
     if (renderable instanceof Shape) {
       this.applyEffects(renderable);
-      const path2D = this.#path2Ds.get(renderable)!;
 
-      if (renderable.fill) this.renderFill(renderable, path2D);
-      if (renderable.stroke) this.renderStroke(renderable, path2D);
+      if (renderable.fill) this.renderFill(renderable);
+      if (renderable.stroke) this.renderStroke(renderable);
       if (renderable instanceof Image) this.renderImage(renderable);
       if (renderable instanceof Text) this.renderText(renderable);
     }
@@ -91,8 +91,8 @@ export class Canvas2D {
     this.ctx.restore();
   }
 
-  renderClip(clip: Clip) {
-    this.ctx.clip(this.#path2Ds.get(clip)!, clip.fillRule);
+  renderClip(clip: Clip<CanvasData>) {
+    this.ctx.clip(clip.__cache.path2D, clip.fillRule);
   }
 
   renderGroup(group: Group) {
@@ -103,12 +103,12 @@ export class Canvas2D {
     }
   }
 
-  renderFill(shape: Shape, path2D: Path2D) {
+  renderFill(shape: Shape<CanvasData>) {
     this.set("fillStyle", getStyle(this.ctx, shape.fill));
-    this.ctx.fill(path2D);
+    this.ctx.fill(shape.__cache.path2D);
   }
 
-  renderStroke(shape: Shape, path2D: Path2D) {
+  renderStroke(shape: Shape<CanvasData>) {
     this.set("lineWidth", shape.lineWidth);
     this.set("lineCap", shape.lineCap);
     this.set("lineJoin", shape.lineJoin);
@@ -116,7 +116,7 @@ export class Canvas2D {
     this.set("strokeStyle", getStyle(this.ctx, shape.stroke));
     this.set("lineDashOffset", shape.lineDashOffset);
     if (shape.lineDash) this.ctx.setLineDash(shape.lineDash);
-    this.ctx.stroke(path2D);
+    this.ctx.stroke(shape.__cache.path2D);
   }
 
   renderImage(image: Image) {
@@ -156,18 +156,24 @@ export class Canvas2D {
     }
   }
 
-  #flushChanges() {
-    this.scene.walk((r) => {
-      if (r instanceof Shape && r.path.dirty) {
-        const path2D = buildPath2D(r.path);
-        this.#path2Ds.set(r, path2D);
-        r.path.dirty = false;
-      }
+  private _updateTransform(renderable: Renderable<CanvasData>) {
+    if (renderable.parent?.__dirty) renderable.__dirty = true;
+    if (!renderable.__dirty) return;
 
-      if (r.dirty) {
-        r.dirty = false;
-      }
-    });
+    let t = renderable.__cache.transform;
+    if (!t) {
+      t = new Matrix3();
+      renderable.__cache.transform = t;
+    }
+
+    t.identity().compose(renderable);
+    if (renderable.parent) t.transform(renderable.parent.__cache.transform);
+  }
+
+  private _updatePath2D(shape: Shape<CanvasData>) {
+    const path2D = buildPath2D(shape.path);
+    shape.__cache.path2D = path2D;
+    shape.path.__dirty = false;
   }
 }
 
@@ -176,7 +182,7 @@ function buildPath2D(path: Path) {
 
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
-    s.dirty = false;
+    s.__dirty = false;
     if (s instanceof ArcTo) {
       path2D.arcTo(s.x1, s.y1, s.x2, s.y2, s.radius);
     } else if (s instanceof Arc) {

@@ -9,7 +9,7 @@ export interface GroupInit extends RenderableInit, GroupStyle {
   children?: Renderable[];
 }
 
-export class Group extends Renderable {
+export class Group<T = any> extends Renderable<T> {
   children: Renderable[];
   globalCompositeOperation?: GlobalCompositeOperation;
 
@@ -42,18 +42,11 @@ export class Group extends Renderable {
   }
 
   walk(operation: (renderable: Renderable) => void) {
-    const stack: Renderable[] = [this];
-    while (stack.length > 0) {
-      const r = stack.pop()!;
-      operation(r);
-      if (r instanceof Group) stack.push(...r.children);
-    }
-  }
-
-  update() {
-    super.update();
+    operation(this);
     for (let i = 0; i < this.children.length; i++) {
-      this.children[i].update();
+      const child = this.children[i];
+      if (child instanceof Group) child.walk(operation);
+      else operation(child);
     }
   }
 }
