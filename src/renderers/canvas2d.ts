@@ -4,7 +4,7 @@ import { Clip } from "../renderables/clip";
 import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
-import { getStyle } from "../styles/style";
+import { getStyle, Style } from "../styles/style";
 import { Path } from "../paths/path";
 import { ArcTo } from "../paths/arc-to";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
@@ -21,7 +21,7 @@ import { Matrix3 } from "../math/mat3";
 interface Canvas2DInit {
   width: number;
   height: number;
-  fill?: string;
+  fill?: Style;
 }
 
 interface CanvasData {
@@ -34,7 +34,7 @@ export class Canvas2D {
   element: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
-  fill: string;
+  fill: Style;
 
   constructor(scene: Group, init: Canvas2DInit) {
     this.scene = scene;
@@ -57,7 +57,7 @@ export class Canvas2D {
 
     this.ctx.resetTransform();
 
-    this.set("fillStyle", this.fill);
+    this.set("fillStyle", getStyle(this.ctx, this.fill));
     this.ctx.fillRect(0, 0, this.element.width, this.element.height);
 
     this.render(this.scene);
@@ -70,32 +70,32 @@ export class Canvas2D {
     }
 
     if (renderable instanceof Clip) {
-      return this.renderClip(renderable);
+      return this._renderClip(renderable);
     }
 
     this.ctx.save();
 
     if (renderable instanceof Group) {
-      this.renderGroup(renderable);
+      this._renderGroup(renderable);
     }
 
     if (renderable instanceof Shape) {
-      this.applyEffects(renderable);
+      this._applyEffects(renderable);
 
-      if (renderable.fill) this.renderFill(renderable);
-      if (renderable.stroke) this.renderStroke(renderable);
-      if (renderable instanceof Image) this.renderImage(renderable);
-      if (renderable instanceof Text) this.renderText(renderable);
+      if (renderable.fill) this._renderFill(renderable);
+      if (renderable.stroke) this._renderStroke(renderable);
+      if (renderable instanceof Image) this._renderImage(renderable);
+      if (renderable instanceof Text) this._renderText(renderable);
     }
 
     this.ctx.restore();
   }
 
-  renderClip(clip: Clip<CanvasData>) {
+  private _renderClip(clip: Clip<CanvasData>) {
     this.ctx.clip(clip.__cache.path2D, clip.fillRule);
   }
 
-  renderGroup(group: Group) {
+  private _renderGroup(group: Group) {
     this.set("globalCompositeOperation", group.globalCompositeOperation);
 
     for (let i = 0; i < group.children.length; i++) {
@@ -103,12 +103,12 @@ export class Canvas2D {
     }
   }
 
-  renderFill(shape: Shape<CanvasData>) {
+  private _renderFill(shape: Shape<CanvasData>) {
     this.set("fillStyle", getStyle(this.ctx, shape.fill));
     this.ctx.fill(shape.__cache.path2D);
   }
 
-  renderStroke(shape: Shape<CanvasData>) {
+  private _renderStroke(shape: Shape<CanvasData>) {
     this.set("lineWidth", shape.lineWidth);
     this.set("lineCap", shape.lineCap);
     this.set("lineJoin", shape.lineJoin);
@@ -119,11 +119,11 @@ export class Canvas2D {
     this.ctx.stroke(shape.__cache.path2D);
   }
 
-  renderImage(image: Image) {
+  private _renderImage(image: Image) {
     this.ctx.drawImage(image.image, 0, 0, image.width, image.height);
   }
 
-  renderText(text: Text) {
+  private _renderText(text: Text) {
     this.set("font", text.font);
     this.set("textAlign", text.textAlign);
     this.set("textBaseline", text.textBaseline);
@@ -138,7 +138,7 @@ export class Canvas2D {
     }
   }
 
-  applyEffects(shape: Shape) {
+  private _applyEffects(shape: Shape) {
     this.set("globalAlpha", shape.globalAlpha);
     this.set("filter", shape.filter);
     this.set("shadowBlur", shape.shadowBlur);

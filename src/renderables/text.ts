@@ -1,4 +1,5 @@
 import { Style } from "../styles/style";
+import { trackDirty } from "../utils/dirty";
 import { fitText, getFont, measureText } from "../utils/text";
 import { Renderable, RenderableInit } from "./renderable";
 
@@ -86,9 +87,6 @@ export class Text extends Renderable {
     this.font = getFont(this);
     this.lines = fitText(this);
   }
-
-  update() {
-    super.update();
-    this.format();
-  }
 }
+
+trackDirty(Text.prototype, ["width", "height"], (text) => text.format());

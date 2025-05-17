@@ -1,7 +1,6 @@
-import { Renderable } from "./renderable";
-import { ShapeInit } from "./shape";
+import { Renderable, RenderableInit } from "./renderable";
 
-export interface ImageInit extends ShapeInit {
+export interface ImageInit extends RenderableInit {
   image: CanvasImageSource;
   width?: number;
   height?: number;
