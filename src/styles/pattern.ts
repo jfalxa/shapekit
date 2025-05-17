@@ -5,7 +5,7 @@ export type PatternRepetition =
   | "no-repeat";
 
 export class Pattern {
-  #pattern?: CanvasPattern;
+  private __pattern?: CanvasPattern;
 
   constructor(
     public image: CanvasImageSource,
@@ -13,10 +13,10 @@ export class Pattern {
   ) {}
 
   get(ctx: CanvasRenderingContext2D) {
-    if (this.#pattern) return this.#pattern;
+    if (this.__pattern) return this.__pattern;
     const pattern = ctx.createPattern(this.image, this.repetition);
     if (!pattern) throw new Error("Pattern image is not loaded yet");
-    this.#pattern = pattern;
+    this.__pattern = pattern;
     return pattern;
   }
 }

@@ -1,3 +1,7 @@
+export interface Dirty {
+  __dirty: boolean;
+}
+
 export function trackDirty(
   object: object,
   props: string[],
@@ -12,11 +16,11 @@ export function trackDirty(
       get() {
         return this[__prop];
       },
-      set(value: number) {
+      set(this: Record<string, any> & Dirty, value: number) {
         if (value !== this[__prop]) {
           const oldProp = this[__prop];
           this[__prop] = value;
-          this.dirty = true;
+          this.__dirty = true;
           if (oldProp !== undefined) onChange?.(this);
         }
       },

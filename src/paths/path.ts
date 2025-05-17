@@ -1,9 +1,10 @@
+import { Dirty } from "../utils/dirty";
 import { Segment } from "./segment";
 
 export type PathLike = ArrayLike<Segment>;
 
-export class Path extends Array<Segment> {
-  dirty = true;
+export class Path extends Array<Segment> implements Dirty {
+  __dirty = true;
 
   constructor(segments: PathLike = []) {
     super(segments.length);

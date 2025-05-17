@@ -1,15 +1,15 @@
-import { trackDirty } from "../utils/dirty";
+import { Dirty, trackDirty } from "../utils/dirty";
 import { Path } from "./path";
 
 export function markPathDirty(segment: Segment) {
-  if (segment.path) segment.path.dirty = true;
+  if (segment.path) segment.path.__dirty = true;
 }
 
-export abstract class Segment {
+export abstract class Segment implements Dirty {
   path?: Path;
   previous?: Segment;
 
-  dirty = true;
+  __dirty = true;
 
   constructor(public x: number, public y: number) {}
 

@@ -1,15 +1,15 @@
 export type GradientStops = Record<number, string>;
 
 export abstract class Gradient {
-  #gradient?: CanvasGradient;
+  private __gradient?: CanvasGradient;
 
   constructor(public stops: GradientStops) {}
 
   abstract create(ctx: CanvasRenderingContext2D): CanvasGradient;
 
   get(ctx: CanvasRenderingContext2D) {
-    if (!this.#gradient) this.#gradient = this.create(ctx);
-    return this.#gradient;
+    if (!this.__gradient) this.__gradient = this.create(ctx);
+    return this.__gradient;
   }
 
   addColorStops(gradient: CanvasGradient) {
