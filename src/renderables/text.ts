@@ -1,5 +1,5 @@
 import { Style } from "../styles/style";
-import { trackDirty } from "../utils/dirty";
+import { track } from "../utils/track";
 import { fitText, getFont, measureText } from "../utils/text";
 import { Renderable, RenderableInit } from "./renderable";
 
@@ -89,4 +89,8 @@ export class Text extends Renderable {
   }
 }
 
-trackDirty(Text.prototype, ["width", "height"], (text) => text.format());
+track(
+  Text.prototype,
+  ["text", "width", "height"],
+  (text) => (text.__cache.dirtyText = true)
+);

@@ -2,10 +2,10 @@ export interface Dirty {
   __dirty: boolean;
 }
 
-export function trackDirty(
+export function track(
   object: object,
   props: string[],
-  onChange?: (instance: any) => void
+  onChange?: (instance: any, prop: string, newValue: any, oldValue: any) => void
 ) {
   for (let i = 0; i < props.length; i++) {
     const prop = props[i] as keyof typeof object;
@@ -16,12 +16,13 @@ export function trackDirty(
       get() {
         return this[__prop];
       },
-      set(this: Record<string, any> & Dirty, value: number) {
-        if (value !== this[__prop]) {
-          const oldProp = this[__prop];
-          this[__prop] = value;
-          this.__dirty = true;
-          if (oldProp !== undefined) onChange?.(this);
+      set(newValue: number) {
+        const oldValue = this[__prop];
+        if (newValue !== oldValue) {
+          this[__prop] = newValue;
+          if (oldValue !== undefined) {
+            onChange?.(this, prop, newValue, oldValue);
+          }
         }
       },
     });

@@ -1,4 +1,4 @@
-import { Dirty, trackDirty } from "../utils/dirty";
+import { track } from "../utils/track";
 import { Group } from "./group";
 
 export interface Transform {
@@ -15,12 +15,11 @@ export interface RenderableInit extends Partial<Transform> {
   id?: string;
 }
 
-export abstract class Renderable<C = any> implements Dirty {
+export abstract class Renderable {
   id?: string;
   parent?: Group;
 
-  __dirty = false;
-  __cache = {} as C;
+  __cache: Record<string, any> = {};
 
   declare x: number;
   declare y: number;
@@ -43,14 +42,15 @@ export abstract class Renderable<C = any> implements Dirty {
   }
 }
 
-trackDirty(Renderable.prototype, [
-  "x",
-  "y",
-  "width",
-  "height",
-  "scaleX",
-  "scaleY",
-  "skewX",
-  "skewY",
-  "rotation",
-]);
+function markTransformDirty(renderable: Renderable) {
+  renderable.__cache.dirtyTransform = true;
+  if (renderable instanceof Group) {
+    renderable.walk((r) => (r.__cache.dirtyTransform = true));
+  }
+}
+
+track(
+  Renderable.prototype,
+  ["x", "y", "width", "height", "scaleX", "scaleY", "skewX", "skewY", "rotation"], // prettier-ignore
+  markTransformDirty
+);
