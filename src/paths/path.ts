@@ -13,7 +13,6 @@ export class Path extends Array<Segment> {
     for (let i = 0; i < segments.length; i++) {
       this[i] = segments[i];
       this[i].path = this;
-      this[i].link(this[i - 1]);
     }
 
     this.isDirty = true;

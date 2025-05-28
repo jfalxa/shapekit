@@ -5,7 +5,6 @@ import { Renderable } from "../renderables/renderable";
 import { LightShape } from "../renderables/light-shape";
 import { Text } from "../renderables/text";
 import { getStyle, Style } from "../styles/style";
-import { Path } from "../paths/path";
 import { ArcTo } from "../paths/arc-to";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
 import { Arc } from "../paths/arc";
@@ -16,6 +15,7 @@ import { MoveTo } from "../paths/move-to";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Rect } from "../paths/rect";
 import { RoundRect } from "../paths/round-rect";
+import { Segment } from "../paths/segment";
 
 export interface Canvas2DInit {
   width: number;
@@ -154,18 +154,17 @@ export class Canvas2D {
   }
 }
 
-function buildPath2D(path: Path) {
+function buildPath2D(segments: Segment[]) {
   const path2D = new Path2D();
 
-  for (let i = 0; i < path.length; i++) {
-    const s = path[i];
-    s.link(path[i - 1]);
+  for (let i = 0; i < segments.length; i++) {
+    const s = segments[i];
     if (s instanceof ArcTo) {
       path2D.arcTo(s.cpx, s.cpy, s.x, s.y, s.radius);
     } else if (s instanceof Arc) {
       path2D.arc(s.x, s.y, s.radius, s.startAngle, s.endAngle, s.counterclockwise); // prettier-ignore
     } else if (s instanceof BezierCurveTo) {
-      path2D.bezierCurveTo(s._cp1x, s._cp1y, s.cp2x, s.cp2y, s.x, s.y);
+      path2D.bezierCurveTo(s.cp1x!, s.cp1y!, s.cp2x, s.cp2y, s.x, s.y);
     } else if (s instanceof ClosePath) {
       path2D.closePath();
     } else if (s instanceof Ellipse) {
@@ -175,11 +174,11 @@ function buildPath2D(path: Path) {
     } else if (s instanceof MoveTo) {
       path2D.moveTo(s.x, s.y);
     } else if (s instanceof QuadraticCurveTo) {
-      path2D.quadraticCurveTo(s._cpx, s._cpy, s.x, s.y);
-    } else if (s instanceof Rect) {
-      path2D.rect(s.x, s.y, s.width, s.height);
+      path2D.quadraticCurveTo(s.cpx!, s.cpy!, s.x, s.y);
     } else if (s instanceof RoundRect) {
       path2D.roundRect(s.x, s.y, s.width, s.height, s.radius);
+    } else if (s instanceof Rect) {
+      path2D.rect(s.x, s.y, s.width, s.height);
     }
   }
 

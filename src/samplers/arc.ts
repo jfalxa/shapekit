@@ -3,6 +3,7 @@ import { v, Vec2 } from "../math/vec2";
 import { Arc as ArcSegment } from "../paths/arc";
 import { ArcTo } from "../paths/arc-to";
 import { Ellipse as EllipseSegment } from "../paths/ellipse";
+import { Segment } from "../paths/segment";
 
 const TWO_PI = 2 * Math.PI;
 const EXTREMA = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
@@ -132,8 +133,10 @@ export class Arc {
     return sweep;
   }
 
-  static toCircle(arcTo: ArcTo) {
-    const from = new Vec2(arcTo._px, arcTo._py);
+  static toArc(arcTo: ArcTo, previous: Segment | undefined) {
+    if (!previous) throw new Error("Missing previous segment");
+
+    const from = new Vec2(previous.x, previous.y);
     const cp = new Vec2(arcTo.cpx, arcTo.cpy);
     const to = new Vec2(arcTo.x, arcTo.y);
 
@@ -159,8 +162,6 @@ export class Arc {
 
     return new ArcSegment(center.x, center.y, startAngle, endAngle, r);
   }
-
-  static toEllipse(arcTo: ArcTo) {}
 }
 
 function isExactCircle(sweep: number) {
