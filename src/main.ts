@@ -20,7 +20,7 @@ import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
 import { rect } from "./paths/rect";
 import { Clip } from "./renderables/clip";
-import { getColor, Perf, rad, rand, rgbToHex } from "./debug";
+import { getColor, Perf, rad, rand } from "./debug";
 
 import treeSrc from "./tree.png";
 
@@ -81,8 +81,8 @@ class App extends Loop {
     path: [
       moveTo(10, 80),
       quadraticCurveTo(52.5, 10, 95, 80),
-      quadraticCurveTo(180, 80, 95, 80),
-      quadraticCurveTo(265, 80, 95, 80),
+      quadraticCurveTo(180, 80),
+      quadraticCurveTo(265, 80),
     ],
   });
 
@@ -94,11 +94,17 @@ class App extends Loop {
     path: [
       moveTo(10, 80),
       bezierCurveTo(40, 10, 65, 10, 95, 80),
-      bezierCurveTo(150, 150, 180, 80, 95, 80),
+      bezierCurveTo(150, 150, 180, 80),
     ],
   });
 
-  roundRect = new Text({
+  roundRect = new Shape({
+    x: 400,
+    y: 300,
+    path: [roundRect(-100, -50, 200, 100, 10)],
+  });
+
+  text = new Text({
     text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     x: 400,
     y: 300,
@@ -244,7 +250,7 @@ class App extends Loop {
             path: [
               moveTo(10, 80),
               bezierCurveTo(40, 10, 65, 10, 95, 80),
-              bezierCurveTo(150, 150, 180, 80, 95, 80),
+              bezierCurveTo(150, 150, 180, 80),
             ],
           }),
 
@@ -254,7 +260,7 @@ class App extends Loop {
             width: 200,
             height: 50,
             text: "A centered title",
-            textFill: "blue",
+            textFill: "red",
             textAlign: "center",
             fontSize: 16,
             lineHeight: 24,
@@ -293,8 +299,8 @@ class App extends Loop {
             path: [
               moveTo(10, 80),
               quadraticCurveTo(52.5, 10, 95, 80),
-              quadraticCurveTo(180, 80, 95, 80),
-              quadraticCurveTo(265, 80, 95, 80),
+              quadraticCurveTo(180, 80),
+              quadraticCurveTo(265, 80),
             ],
           }),
         ],
@@ -362,8 +368,8 @@ class App extends Loop {
 
     this.perf.log(1500);
 
-    // for (let i = 0; i < 16000; i++) {
-    for (let i = 0; i < 0; i++) {
+    for (let i = 0; i < 16000; i++) {
+      // for (let i = 0; i < 0; i++) {
       this.scene.add(
         // new Group({
         //   children: [

@@ -27,6 +27,8 @@ export class Perf {
   }
 
   log(interval: number) {
+    console.log(`> Log started`);
+
     setInterval(() => {
       const named: string[] = [];
       const total = this.average().toFixed(2);
@@ -41,7 +43,6 @@ export class Perf {
 
       console.log(`> ${total}ms [${named.join(" | ")}]`);
     }, interval);
-    console.log(`> Log started`);
   }
 }
 
