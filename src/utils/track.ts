@@ -1,16 +1,14 @@
-export interface Dirty {
-  __dirty: boolean;
-}
+export type Constructor<C> = new (...args: any[]) => C;
 
-export function track(
-  object: object,
+export function track<C>(
+  constructor: Constructor<C>,
   props: string[],
-  onChange?: (instance: any, prop: string, newValue: any, oldValue: any) => void
+  onChange?: (instance: C, prop: string, newValue: any, oldValue: any) => void
 ) {
   for (let i = 0; i < props.length; i++) {
-    const prop = props[i] as keyof typeof object;
+    const prop = props[i] as string;
     const __prop = `__${String(prop)}`;
-    Object.defineProperty(object, prop, {
+    Object.defineProperty(constructor.prototype, prop, {
       enumerable: true,
       configurable: true,
       get() {

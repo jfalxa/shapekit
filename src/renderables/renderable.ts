@@ -1,3 +1,4 @@
+import { Matrix3 } from "../math/mat3";
 import { track } from "../utils/track";
 import { Group } from "./group";
 
@@ -15,11 +16,9 @@ export interface RenderableInit extends Partial<Transform> {
   id?: string;
 }
 
-export abstract class Renderable {
+export class Renderable {
   id?: string;
   parent?: Group;
-
-  __cache: Record<string, any> = {};
 
   declare x: number;
   declare y: number;
@@ -28,6 +27,9 @@ export abstract class Renderable {
   declare skewX: number;
   declare skewY: number;
   declare rotation: number;
+
+  transform: Matrix3;
+  isTransformDirty: boolean;
 
   constructor(init: RenderableInit = {}) {
     this.id = init.id;
@@ -39,18 +41,22 @@ export abstract class Renderable {
     this.skewX = init.skewX ?? 0;
     this.skewY = init.skewY ?? 0;
     this.rotation = init.rotation ?? 0;
-  }
-}
 
-function markTransformDirty(renderable: Renderable) {
-  renderable.__cache.dirtyTransform = true;
-  if (renderable instanceof Group) {
-    renderable.walk((r) => (r.__cache.dirtyTransform = true));
+    this.transform = new Matrix3();
+    this.isTransformDirty = true;
+  }
+
+  update() {
+    if (this.isTransformDirty) {
+      this.transform.identity().compose(this);
+      if (this.parent) this.transform.transform(this.parent.transform);
+      this.isTransformDirty = false;
+    }
   }
 }
 
 track(
-  Renderable.prototype,
-  ["x", "y", "width", "height", "scaleX", "scaleY", "skewX", "skewY", "rotation"], // prettier-ignore
-  markTransformDirty
+  Renderable,
+  ["x", "y", "scaleX", "scaleY", "skewX", "skewY", "rotation"],
+  (renderable) => (renderable.isTransformDirty = true)
 );

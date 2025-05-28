@@ -15,7 +15,7 @@ export class Group extends Renderable {
 
   constructor(init: GroupInit = {}) {
     super(init);
-    this.children = [];
+    this.children = init.children ?? [];
     this.globalCompositeOperation = init.globalCompositeOperation;
     if (init.children) this.add.apply(this, init.children);
   }
@@ -47,6 +47,17 @@ export class Group extends Renderable {
       const child = this.children[i];
       if (child instanceof Group) child.walk(operation);
       else operation(child);
+    }
+  }
+
+  update(): void {
+    const isDirty = this.isTransformDirty;
+    super.update();
+
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i];
+      child.isTransformDirty ||= isDirty;
+      child.update();
     }
   }
 }

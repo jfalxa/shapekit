@@ -28,10 +28,10 @@ export interface TextInit extends RenderableInit, TextStyle {
 }
 
 export class Text extends Renderable {
-  text: string;
+  declare text: string;
 
-  width: number;
-  height: number;
+  declare width: number;
+  declare height: number;
 
   fontFamily?: string;
   fontSize?: number;
@@ -51,6 +51,8 @@ export class Text extends Renderable {
 
   font!: string;
   lines!: [string, number, number][];
+
+  isTextDirty: boolean;
 
   constructor(init: TextInit) {
     super(init);
@@ -80,6 +82,8 @@ export class Text extends Renderable {
     this.direction = init.direction;
     this.padding = init.padding;
 
+    this.isTextDirty = true;
+
     this.format();
   }
 
@@ -87,10 +91,15 @@ export class Text extends Renderable {
     this.font = getFont(this);
     this.lines = fitText(this);
   }
+
+  update() {
+    super.update();
+    if (this.isTextDirty) this.format();
+  }
 }
 
 track(
-  Text.prototype,
+  Text, //
   ["text", "width", "height"],
-  (text) => (text.__cache.dirtyText = true)
+  (text) => (text.isTextDirty = true)
 );
