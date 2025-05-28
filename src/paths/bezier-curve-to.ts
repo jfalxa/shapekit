@@ -13,8 +13,8 @@ export function bezierCurveTo(
 }
 
 export class BezierCurveTo extends Segment {
-  cp1x?: number;
-  cp1y?: number;
+  declare cp1x?: number;
+  declare cp1y?: number;
   _cp1x!: number;
   _cp1y!: number;
 

@@ -4,11 +4,15 @@ import { Segment } from "./segment";
 export type PathLike = ArrayLike<Segment>;
 
 export class Path extends Array<Segment> {
+  isDirty: boolean;
+  path2D?: Path2D;
+
   constructor(segments: PathLike = [], public shape?: Shape) {
     super(segments.length);
     for (let i = 0; i < segments.length; i++) {
       this[i] = segments[i];
     }
+    this.isDirty = true;
     this.update();
   }
 

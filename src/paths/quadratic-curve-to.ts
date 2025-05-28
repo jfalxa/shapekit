@@ -11,8 +11,8 @@ export function quadraticCurveTo(
 }
 
 export class QuadraticCurveTo extends Segment {
-  cpx?: number;
-  cpy?: number;
+  declare cpx?: number;
+  declare cpy?: number;
   _cpx!: number;
   _cpy!: number;
 
