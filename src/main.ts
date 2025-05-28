@@ -368,7 +368,7 @@ class App extends Loop {
 
     this.perf.log(1500);
 
-    for (let i = 0; i < 16000; i++) {
+    for (let i = 0; i < 0; i++) {
       // for (let i = 0; i < 0; i++) {
       this.scene.add(
         // new Group({
@@ -401,7 +401,7 @@ class App extends Loop {
     // this.scene.add(this.roundRect);
     // this.scene.add(this.roundTriangle);
     // this.scene.add(this.lemon);
-    // this.scene.add(this.group);
+    this.scene.add(this.group);
     // this.scene.add(this.group2);
     // this.scene.add(this.skewed);
     // this.scene.add(this.circle);
