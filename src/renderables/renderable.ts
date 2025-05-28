@@ -1,6 +1,6 @@
 import { Matrix3 } from "../math/mat3";
 import { track } from "../utils/track";
-import { Group } from "./group";
+import { LightGroup } from "./light-group";
 
 export interface Transform {
   x: number;
@@ -18,7 +18,7 @@ export interface RenderableInit extends Partial<Transform> {
 
 export class Renderable {
   id?: string;
-  parent?: Group;
+  parent?: LightGroup;
 
   declare x: number;
   declare y: number;

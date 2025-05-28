@@ -9,7 +9,7 @@ export interface GroupInit extends RenderableInit, GroupStyle {
   children?: Renderable[];
 }
 
-export class Group extends Renderable {
+export class LightGroup extends Renderable {
   children: Renderable[];
   globalCompositeOperation?: GlobalCompositeOperation;
 
@@ -45,7 +45,7 @@ export class Group extends Renderable {
     operation(this);
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i];
-      if (child instanceof Group) child.walk(operation);
+      if (child instanceof LightGroup) child.walk(operation);
       else operation(child);
     }
   }

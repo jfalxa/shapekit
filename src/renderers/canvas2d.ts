@@ -1,8 +1,8 @@
-import { Group } from "../renderables/group";
+import { LightGroup } from "../renderables/light-group";
 import { Image } from "../renderables/image";
 import { Clip } from "../renderables/clip";
 import { Renderable } from "../renderables/renderable";
-import { Shape } from "../renderables/shape";
+import { LightShape } from "../renderables/light-shape";
 import { Text } from "../renderables/text";
 import { getStyle, Style } from "../styles/style";
 import { Path } from "../paths/path";
@@ -24,13 +24,13 @@ export interface Canvas2DInit {
 }
 
 export class Canvas2D {
-  scene: Group;
+  scene: LightGroup;
   element: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
   fill: Style;
 
-  constructor(scene: Group, init: Canvas2DInit) {
+  constructor(scene: LightGroup, init: Canvas2DInit) {
     this.scene = scene;
     this.element = document.createElement("canvas");
     this.element.width = init.width;
@@ -62,7 +62,7 @@ export class Canvas2D {
   }
 
   render(renderable: Renderable) {
-    if (renderable instanceof Shape) {
+    if (renderable instanceof LightShape) {
       const t = renderable.transform;
       this.ctx.setTransform(t[0], t[1], t[3], t[4], t[6], t[7]);
     }
@@ -73,13 +73,13 @@ export class Canvas2D {
 
     this.ctx.save();
 
-    if (renderable instanceof Group) {
+    if (renderable instanceof LightGroup) {
       this._renderGroup(renderable);
     } else if (renderable instanceof Image) {
       this._renderImage(renderable);
     } else if (renderable instanceof Text) {
       this._renderText(renderable);
-    } else if (renderable instanceof Shape) {
+    } else if (renderable instanceof LightShape) {
       this._applyEffects(renderable);
       if (renderable.fill) this._renderFill(renderable);
       if (renderable.stroke) this._renderStroke(renderable);
@@ -92,7 +92,7 @@ export class Canvas2D {
     this.ctx.clip(this._getPath2D(clip), clip.fillRule);
   }
 
-  private _renderGroup(group: Group) {
+  private _renderGroup(group: LightGroup) {
     this.set("globalCompositeOperation", group.globalCompositeOperation);
 
     for (let i = 0; i < group.children.length; i++) {
@@ -100,12 +100,12 @@ export class Canvas2D {
     }
   }
 
-  private _renderFill(shape: Shape) {
+  private _renderFill(shape: LightShape) {
     this.set("fillStyle", getStyle(this.ctx, shape.fill));
     this.ctx.fill(this._getPath2D(shape));
   }
 
-  private _renderStroke(shape: Shape) {
+  private _renderStroke(shape: LightShape) {
     this.set("lineWidth", shape.lineWidth);
     this.set("lineCap", shape.lineCap);
     this.set("lineJoin", shape.lineJoin);
@@ -135,7 +135,7 @@ export class Canvas2D {
     }
   }
 
-  private _applyEffects(shape: Shape) {
+  private _applyEffects(shape: LightShape) {
     this.set("globalAlpha", shape.globalAlpha);
     this.set("filter", shape.filter);
     this.set("shadowBlur", shape.shadowBlur);
@@ -144,7 +144,7 @@ export class Canvas2D {
     this.set("shadowOffsetY", shape.shadowOffsetY);
   }
 
-  private _getPath2D(shape: Shape) {
+  private _getPath2D(shape: LightShape) {
     if (shape.path.isDirty) {
       const path2D = buildPath2D(shape.path);
       shape.path.path2D = path2D;
