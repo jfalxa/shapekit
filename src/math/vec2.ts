@@ -5,6 +5,10 @@ export interface Point {
   y: number;
 }
 
+export function point(x = 0, y = x): Point {
+  return { x, y };
+}
+
 export function v(point: Point) {
   return new Vec2(point.x, point.y);
 }
@@ -24,7 +28,7 @@ export class Vec2 extends Float64Array implements Point {
     this[1] = value;
   }
 
-  constructor(x = 0, y = 0) {
+  constructor(x = 0, y = x) {
     super(2);
     this[0] = x;
     this[1] = y;

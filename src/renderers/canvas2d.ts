@@ -161,7 +161,7 @@ function buildPath2D(path: Path) {
     const s = path[i];
     s.link(path[i - 1]);
     if (s instanceof ArcTo) {
-      path2D.arcTo(s.x1, s.y1, s.x2, s.y2, s.radius);
+      path2D.arcTo(s.cpx, s.cpy, s.x, s.y, s.radius);
     } else if (s instanceof Arc) {
       path2D.arc(s.x, s.y, s.radius, s.startAngle, s.endAngle, s.counterclockwise); // prettier-ignore
     } else if (s instanceof BezierCurveTo) {

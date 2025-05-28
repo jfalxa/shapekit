@@ -12,13 +12,13 @@ export function arcTo(
 
 export class ArcTo extends Segment {
   constructor(
-    public x1: number,
-    public y1: number,
-    public x2: number,
-    public y2: number,
+    public cpx: number,
+    public cpy: number,
+    x: number,
+    y: number,
     public radius = 0
   ) {
-    super(x2, y2);
+    super(x, y);
   }
 }
 

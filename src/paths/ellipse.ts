@@ -31,7 +31,7 @@ export class Ellipse extends Segment {
     public rotation: number = 0,
     public startAngle: number = 0,
     public endAngle: number = 2 * Math.PI,
-    public counterclockwise?: boolean
+    public counterclockwise = false
   ) {
     super(x, y);
   }

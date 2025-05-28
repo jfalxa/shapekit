@@ -43,6 +43,7 @@ export class BezierCurveTo extends Segment {
   }
 
   link(previous: Segment | undefined): void {
+    super.link(previous);
     if (this.cp1x !== undefined && this.cp1y !== undefined) {
       this._cp1x = this.cp1x;
       this._cp1y = this.cp1y;

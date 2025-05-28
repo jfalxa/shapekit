@@ -9,17 +9,13 @@ export class Path extends Array<Segment> {
 
   constructor(segments: PathLike = [], public shape?: LightShape) {
     super(segments.length);
+
     for (let i = 0; i < segments.length; i++) {
       this[i] = segments[i];
-    }
-    this.isDirty = true;
-    this.update();
-  }
-
-  update() {
-    for (let i = 0; i < this.length; i++) {
       this[i].path = this;
-      this[i].previous = this[i - 1];
+      this[i].link(this[i - 1]);
     }
+
+    this.isDirty = true;
   }
 }
