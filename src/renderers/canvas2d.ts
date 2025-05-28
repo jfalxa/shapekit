@@ -146,7 +146,8 @@ export class Canvas2D {
 
   private _getPath2D(shape: LightShape) {
     if (shape.path.isDirty) {
-      const path2D = buildPath2D(shape.path);
+      const segments = shape.path.scale(1, 1);
+      const path2D = buildPath2D(segments);
       shape.path.path2D = path2D;
       shape.path.isDirty = false;
     }
