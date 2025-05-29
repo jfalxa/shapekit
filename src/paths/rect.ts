@@ -5,13 +5,13 @@ export function rect(x: number, y: number, width: number, height: number) {
 }
 
 export class Rect extends Segment {
-  constructor(
-    x: number,
-    y: number,
-    public width: number,
-    public height: number
-  ) {
+  declare width: number;
+  declare height: number;
+
+  constructor(x: number, y: number, width: number, height: number) {
     super(x, y);
+    this.width = width;
+    this.height = height;
   }
 }
 

@@ -4,7 +4,13 @@ import { Path } from "./path";
 export class Segment {
   path?: Path;
 
-  constructor(public x: number, public y: number) {}
+  declare x: number;
+  declare y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
 }
 
 function markPathDirty(segment: Segment) {

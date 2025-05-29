@@ -17,6 +17,9 @@ export class BezierCurveTo extends Segment {
   declare cp2x: number;
   declare cp2y: number;
 
+  _cp1x!: number;
+  _cp1y!: number;
+
   constructor(
     cp1x: number,
     cp1y: number,

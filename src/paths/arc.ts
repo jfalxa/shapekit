@@ -14,23 +14,25 @@ export function arc(
 const TWO_PI = 2 * Math.PI;
 
 export class Arc extends Segment {
+  declare radius: number;
+  declare startAngle: number;
+  declare endAngle: number;
+  declare counterclockwise: boolean;
+
   constructor(
     x: number,
     y: number,
-    public radius: number,
-    public startAngle = 0,
-    public endAngle = TWO_PI,
-    public counterclockwise = false
+    radius: number,
+    startAngle = 0,
+    endAngle = TWO_PI,
+    counterclockwise = false
   ) {
     super(x, y);
+    this.radius = radius;
+    this.startAngle = startAngle;
+    this.endAngle = endAngle;
+    this.counterclockwise = counterclockwise;
   }
 }
 
-trackSegment(Arc, [
-  "x",
-  "y",
-  "radius",
-  "startAngle",
-  "endAngle",
-  "counterclockwise",
-]);
+trackSegment(Arc, ["radius", "startAngle", "endAngle", "counterclockwise"]);

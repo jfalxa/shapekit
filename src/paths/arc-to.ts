@@ -11,15 +11,16 @@ export function arcTo(
 }
 
 export class ArcTo extends Segment {
-  constructor(
-    public cpx: number,
-    public cpy: number,
-    x: number,
-    y: number,
-    public radius = 0
-  ) {
+  declare cpx: number;
+  declare cpy: number;
+  declare radius: number;
+
+  constructor(cpx: number, cpy: number, x: number, y: number, radius = 0) {
     super(x, y);
+    this.cpx = cpx;
+    this.cpy = cpy;
+    this.radius = radius;
   }
 }
 
-trackSegment(ArcTo, ["cpx", "cpy"]);
+trackSegment(ArcTo, ["cpx", "cpy", "radius"]);
