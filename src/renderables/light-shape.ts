@@ -1,6 +1,7 @@
 import { Renderable, RenderableInit } from "./renderable";
 import { Path, PathLike } from "../paths/path";
 import { Style } from "../styles/style";
+import { Segment } from "../paths/segment";
 
 export interface ShapeStyle {
   fill?: Style;
@@ -19,7 +20,7 @@ export interface ShapeStyle {
   lineDash?: number[];
 }
 
-export interface ShapeInit extends RenderableInit, ShapeStyle {
+export interface LightShapeInit extends RenderableInit, ShapeStyle {
   path: PathLike;
 }
 
@@ -41,10 +42,14 @@ export class LightShape extends Renderable {
   filter?: string;
   lineDash?: number[];
 
-  constructor(init: ShapeInit) {
+  __path: Segment[];
+  __path2D?: Path2D;
+
+  constructor(init: LightShapeInit) {
     super(init);
 
     this.path = new Path(init.path, this);
+    this.__path = [];
 
     this.fill = init.fill;
     this.stroke = init.stroke;
@@ -60,5 +65,18 @@ export class LightShape extends Renderable {
     this.globalAlpha = init.globalAlpha;
     this.filter = init.filter;
     this.lineDash = init.lineDash;
+  }
+
+  update(): void {
+    super.update();
+
+    if (this.isContentDirty) {
+      this.__path = this.path.scale(1, 1);
+    }
+  }
+
+  clean(): void {
+    super.clean();
+    this.isContentDirty = false;
   }
 }

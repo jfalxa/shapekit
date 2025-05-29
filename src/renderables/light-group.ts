@@ -51,12 +51,12 @@ export class LightGroup extends Renderable {
   }
 
   update(): void {
-    const isDirty = this.isTransformDirty;
+    this.isTransformDirty ||= this.parent?.isTransformDirty ?? false;
+
     super.update();
 
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i];
-      child.isTransformDirty ||= isDirty;
       child.update();
     }
   }

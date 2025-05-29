@@ -16,18 +16,12 @@ import { RoundRect } from "./round-rect";
 export type PathLike = ArrayLike<Segment>;
 
 export class Path extends Array<Segment> {
-  isDirty: boolean;
-  path2D?: Path2D;
-
   constructor(segments: PathLike = [], public shape?: LightShape) {
     super(segments.length);
-
     for (let i = 0; i < segments.length; i++) {
       this[i] = segments[i];
       this[i].path = this;
     }
-
-    this.isDirty = true;
   }
 
   scale(sx: number, sy: number) {
@@ -49,6 +43,7 @@ export class Path extends Array<Segment> {
       } else if (s instanceof RoundRect) {
         scaled = new RoundRect(s.x * sx, s.y * sy, s.width * sx, s.height * sy, s.radius) // prettier-ignore
       } else if (s instanceof Rect) {
+        console.log({ sx, sy });
         scaled = new Rect(s.x * sx, s.y * sy, s.width * sx, s.height * sy);
       } else if (s instanceof QuadraticCurveTo) {
         const cp = getControl(s, segments[i - 1], sx, sy);

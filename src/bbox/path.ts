@@ -25,7 +25,7 @@ export function buildAABB(segments: Segment[], out = new AABB()) {
     } else if (s instanceof EllipseSegment) {
       Arc.aabb(s, out);
     } else if (s instanceof BezierCurveTo) {
-      Bezier3.aabb(s, out);
+      Bezier3.aabb(s, segments[i - 1], out);
     } else if (s instanceof ClosePath) {
       out.mergePoints(s.x, s.y);
     } else if (s instanceof LineTo) {
@@ -34,7 +34,7 @@ export function buildAABB(segments: Segment[], out = new AABB()) {
       out.mergePoints(s.x, s.y);
       lastMoveTo = s;
     } else if (s instanceof QuadraticCurveTo) {
-      Bezier2.aabb(s, out);
+      Bezier2.aabb(s, segments[i - 1], out);
     } else if (s instanceof Rect) {
       out.mergePoints(s.x, s.y, s.x + s.width, s.y + s.height);
     }

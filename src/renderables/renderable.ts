@@ -29,7 +29,9 @@ export class Renderable {
   declare rotation: number;
 
   transform: Matrix3;
+
   isTransformDirty: boolean;
+  isContentDirty: boolean;
 
   constructor(init: RenderableInit = {}) {
     this.id = init.id;
@@ -43,15 +45,21 @@ export class Renderable {
     this.rotation = init.rotation ?? 0;
 
     this.transform = new Matrix3();
+
     this.isTransformDirty = true;
+    this.isContentDirty = true;
   }
 
   update() {
     if (this.isTransformDirty) {
       this.transform.identity().compose(this);
       if (this.parent) this.transform.transform(this.parent.transform);
-      this.isTransformDirty = false;
     }
+  }
+
+  clean() {
+    this.isTransformDirty = false;
+    this.isContentDirty = false;
   }
 }
 

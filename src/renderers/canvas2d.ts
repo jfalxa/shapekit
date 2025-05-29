@@ -16,6 +16,7 @@ import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Rect } from "../paths/rect";
 import { RoundRect } from "../paths/round-rect";
 import { Segment } from "../paths/segment";
+import { Shape } from "../renderables/shape";
 
 export interface Canvas2DInit {
   width: number;
@@ -68,7 +69,9 @@ export class Canvas2D {
     }
 
     if (renderable instanceof Clip) {
-      return this._renderClip(renderable);
+      this._renderClip(renderable);
+      renderable.clean();
+      return;
     }
 
     this.ctx.save();
@@ -84,6 +87,8 @@ export class Canvas2D {
       if (renderable.fill) this._renderFill(renderable);
       if (renderable.stroke) this._renderStroke(renderable);
     }
+
+    renderable.clean();
 
     this.ctx.restore();
   }
@@ -145,13 +150,10 @@ export class Canvas2D {
   }
 
   private _getPath2D(shape: LightShape) {
-    if (shape.path.isDirty) {
-      const segments = shape.path.scale(1, 1);
-      const path2D = buildPath2D(segments);
-      shape.path.path2D = path2D;
-      shape.path.isDirty = false;
+    if (shape.isContentDirty || (shape as Shape).isSizeDirty) {
+      shape.__path2D = buildPath2D(shape.__path);
     }
-    return shape.path.path2D!;
+    return shape.__path2D!;
   }
 }
 

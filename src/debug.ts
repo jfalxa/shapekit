@@ -1,3 +1,52 @@
+import { OBB } from "./bbox/obb";
+import { LightGroup } from "./renderables/light-group";
+import { Renderable } from "./renderables/renderable";
+
+export function renderOBB(
+  ctx: CanvasRenderingContext2D,
+  renderables: Renderable[],
+  color = "orange"
+) {
+  ctx.save();
+  ctx.resetTransform();
+
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineCap = "square";
+  ctx.lineWidth = 4;
+
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.filter = "none";
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "black";
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+  for (const shape of flattenRenderables(renderables)) {
+    ctx.beginPath();
+
+    if (!("obb" in shape) || !(shape.obb instanceof OBB)) continue;
+
+    ctx.moveTo(shape.obb.a.x, shape.obb.a.y);
+    ctx.lineTo(shape.obb.b.x, shape.obb.b.y);
+    ctx.lineTo(shape.obb.c.x, shape.obb.c.y);
+    ctx.lineTo(shape.obb.d.x, shape.obb.d.y);
+    ctx.closePath();
+
+    ctx.stroke();
+
+    // ctx.beginPath();
+    // ctx.arc(shape.obb.center.x, shape.obb.center.y, 5, 0, 2 * Math.PI);
+    // ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(shape.obb.a.x, shape.obb.a.y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 export class Perf {
   logs: { name: string; time: number; duration: number }[] = [];
 
@@ -93,4 +142,15 @@ export function chain(functions: Function[], interval = 1000) {
   for (let i = 0; i <= functions.length; i++) {
     setTimeout(functions[i], (i + 1) * interval);
   }
+}
+
+function flattenRenderables(renderables: (Renderable | Transformer)[]) {
+  const flat: (Renderable | Transformer)[] = [];
+  for (const renderable of renderables) {
+    flat.push(renderable);
+    if (renderable instanceof LightGroup) {
+      flat.push(...flattenRenderables(renderable.children));
+    }
+  }
+  return flat;
 }

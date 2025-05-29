@@ -1,6 +1,7 @@
 import { AABB } from "../bbox/aabb";
 import { v, Vec2 } from "../math/vec2";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
+import { Segment } from "../paths/segment";
 import { pointToLineDistance2 } from "../utils/polyline";
 import { epsilon } from "./bezier3";
 
@@ -20,16 +21,17 @@ export class Bezier2 {
     return out;
   }
 
-  static aabb(bezier2: QuadraticCurveTo, out = new AABB()) {
-    const { _px, _py, _cpx, _cpy, x, y } = bezier2;
+  static aabb(bezier2: QuadraticCurveTo, previous: Segment, out = new AABB()) {
+    const { x: px, y: py } = previous;
+    const { cpx, cpy, x, y } = bezier2;
 
-    out.mergePoints(_px, _py, x, y);
+    out.mergePoints(px, py, x, y);
 
     const extremum = new Vec2();
-    const ts: number[] = [...solve(_px, _cpx, x), ...solve(_py, _cpy, y)];
+    const ts: number[] = [...solve(px, cpx!, x), ...solve(py, cpy!, y)];
 
     for (let i = 0; i < ts.length; i++) {
-      Bezier2.sample(_px, _py, _cpx, _cpy, x, y, ts[i], extremum);
+      Bezier2.sample(px, py, cpx!, cpy!, x, y, ts[i], extremum);
       out.mergeVector(extremum);
     }
 
@@ -38,11 +40,12 @@ export class Bezier2 {
 
   static adaptiveSample(
     bezier2: QuadraticCurveTo,
+    previous: Segment,
     quality: number,
     out: Vec2[] = []
   ): Vec2[] {
-    const p0 = new Vec2(bezier2._px, bezier2._py);
-    const p1 = new Vec2(bezier2._cpx, bezier2._cpy);
+    const p0 = new Vec2(previous.x, previous.y);
+    const p1 = new Vec2(bezier2.cpx, bezier2.cpy);
     const p2 = new Vec2(bezier2.x, bezier2.y);
     const tolerance2 = (1 / quality) * (1 / quality);
     return Bezier2.subdivision(p0, p1, p2, tolerance2, out);
@@ -65,11 +68,11 @@ export class Bezier2 {
   }
 }
 
-function solve(a: number, b: number, c: number) {
+function solve(p0: number, cp: number, p1: number) {
   const ts: number[] = [];
-  const denomX = a - 2 * b + c;
+  const denomX = p0 - 2 * cp + p1;
   if (!epsilon(denomX)) {
-    const tx = (a - b) / denomX;
+    const tx = (p0 - cp) / denomX;
     if (tx > 0 && tx < 1) ts.push(tx);
   }
   return ts;

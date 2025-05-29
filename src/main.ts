@@ -2,9 +2,10 @@
 // console.log(brush);
 import { Loop } from "vroum";
 import { Canvas2D } from "./renderers/canvas2d";
-import { LightShape } from "./renderables/light-shape";
+import { Shape } from "./renderables/shape";
 import { Text } from "./renderables/text";
 import { Image } from "./renderables/image";
+import { Group } from "./renderables/group";
 import { LightGroup } from "./renderables/light-group";
 import { Matrix3 } from "./math/mat3";
 import { Vec2 } from "./math/vec2";
@@ -20,7 +21,7 @@ import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
 import { rect } from "./paths/rect";
 import { Clip } from "./renderables/clip";
-import { getColor, Perf, rad, rand } from "./debug";
+import { getColor, Perf, rad, rand, renderOBB } from "./debug";
 
 import treeSrc from "./tree.png";
 
@@ -29,7 +30,7 @@ class App extends Loop {
 
   canvas = new Canvas2D(this.scene, { width: 800, height: 600 });
 
-  rect1 = new LightShape({
+  rect1 = new Shape({
     x: 400,
     y: 300,
     fill: "green",
@@ -43,7 +44,7 @@ class App extends Loop {
     // shadowColor: "#ccc",
   });
 
-  rect2 = new LightShape({
+  rect2 = new Shape({
     x: 500,
     y: 300,
     fill: "red",
@@ -51,7 +52,7 @@ class App extends Loop {
     path: [rect(0, 0, 100, 50)],
   });
 
-  rect3 = new LightShape({
+  rect3 = new Shape({
     x: 400,
     y: 300,
     fill: "cyan",
@@ -59,7 +60,7 @@ class App extends Loop {
     path: [rect(-50, -25, 100, 50)],
   });
 
-  path = new LightShape({
+  path = new Shape({
     x: 250,
     y: 200,
     stroke: "blue",
@@ -72,7 +73,7 @@ class App extends Loop {
     ],
   });
 
-  path2 = new LightShape({
+  path2 = new Shape({
     x: 300,
     y: 200,
     stroke: "blue",
@@ -86,7 +87,7 @@ class App extends Loop {
     ],
   });
 
-  path3 = new LightShape({
+  path3 = new Shape({
     x: 300,
     y: 200,
     stroke: "blue",
@@ -98,7 +99,7 @@ class App extends Loop {
     ],
   });
 
-  roundRect = new LightShape({
+  roundRect = new Shape({
     x: 400,
     y: 300,
     path: [roundRect(-100, -50, 200, 100, 10)],
@@ -112,7 +113,7 @@ class App extends Loop {
     height: 100,
   });
 
-  lemon = new LightShape({
+  lemon = new Shape({
     x: 400,
     y: 300,
     stroke: "red",
@@ -126,7 +127,7 @@ class App extends Loop {
     ],
   });
 
-  roundTriangle = new LightShape({
+  roundTriangle = new Shape({
     x: 400,
     y: 300,
     stroke: "red",
@@ -141,7 +142,7 @@ class App extends Loop {
     ],
   });
 
-  polyline = new LightShape({
+  polyline = new Shape({
     x: 400,
     y: 300,
     stroke: "yellow",
@@ -154,7 +155,7 @@ class App extends Loop {
     ],
   });
 
-  circle = new LightShape({
+  circle = new Shape({
     x: 400,
     y: 300,
     // lineWidth: 5,
@@ -169,7 +170,7 @@ class App extends Loop {
     ],
   });
 
-  arc = new LightShape({
+  arc = new Shape({
     x: 400,
     y: 300,
     stroke: "hotpink",
@@ -178,14 +179,14 @@ class App extends Loop {
     path: [arc(0, 0, 200, (3 * Math.PI) / 2, (3 * Math.PI) / 2 + 0.6)],
   });
 
-  ellipse = new LightShape({
+  ellipse = new Shape({
     x: 400,
     y: 300,
     stroke: "purple",
     path: [ellipse(0, 0, 100, 50, Math.PI / 3)],
   });
 
-  skewed = new LightGroup({
+  skewed = new Group({
     x: 400,
     y: 300,
 
@@ -207,13 +208,13 @@ class App extends Loop {
     ],
   });
 
-  group = new LightGroup({
+  group = new Group({
     id: "ROOT",
     x: 400,
     y: 300,
 
     children: [
-      new LightGroup({
+      new Group({
         id: "GROUP",
         x: 73.3623046875,
         y: -58.7176513671875,
@@ -226,7 +227,7 @@ class App extends Loop {
             path: [rect(0, 0, 400, 400)],
           }),
 
-          new LightShape({
+          new Shape({
             id: "ARC",
             x: -100,
             stroke: "hotpink",
@@ -240,7 +241,7 @@ class App extends Loop {
             }),
           }),
 
-          new LightShape({
+          new Shape({
             id: "PATH",
             x: -100,
             y: 100,
@@ -267,7 +268,7 @@ class App extends Loop {
             padding: 8,
           }),
 
-          new LightShape({
+          new Shape({
             id: "ROUND_TRIANGLES",
             stroke: "red",
             fill: "yellow",
@@ -288,7 +289,7 @@ class App extends Loop {
             ],
           }),
 
-          new LightShape({
+          new Shape({
             id: "SHOLVA",
             x: 50,
             y: 250,
@@ -308,32 +309,32 @@ class App extends Loop {
     ],
   });
 
-  group2 = new LightGroup({
+  group2 = new Group({
     x: 400,
     y: 300,
 
     children: [
-      new LightShape({
+      new Shape({
         x: -100,
         y: -100,
         fill: "red",
         rotation: Math.PI / 4,
         path: [rect(0, 0, 100, 50)],
       }),
-      new LightShape({
+      new Shape({
         x: 100,
         y: -100,
         fill: "green",
         path: [rect(0, 0, 100, 50)],
       }),
-      new LightShape({
+      new Shape({
         x: 100,
         y: 100,
         fill: "blue",
         rotation: Math.PI / 4,
         path: [rect(0, 0, 100, 50)],
       }),
-      new LightShape({
+      new Shape({
         x: -100,
         y: 100,
         fill: "yellow",
@@ -349,7 +350,7 @@ class App extends Loop {
   async mount() {
     document.body.append(this.canvas.element);
 
-    (this.group.children[0] as LightGroup).children.push(
+    (this.group.children[0] as Group).children.push(
       new Image({
         id: "IMAGE",
         x: +100,
@@ -366,14 +367,12 @@ class App extends Loop {
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
-    this.perf.log(1500);
-
     for (let i = 0; i < 0; i++) {
       // for (let i = 0; i < 0; i++) {
       this.scene.add(
         // new Group({
         //   children: [
-        new LightShape({
+        new Shape({
           fill: getColor(i),
           // new Image({
           // image: treeImage,
@@ -407,10 +406,9 @@ class App extends Loop {
     // this.scene.add(this.circle);
     // this.scene.add(this.arc);
     // this.scene.add(this.ellipse);
-  }
 
-  s = 1;
-  analyzer = { update() {} };
+    // this.perf.log(1500);
+  }
 
   tick() {
     this.perf.time("start");
@@ -441,7 +439,7 @@ class App extends Loop {
 
     this.perf.time("render");
 
-    // renderOBB(this.canvas.ctx, this.canvas.children);
+    renderOBB(this.canvas.ctx, [this.canvas.scene]);
     // renderHulls(this.canvas.ctx, this.canvas.children);
 
     // if (this.transformer) {

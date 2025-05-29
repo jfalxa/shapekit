@@ -2,7 +2,7 @@ export type Constructor<C> = new (...args: any[]) => C;
 
 export function track<C>(
   constructor: Constructor<C>,
-  props: string[],
+  props: (keyof C)[],
   onChange?: (instance: C, prop: string, newValue: any, oldValue: any) => void
 ) {
   for (let i = 0; i < props.length; i++) {

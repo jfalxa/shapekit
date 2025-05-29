@@ -8,10 +8,13 @@ export class Segment {
 }
 
 function markPathDirty(segment: Segment) {
-  if (segment.path) segment.path.isDirty = true;
+  if (segment.path?.shape) segment.path.shape.isContentDirty = true;
 }
 
-export function trackSegment(Class: Constructor<Segment>, props: string[]) {
+export function trackSegment<S extends Segment>(
+  Class: Constructor<S>,
+  props: (keyof S)[]
+) {
   track(Class, props, markPathDirty);
 }
 
