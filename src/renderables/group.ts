@@ -1,80 +1,76 @@
-import { AABB } from "../bbox/aabb";
-import { OBB } from "../bbox/obb";
-import { Matrix3 } from "../math/mat3";
-import { GroupInit, LightGroup } from "./light-group";
-import { Shape } from "./shape";
+import { remove } from "../utils/array";
+import { Renderable, RenderableInit } from "./renderable";
 
-export class Group extends LightGroup {
-  width!: number;
-  height!: number;
+export interface GroupStyle {
+  globalCompositeOperation?: GlobalCompositeOperation;
+}
 
-  obb: OBB;
+export interface GroupInit extends RenderableInit, GroupStyle {
+  children?: Renderable[];
+}
 
-  __localTransform: Matrix3;
-  __naturalAABB: AABB;
-  __naturalOBB: OBB;
-  __localAABB: AABB;
-  __localOBB: OBB;
+export class Group extends Renderable {
+  children: Renderable[];
+  globalCompositeOperation?: GlobalCompositeOperation;
 
-  isSizeDirty: boolean;
-
-  constructor(init: GroupInit) {
+  constructor(init: GroupInit = {}) {
     super(init);
 
-    this.obb = new OBB();
+    this.children = [];
+    this.globalCompositeOperation = init.globalCompositeOperation;
 
-    this.__localTransform = new Matrix3();
-
-    this.__naturalAABB = new AABB();
-    this.__naturalOBB = new OBB();
-
-    this.__localAABB = new AABB();
-    this.__localOBB = new OBB();
-
-    this.isSizeDirty = true;
+    if (init.children) {
+      this.add(...init.children);
+    }
   }
 
-  update() {
-    if (this.isTransformDirty) {
-      this.__localTransform.identity().compose(this);
+  add(...children: Renderable[]) {
+    this.children.push(...children);
+    this.isContentDirty = true;
+    for (let i = 0; i < children.length; i++) {
+      children[i].parent = this;
     }
+  }
 
-    if (
-      this.parent &&
-      (this.isTransformDirty || this.parent.isTransformDirty)
-    ) {
-      this.isTransformDirty = true;
-      this.transform
-        .copy(this.__localTransform)
-        .transform(this.parent.transform);
+  insert(index: number, ...children: Renderable[]) {
+    this.children.splice(index, 0, ...children);
+    this.isContentDirty = true;
+    for (let i = 0; i < children.length; i++) {
+      children[i].parent = this;
     }
+  }
 
-    this.__naturalAABB.reset();
-    this.__localAABB.reset();
+  remove(...children: Renderable[]) {
+    remove(this.children, children);
+    this.isContentDirty = true;
+    for (let i = 0; i < children.length; i++) {
+      children[i].parent = undefined;
+    }
+  }
 
+  walk(operation: (renderable: Renderable) => void) {
+    operation(this);
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i];
-      child.update();
-
-      if (child instanceof Group || child instanceof Shape) {
-        this.__naturalAABB.mergeAABB(child.__naturalOBB);
-        this.__localAABB.mergeAABB(child.__localOBB);
-      }
+      if (child instanceof Group) child.walk(operation);
+      else operation(child);
     }
-
-    this.__naturalOBB.copy(this.__naturalAABB).transform(this.__localTransform);
-    this.__localOBB.copy(this.__localAABB).transform(this.__localTransform);
-
-    if (this.width === undefined || this.height === undefined) {
-      this.width = this.__localAABB.width;
-      this.height = this.__localAABB.height;
-    }
-
-    this.obb.copy(this.__localAABB).transform(this.transform);
   }
 
-  clean() {
-    this.isTransformDirty = false;
-    this.isSizeDirty = false;
+  update(): void {
+    super.update();
+
+    if (this.parent?.isTransformDirty) {
+      this.isTransformDirty = true;
+    }
+
+    const children = this.children;
+    const size = children.length;
+
+    for (let i = 0; i < size; i++) {
+      const child = children[i];
+      child.update();
+      this.isContentDirty ||= child.isTransformDirty || child.isContentDirty;
+    }
   }
 }

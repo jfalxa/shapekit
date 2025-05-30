@@ -1,13 +1,13 @@
 import { PathLike } from "../paths/path";
 import { RenderableInit } from "./renderable";
-import { LightShape } from "./light-shape";
+import { Shape } from "./shape";
 
 export interface ClipInit extends RenderableInit {
   path: PathLike;
   fillRule?: CanvasFillRule;
 }
 
-export class Clip extends LightShape {
+export class Clip extends Shape {
   fillRule?: CanvasFillRule;
 
   constructor(init: ClipInit) {

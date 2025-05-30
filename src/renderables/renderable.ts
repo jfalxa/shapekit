@@ -1,6 +1,6 @@
 import { Matrix3 } from "../math/mat3";
 import { track } from "../utils/track";
-import { LightGroup } from "./light-group";
+import { Group } from "./group";
 
 export interface Transform {
   x: number;
@@ -14,11 +14,12 @@ export interface Transform {
 
 export interface RenderableInit extends Partial<Transform> {
   id?: string;
+  hidden?: boolean;
 }
 
 export class Renderable {
   id?: string;
-  parent?: LightGroup;
+  parent?: Group;
 
   declare x: number;
   declare y: number;
@@ -27,6 +28,8 @@ export class Renderable {
   declare skewX: number;
   declare skewY: number;
   declare rotation: number;
+
+  hidden: boolean;
 
   transform: Matrix3;
 
@@ -44,6 +47,8 @@ export class Renderable {
     this.skewY = init.skewY ?? 0;
     this.rotation = init.rotation ?? 0;
 
+    this.hidden = init.hidden ?? false;
+
     this.transform = new Matrix3();
 
     this.isTransformDirty = true;
@@ -53,7 +58,12 @@ export class Renderable {
   update() {
     if (this.isTransformDirty) {
       this.transform.identity().compose(this);
-      if (this.parent) this.transform.transform(this.parent.transform);
+    }
+
+    if (this.parent) {
+      if (this.isTransformDirty || this.parent.isTransformDirty) {
+        this.transform.transform(this.parent.transform);
+      }
     }
   }
 

@@ -1,81 +1,76 @@
-import { AABB } from "../bbox/aabb";
-import { OBB } from "../bbox/obb";
-import { buildAABB } from "../bbox/path";
-import { Matrix3 } from "../math/mat3";
-import { PathLike } from "../paths/path";
-import { Rect } from "../paths/rect";
-import { Segment } from "../paths/segment";
-import { track } from "../utils/track";
-import { LightShape, LightShapeInit } from "./light-shape";
+import { Renderable, RenderableInit } from "./renderable";
+import { Path, PathLike } from "../paths/path";
+import { Style } from "../styles/style";
 
-export interface ShapeInit extends Omit<LightShapeInit, "path"> {
-  path?: PathLike;
-  width?: number;
-  height?: number;
+export interface ShapeStyle {
+  fill?: Style;
+  stroke?: Style;
+  lineWidth?: number;
+  lineCap?: CanvasLineCap;
+  lineJoin?: CanvasLineJoin;
+  lineDashOffset?: number;
+  miterLimit?: number;
+  shadowBlur?: number;
+  shadowColor?: string;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  globalAlpha?: number;
+  filter?: string;
+  lineDash?: number[];
 }
 
-export class Shape extends LightShape {
-  declare width: number;
-  declare height: number;
+export interface ShapeInit extends RenderableInit, ShapeStyle {
+  path: PathLike;
+}
 
-  aabb: AABB;
-  obb: OBB;
+export class Shape extends Renderable {
+  path: Path;
 
-  isSizeDirty: boolean;
+  fill?: Style;
+  stroke?: Style;
+  lineWidth?: number;
+  lineCap?: CanvasLineCap;
+  lineJoin?: CanvasLineJoin;
+  lineDashOffset?: number;
+  miterLimit?: number;
+  shadowBlur?: number;
+  shadowColor?: string;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  globalAlpha?: number;
+  filter?: string;
+  lineDash?: number[];
+
+  __path: PathLike;
+  __path2D?: Path2D;
 
   constructor(init: ShapeInit) {
-    if (!init.path) {
-      init.path = [new Rect(0, 0, init.width ?? 0, init.height ?? 0)];
-    }
+    super(init);
 
-    super(init as LightShapeInit);
+    this.path = new Path(init.path, this);
+    this.__path = [];
 
-    this.aabb = new AABB();
-    this.obb = new OBB();
-
-    this.width = init.width!;
-    this.height = init.height!;
-
-    this.isSizeDirty = true;
+    this.fill = init.fill;
+    this.stroke = init.stroke;
+    this.lineWidth = init.lineWidth;
+    this.lineCap = init.lineCap;
+    this.lineJoin = init.lineJoin;
+    this.lineDashOffset = init.lineDashOffset;
+    this.miterLimit = init.miterLimit;
+    this.shadowBlur = init.shadowBlur;
+    this.shadowColor = init.shadowColor;
+    this.shadowOffsetX = init.shadowOffsetX;
+    this.shadowOffsetY = init.shadowOffsetY;
+    this.globalAlpha = init.globalAlpha;
+    this.filter = init.filter;
+    this.lineDash = init.lineDash;
   }
 
-  update() {
-    if (this.isTransformDirty) {
-      this.transform.identity().compose(this);
-    }
-
-    if (this.parent) {
-      if (this.isTransformDirty || this.parent.isTransformDirty) {
-        this.transform.transform(this.parent.transform);
-      }
-    }
+  update(): void {
+    super.update();
 
     if (this.isContentDirty) {
-      buildAABB(this.path, this.aabb);
+      this.path.update();
     }
-
-    if (this.isContentDirty || this.isSizeDirty) {
-      const sx = this.width / this.aabb.width;
-      const sy = this.height / this.aabb.height;
-      this.__path = this.path.scale(sx, sy);
-    }
-
-    if (
-      this.isTransformDirty ||
-      this.parent?.isTransformDirty ||
-      this.isContentDirty ||
-      this.isSizeDirty
-    ) {
-      this.obb.copy(this.aabb).transform();
-    }
-  }
-
-  clean() {
-    super.clean();
-    this.isSizeDirty = false;
   }
 }
-
-track(Shape, ["width", "height"], (shape) => {
-  shape.isSizeDirty = true;
-});

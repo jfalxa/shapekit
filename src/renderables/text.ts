@@ -52,8 +52,6 @@ export class Text extends Renderable {
   font!: string;
   lines!: [string, number, number][];
 
-  isTextDirty: boolean;
-
   constructor(init: TextInit) {
     super(init);
 
@@ -82,8 +80,6 @@ export class Text extends Renderable {
     this.direction = init.direction;
     this.padding = init.padding;
 
-    this.isTextDirty = true;
-
     this.format();
   }
 
@@ -94,12 +90,10 @@ export class Text extends Renderable {
 
   update() {
     super.update();
-    if (this.isTextDirty) this.format();
+    if (this.isContentDirty) this.format();
   }
 }
 
-track(
-  Text, //
-  ["text", "width", "height"],
-  (text) => (text.isTextDirty = true)
-);
+track(Text, ["text", "width", "height"], (text) => {
+  text.isContentDirty = true;
+});
