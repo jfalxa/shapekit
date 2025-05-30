@@ -34,20 +34,20 @@ export class Bezier3 {
 
   static aabb(bezier3: BezierCurveTo, previous: Segment, out = new AABB()) {
     const { x: p0x, y: p0y } = previous;
-    const { cp1x, cp1y, cp2x, cp2y, x: p1x, y: p1y } = bezier3;
+    const { _cp1x, _cp1y, cp2x, cp2y, x: p1x, y: p1y } = bezier3;
 
     out.mergePoints(p1x, p1y);
 
     const extremum = new Vec2();
 
     const ts = [
-      ...solve(p0x, cp1x!, cp2x, p1x),
-      ...solve(p0y, cp1y!, cp2y, p1y),
+      ...solve(p0x, _cp1x, cp2x, p1x),
+      ...solve(p0y, _cp1y, cp2y, p1y),
     ];
 
     for (let i = 0; i < ts.length; i++) {
       if (ts[i] > 0 && ts[i] < 1) {
-        Bezier3.sample(p0x, p0y, cp1x!, cp1y!, cp2x, cp2y, p1x, p1y, ts[i], extremum); // prettier-ignore
+        Bezier3.sample(p0x, p0y, _cp1x, _cp1y, cp2x, cp2y, p1x, p1y, ts[i], extremum); // prettier-ignore
         out.mergeVector(extremum);
       }
     }
@@ -62,7 +62,7 @@ export class Bezier3 {
     out: Vec2[] = []
   ) {
     const p0 = new Vec2(previous.x, previous.y);
-    const p1 = new Vec2(bezier3.cp1x, bezier3.cp1y);
+    const p1 = new Vec2(bezier3._cp1x, bezier3._cp1y);
     const p2 = new Vec2(bezier3.cp2x, bezier3.cp2y);
     const p3 = new Vec2(bezier3.x, bezier3.y);
     const tolerance2 = (1 / quality) * (1 / quality);
@@ -99,9 +99,9 @@ export class Bezier3 {
 
 // Helper to solve at^2 + bt + c = 0 and return real roots in (0,1)
 export function solve(p0: number, cp1: number, cp2: number, p1: number) {
-  const a = -p0 + 3 * cp1! - 3 * cp2 + p1;
-  const b = 2 * (p0 - 2 * cp1! + cp2);
-  const c = -p0 + cp1!;
+  const a = -p0 + 3 * cp1 - 3 * cp2 + p1;
+  const b = 2 * (p0 - 2 * cp1 + cp2);
+  const c = -p0 + cp1;
 
   if (epsilon(a)) {
     if (epsilon(b)) return [];

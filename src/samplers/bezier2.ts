@@ -23,15 +23,19 @@ export class Bezier2 {
 
   static aabb(bezier2: QuadraticCurveTo, previous: Segment, out = new AABB()) {
     const { x: px, y: py } = previous;
-    const { cpx, cpy, x, y } = bezier2;
+    const { _cpx, _cpy, x, y } = bezier2;
 
     out.mergePoints(px, py, x, y);
 
     const extremum = new Vec2();
-    const ts: number[] = [...solve(px, cpx!, x), ...solve(py, cpy!, y)];
+
+    const ts: number[] = [
+      ...solve(px, _cpx, x), //
+      ...solve(py, _cpy, y),
+    ];
 
     for (let i = 0; i < ts.length; i++) {
-      Bezier2.sample(px, py, cpx!, cpy!, x, y, ts[i], extremum);
+      Bezier2.sample(px, py, _cpx, _cpy, x, y, ts[i], extremum);
       out.mergeVector(extremum);
     }
 

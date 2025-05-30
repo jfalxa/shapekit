@@ -1,9 +1,8 @@
 import { AABB } from "../bbox/aabb";
-import { v, Vec2 } from "../math/vec2";
+import { Vec2 } from "../math/vec2";
 import { Arc as ArcSegment } from "../paths/arc";
 import { ArcTo } from "../paths/arc-to";
 import { Ellipse as EllipseSegment } from "../paths/ellipse";
-import { Segment } from "../paths/segment";
 
 const TWO_PI = 2 * Math.PI;
 const EXTREMA = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
@@ -49,8 +48,22 @@ export class Arc {
     return out;
   }
 
-  static aabb(arc: ArcSegment | EllipseSegment, out = new AABB()) {
-    const { x, y, startAngle, endAngle, counterclockwise } = arc;
+  static aabb(arc: ArcSegment | EllipseSegment | ArcTo, out = new AABB()) {
+    const { x, y } = arc;
+
+    let startAngle: number;
+    let endAngle: number;
+    let counterclockwise: boolean;
+
+    if (arc instanceof ArcTo) {
+      startAngle = arc._startAngle;
+      endAngle = arc._endAngle;
+      counterclockwise = false;
+    } else {
+      startAngle = arc.startAngle;
+      endAngle = arc.endAngle;
+      counterclockwise = arc.counterclockwise;
+    }
 
     const extremum = new Vec2();
     const base = ((startAngle % TWO_PI) + TWO_PI) % TWO_PI;
@@ -66,9 +79,9 @@ export class Arc {
       const isValidNegative = sweep < 0 && delta <= 0 && delta >= sweep;
 
       if (0 <= t && t <= 1 && (isValidPositive || isValidNegative)) {
-        arc instanceof EllipseSegment
+        arc.radiusX !== arc.radiusY
           ? Arc.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, t, extremum) // prettier-ignore
-          : Arc.sampleCircle(x, y, arc.radius, startAngle, sweep, t, extremum);
+          : Arc.sampleCircle(x, y, arc.radiusX, startAngle, sweep, t, extremum);
 
         out.mergeVector(extremum);
       }
@@ -84,10 +97,7 @@ export class Arc {
   ) {
     const { x, y, startAngle, endAngle, counterclockwise } = arc;
 
-    const radius =
-      arc instanceof EllipseSegment
-        ? Math.max(arc.radiusX, arc.radiusY)
-        : arc.radius;
+    const radius = Math.max(arc.radiusX, arc.radiusY);
 
     if (radius === 0) {
       out.push(new Vec2(x, y));
@@ -101,9 +111,9 @@ export class Arc {
 
     for (let i = 0; i <= divisions; i++) {
       const point =
-        arc instanceof EllipseSegment
+        arc.radiusX !== arc.radiusY
           ? Arc.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, i / divisions) // prettier-ignore
-          : Arc.sampleCircle(x, y, arc.radius, startAngle, sweep, i / divisions); // prettier-ignore
+          : Arc.sampleCircle(x, y, arc.radiusX, startAngle, sweep, i / divisions); // prettier-ignore
 
       out.push(point);
     }
@@ -131,36 +141,6 @@ export class Arc {
       sweep = sweep > 0 ? sweep - TWO_PI : sweep;
     }
     return sweep;
-  }
-
-  static toArc(arcTo: ArcTo, previous: Segment | undefined) {
-    if (!previous) throw new Error("Missing previous segment");
-
-    const from = new Vec2(previous.x, previous.y);
-    const cp = new Vec2(arcTo.cpx, arcTo.cpy);
-    const to = new Vec2(arcTo.x, arcTo.y);
-
-    const r = arcTo.radius;
-
-    const v0 = v(from).subtract(cp).normalize();
-    const v2 = v(to).subtract(cp).normalize();
-
-    const theta = Math.acos(v0.dot(v2));
-
-    const d = r / Math.tan(theta / 2);
-
-    const t0 = v(v0).scale(d).add(cp);
-    const t1 = v(v2).scale(d).add(cp);
-
-    const bisector = v(v0).add(v2).normalize();
-
-    const offset = r / Math.sin(theta / 2);
-    const center = v(bisector).scale(offset).add(cp);
-
-    const startAngle = Math.atan2(t0.y - center.y, t0.x - center.x);
-    const endAngle = Math.atan2(t1.y - center.y, t1.x - center.x);
-
-    return new ArcSegment(center.x, center.y, startAngle, endAngle, r);
   }
 }
 
