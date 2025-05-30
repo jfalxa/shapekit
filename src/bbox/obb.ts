@@ -8,6 +8,15 @@ export class OBB extends AABB {
   c = new Vec2();
   d = new Vec2();
 
+  scale(sx: number, sy: number) {
+    this.a.scale(sx, sy);
+    this.b.scale(sx, sy);
+    this.c.scale(sx, sy);
+    this.d.scale(sx, sy);
+    this._updateAABB();
+    return this;
+  }
+
   transform(matrix: Matrix3) {
     this.a.transform(matrix);
     this.b.transform(matrix);

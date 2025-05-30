@@ -11,30 +11,28 @@ import { Rect } from "../paths/rect";
 import { Bezier2 } from "../samplers/bezier2";
 import { Bezier3 } from "../samplers/bezier3";
 import { Arc } from "../samplers/arc";
-import { Segment } from "../paths/segment";
+import { PathLike } from "../paths/path";
 
-export function buildAABB(segments: Segment[], out = new AABB()) {
+export function buildAABB(path: PathLike, out = new AABB()) {
   out.reset();
-  let lastMoveTo: MoveTo | undefined;
-  for (let i = 0; i < segments.length; i++) {
-    const s = segments[i];
+  for (let i = 0; i < path.length; i++) {
+    const s = path[i];
     if (s instanceof ArcTo) {
-      Arc.aabb(Arc.toArc(s, segments[i - 1]), out);
+      Arc.aabb(s, out);
     } else if (s instanceof ArcSegment) {
       Arc.aabb(s, out);
     } else if (s instanceof EllipseSegment) {
       Arc.aabb(s, out);
     } else if (s instanceof BezierCurveTo) {
-      Bezier3.aabb(s, segments[i - 1], out);
+      Bezier3.aabb(s, path[i - 1], out);
     } else if (s instanceof ClosePath) {
-      out.mergePoints(s.x, s.y);
+      out.mergePoints(s._x, s._y);
     } else if (s instanceof LineTo) {
       out.mergePoints(s.x, s.y);
     } else if (s instanceof MoveTo) {
       out.mergePoints(s.x, s.y);
-      lastMoveTo = s;
     } else if (s instanceof QuadraticCurveTo) {
-      Bezier2.aabb(s, segments[i - 1], out);
+      Bezier2.aabb(s, path[i - 1], out);
     } else if (s instanceof Rect) {
       out.mergePoints(s.x, s.y, s.x + s.width, s.y + s.height);
     }
