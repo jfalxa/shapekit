@@ -1,8 +1,8 @@
-import { LightGroup } from "../renderables/light-group";
+import { Group } from "../renderables/group";
 import { Image } from "../renderables/image";
 import { Clip } from "../renderables/clip";
 import { Renderable } from "../renderables/renderable";
-import { LightShape } from "../renderables/light-shape";
+import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { getStyle, Style } from "../styles/style";
 import { ArcTo } from "../paths/arc-to";
@@ -15,8 +15,7 @@ import { MoveTo } from "../paths/move-to";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Rect } from "../paths/rect";
 import { RoundRect } from "../paths/round-rect";
-import { Segment } from "../paths/segment";
-import { Shape } from "../renderables/shape";
+import { PathLike } from "../paths/path";
 
 export interface Canvas2DInit {
   width: number;
@@ -25,13 +24,13 @@ export interface Canvas2DInit {
 }
 
 export class Canvas2D {
-  scene: LightGroup;
+  scene: Group;
   element: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
   fill: Style;
 
-  constructor(scene: LightGroup, init: Canvas2DInit) {
+  constructor(scene: Group, init: Canvas2DInit) {
     this.scene = scene;
     this.element = document.createElement("canvas");
     this.element.width = init.width;
@@ -63,7 +62,12 @@ export class Canvas2D {
   }
 
   render(renderable: Renderable) {
-    if (renderable instanceof LightShape) {
+    if (renderable.hidden) {
+      renderable.clean();
+      return;
+    }
+
+    if (renderable instanceof Shape) {
       const t = renderable.transform;
       this.ctx.setTransform(t[0], t[1], t[3], t[4], t[6], t[7]);
     }
@@ -76,13 +80,13 @@ export class Canvas2D {
 
     this.ctx.save();
 
-    if (renderable instanceof LightGroup) {
+    if (renderable instanceof Group) {
       this._renderGroup(renderable);
     } else if (renderable instanceof Image) {
       this._renderImage(renderable);
     } else if (renderable instanceof Text) {
       this._renderText(renderable);
-    } else if (renderable instanceof LightShape) {
+    } else if (renderable instanceof Shape) {
       this._applyEffects(renderable);
       if (renderable.fill) this._renderFill(renderable);
       if (renderable.stroke) this._renderStroke(renderable);
@@ -97,7 +101,7 @@ export class Canvas2D {
     this.ctx.clip(this._getPath2D(clip), clip.fillRule);
   }
 
-  private _renderGroup(group: LightGroup) {
+  private _renderGroup(group: Group) {
     this.set("globalCompositeOperation", group.globalCompositeOperation);
 
     for (let i = 0; i < group.children.length; i++) {
@@ -105,12 +109,12 @@ export class Canvas2D {
     }
   }
 
-  private _renderFill(shape: LightShape) {
+  private _renderFill(shape: Shape) {
     this.set("fillStyle", getStyle(this.ctx, shape.fill));
     this.ctx.fill(this._getPath2D(shape));
   }
 
-  private _renderStroke(shape: LightShape) {
+  private _renderStroke(shape: Shape) {
     this.set("lineWidth", shape.lineWidth);
     this.set("lineCap", shape.lineCap);
     this.set("lineJoin", shape.lineJoin);
@@ -140,7 +144,7 @@ export class Canvas2D {
     }
   }
 
-  private _applyEffects(shape: LightShape) {
+  private _applyEffects(shape: Shape) {
     this.set("globalAlpha", shape.globalAlpha);
     this.set("filter", shape.filter);
     this.set("shadowBlur", shape.shadowBlur);
@@ -149,25 +153,21 @@ export class Canvas2D {
     this.set("shadowOffsetY", shape.shadowOffsetY);
   }
 
-  private _getPath2D(shape: LightShape) {
-    if (shape.isContentDirty || (shape as Shape).isSizeDirty) {
-      shape.__path2D = buildPath2D(shape.__path);
+  private _getPath2D(shape: Shape) {
+    if (shape.isContentDirty) {
+      shape.__path2D = buildPath2D(shape.path);
     }
     return shape.__path2D!;
   }
 }
 
-function buildPath2D(segments: Segment[]) {
+function buildPath2D(path: PathLike) {
   const path2D = new Path2D();
 
-  for (let i = 0; i < segments.length; i++) {
-    const s = segments[i];
-    if (s instanceof ArcTo) {
-      path2D.arcTo(s.cpx, s.cpy, s.x, s.y, s.radius);
-    } else if (s instanceof Arc) {
-      path2D.arc(s.x, s.y, s.radius, s.startAngle, s.endAngle, s.counterclockwise); // prettier-ignore
-    } else if (s instanceof BezierCurveTo) {
-      path2D.bezierCurveTo(s.cp1x!, s.cp1y!, s.cp2x, s.cp2y, s.x, s.y);
+  for (let i = 0; i < path.length; i++) {
+    const s = path[i];
+    if (s instanceof BezierCurveTo) {
+      path2D.bezierCurveTo(s._cp1x, s._cp1y, s.cp2x, s.cp2y, s.x, s.y);
     } else if (s instanceof ClosePath) {
       path2D.closePath();
     } else if (s instanceof Ellipse) {
@@ -177,11 +177,23 @@ function buildPath2D(segments: Segment[]) {
     } else if (s instanceof MoveTo) {
       path2D.moveTo(s.x, s.y);
     } else if (s instanceof QuadraticCurveTo) {
-      path2D.quadraticCurveTo(s.cpx!, s.cpy!, s.x, s.y);
+      path2D.quadraticCurveTo(s._cpx, s._cpy, s.x, s.y);
     } else if (s instanceof RoundRect) {
       path2D.roundRect(s.x, s.y, s.width, s.height, s.radius);
     } else if (s instanceof Rect) {
       path2D.rect(s.x, s.y, s.width, s.height);
+    } else if (s instanceof Arc) {
+      if (s.radiusX === s.radiusY) {
+        path2D.arc(s.x, s.y, s.radiusX, s.startAngle, s.endAngle, s.counterclockwise); // prettier-ignore
+      } else {
+        path2D.ellipse(s.x, s.y, s.radiusX, s.radiusY, 0, s.startAngle, s.endAngle) // prettier-ignore
+      }
+    } else if (s instanceof ArcTo) {
+      if (s.radiusX === s.radiusY) {
+        path2D.arcTo(s.cpx, s.cpy, s.x, s.y, s.radiusX);
+      } else {
+        path2D.ellipse(s._x, s._y, s._radiusX, s._radiusY, 0, s._startAngle, s._endAngle) // prettier-ignore
+      }
     }
   }
 
