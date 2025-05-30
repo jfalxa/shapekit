@@ -22,6 +22,46 @@ export class Matrix3 extends Float64Array {
     return this;
   }
 
+  translate(tx: number, ty: number) {
+    // prettier-ignore
+    return this.multiply(
+      1, 0, 0, 
+      0, 1, 0, 
+      tx, ty, 1
+    );
+  }
+
+  rotate(angle: number) {
+    const c = Math.cos(angle);
+    const s = Math.sin(angle);
+    // prettier-ignore
+    return this.multiply(
+      c, s, 0,
+      -s, c, 0, 
+      0, 0, 1
+    );
+  }
+
+  scale(sx: number, sy: number) {
+    // prettier-ignore
+    return this.multiply(
+      sx, 0, 0, 
+      0, sy, 0, 
+      0, 0, 1
+    );
+  }
+
+  skew(ax: number, ay: number) {
+    const tanx = Math.tan(ax);
+    const tany = Math.tan(ay);
+    // prettier-ignore
+    return this.multiply(
+      1, tany, 0, 
+      tanx, 1, 0, 
+      0, 0, 1
+    );
+  }
+
   compose(transform: Partial<Transform>) {
     const {
       x = 0,
@@ -54,6 +94,33 @@ export class Matrix3 extends Float64Array {
       c, d, 0,
       e, f, 1
     );
+  }
+
+  decompose(out = {} as Transform) {
+    const [a, b, , c, d, , e, f] = this;
+
+    let r = Math.atan2(b, a);
+    let sx = Math.hypot(a, b);
+    const shear = sx !== 0 ? (a * c + b * d) / (sx * sx) : 0;
+    let sy = Math.hypot(c - shear * a, d - shear * b);
+    let skx = sx * sy !== 0 ? Math.atan((a * c + b * d) / (sx * sy)) : 0;
+
+    // adjust for negative scaling
+    if (a * d - b * c < 0) {
+      sx = -sx;
+      skx = -skx;
+      r -= Math.PI;
+    }
+
+    out.x = e;
+    out.y = f;
+    out.rotation = r;
+    out.skewX = skx;
+    out.skewY = 0;
+    out.scaleX = sx;
+    out.scaleY = sy;
+
+    return out;
   }
 
   transform(m: Matrix3) {
