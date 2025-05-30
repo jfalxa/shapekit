@@ -1,5 +1,5 @@
 import { OBB } from "./bbox/obb";
-import { LightGroup } from "./renderables/light-group";
+import { Group } from "./renderables/group";
 import { Renderable } from "./renderables/renderable";
 
 export function renderOBB(
@@ -26,12 +26,12 @@ export function renderOBB(
   for (const shape of flattenRenderables(renderables)) {
     ctx.beginPath();
 
-    if (!("obb" in shape) || !(shape.obb instanceof OBB)) continue;
+    if (!("bbox" in shape) || !(shape.bbox instanceof OBB)) continue;
 
-    ctx.moveTo(shape.obb.a.x, shape.obb.a.y);
-    ctx.lineTo(shape.obb.b.x, shape.obb.b.y);
-    ctx.lineTo(shape.obb.c.x, shape.obb.c.y);
-    ctx.lineTo(shape.obb.d.x, shape.obb.d.y);
+    ctx.moveTo(shape.bbox.a.x, shape.bbox.a.y);
+    ctx.lineTo(shape.bbox.b.x, shape.bbox.b.y);
+    ctx.lineTo(shape.bbox.c.x, shape.bbox.c.y);
+    ctx.lineTo(shape.bbox.d.x, shape.bbox.d.y);
     ctx.closePath();
 
     ctx.stroke();
@@ -41,7 +41,7 @@ export function renderOBB(
     // ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(shape.obb.a.x, shape.obb.a.y, 5, 0, 2 * Math.PI);
+    ctx.arc(shape.bbox.a.x, shape.bbox.a.y, 5, 0, 2 * Math.PI);
     ctx.fill();
   }
   ctx.restore();
@@ -148,7 +148,7 @@ function flattenRenderables(renderables: (Renderable | Transformer)[]) {
   const flat: (Renderable | Transformer)[] = [];
   for (const renderable of renderables) {
     flat.push(renderable);
-    if (renderable instanceof LightGroup) {
+    if (renderable instanceof Group) {
       flat.push(...flattenRenderables(renderable.children));
     }
   }

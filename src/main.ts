@@ -6,7 +6,6 @@ import { Shape } from "./renderables/shape";
 import { Text } from "./renderables/text";
 import { Image } from "./renderables/image";
 import { Group } from "./renderables/group";
-import { LightGroup } from "./renderables/light-group";
 import { Matrix3 } from "./math/mat3";
 import { Vec2 } from "./math/vec2";
 import { linearGradient } from "./styles/linear-gradient";
@@ -24,9 +23,10 @@ import { Clip } from "./renderables/clip";
 import { getColor, Perf, rad, rand, renderOBB } from "./debug";
 
 import treeSrc from "./tree.png";
+import { buildAABB } from "./bbox/path";
 
 class App extends Loop {
-  scene = new LightGroup();
+  scene = new Group();
 
   canvas = new Canvas2D(this.scene, { width: 800, height: 600 });
 
@@ -69,7 +69,7 @@ class App extends Loop {
     path: [
       moveTo(10, 80),
       bezierCurveTo(40, 10, 65, 10, 95, 80),
-      bezierCurveTo(10, 95, 150, 150, 180, 80),
+      bezierCurveTo(150, 150, 180, 80),
     ],
   });
 
@@ -102,7 +102,8 @@ class App extends Loop {
   roundRect = new Shape({
     x: 400,
     y: 300,
-    path: [roundRect(-100, -50, 200, 100, 10)],
+    fill: "hotpink",
+    path: [roundRect(-100, -50, 200, 100, 25)],
   });
 
   text = new Text({
@@ -367,8 +368,8 @@ class App extends Loop {
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
+    // for (let i = 0; i < 8000; i++) {
     for (let i = 0; i < 0; i++) {
-      // for (let i = 0; i < 0; i++) {
       this.scene.add(
         // new Group({
         //   children: [
@@ -407,7 +408,7 @@ class App extends Loop {
     // this.scene.add(this.arc);
     // this.scene.add(this.ellipse);
 
-    // this.perf.log(1500);
+    this.perf.log(1500);
   }
 
   tick() {
@@ -433,13 +434,11 @@ class App extends Loop {
     //   this.path.stroke = "blue";
     // }
 
-    this.perf.time("update");
-
     this.canvas.update();
 
     this.perf.time("render");
 
-    renderOBB(this.canvas.ctx, [this.canvas.scene]);
+    // renderOBB(this.canvas.ctx, this.canvas.scene.children);
     // renderHulls(this.canvas.ctx, this.canvas.children);
 
     // if (this.transformer) {
@@ -460,3 +459,45 @@ window.app = new App();
 window.Matrix3 = Matrix3;
 // @ts-ignore
 window.Vec2 = Vec2;
+
+// function resize(path: PathLike, bbox: AABB, width: number, height: number) {
+//   let lastMoveTo: MoveTo | undefined;
+
+//   const sx = width && bbox.width ? width / bbox.width : 1;
+//   const sy = height && bbox.height ? height / bbox.height : 1;
+
+//   for (let i = 0; i < path.length; i++) {
+//     const s = path[i];
+//     s.x *= sx;
+//     s.y *= sy;
+
+//     if (s instanceof MoveTo) {
+//       lastMoveTo = s;
+//     } else if (s instanceof ClosePath && lastMoveTo) {
+//       s._x = lastMoveTo.x;
+//       s._y = lastMoveTo.y;
+//     } else if (s instanceof Rect) {
+//       s.width *= sx;
+//       s.height *= sy;
+//     } else if (s instanceof Ellipse) {
+//       s.radiusX *= sx;
+//       s.radiusY *= sy;
+//     } else if (s instanceof Arc) {
+//       s.radiusX *= sx;
+//       s.radiusY *= sy;
+//     } else if (s instanceof ArcTo) {
+//       s.cpx *= sx;
+//       s.cpy *= sy;
+//       s.radiusX *= sx;
+//       s.radiusY *= sy;
+//     } else if (s instanceof QuadraticCurveTo) {
+//       [s._cpx, s._cpy] = getControl(s, path[i - 1], sx, sy);
+//     } else if (s instanceof BezierCurveTo) {
+//       [s._cp1x, s._cp1y] = getControl(s, path[i - 1], sx, sy);
+//       s.cp2x *= sx;
+//       s.cp2y *= sy;
+//     }
+//   }
+
+//   buildAABB(path, bbox);
+// }
