@@ -41,14 +41,12 @@ export class Shape extends Renderable {
   filter?: string;
   lineDash?: number[];
 
-  __path: PathLike;
   __path2D?: Path2D;
 
   constructor(init: ShapeInit) {
     super(init);
 
     this.path = new Path(init.path, this);
-    this.__path = [];
 
     this.fill = init.fill;
     this.stroke = init.stroke;

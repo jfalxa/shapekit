@@ -26,7 +26,7 @@ export function buildAABB(path: PathLike, out = new AABB()) {
     } else if (s instanceof BezierCurveTo) {
       Bezier3.aabb(s, path[i - 1], out);
     } else if (s instanceof ClosePath) {
-      out.mergePoints(s._x, s._y);
+      out.mergePoints(s.x, s.y);
     } else if (s instanceof LineTo) {
       out.mergePoints(s.x, s.y);
     } else if (s instanceof MoveTo) {

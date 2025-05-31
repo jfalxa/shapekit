@@ -1,4 +1,5 @@
 import { Shape } from "../renderables/shape";
+import { remove } from "../utils/array";
 import { ArcTo, toArc } from "./arc-to";
 import { BezierCurveTo } from "./bezier-curve-to";
 import { ClosePath } from "./close-path";
@@ -6,15 +7,30 @@ import { MoveTo } from "./move-to";
 import { QuadraticCurveTo } from "./quadratic-curve-to";
 import { Segment } from "./segment";
 
-export type PathLike = ArrayLike<Segment>;
+export type PathLike = Segment[];
 
 export class Path extends Array<Segment> {
-  constructor(segments: PathLike = [], public shape?: Shape) {
+  constructor(segments: Segment[] = [], public shape?: Shape) {
     super(segments.length);
-    for (let i = 0; i < segments.length; i++) {
-      this[i] = segments[i];
-      this[i].path = this;
-    }
+    this.add(...segments);
+  }
+
+  add(...segments: Segment[]) {
+    this.push(...segments);
+    for (let i = 0; i < segments.length; i++) segments[i].path = this;
+    if (this.shape) this.shape.__isContentDirty = true;
+  }
+
+  insert(index: number, ...segments: Segment[]) {
+    this.splice(index, 0, ...segments);
+    for (let i = 0; i < segments.length; i++) segments[i].path = this;
+    if (this.shape) this.shape.__isContentDirty = true;
+  }
+
+  remove(...segments: Segment[]) {
+    remove(this, segments);
+    for (let i = 0; i < segments.length; i++) segments[i].path = undefined;
+    if (this.shape) this.shape.__isContentDirty = true;
   }
 
   update() {
@@ -24,8 +40,8 @@ export class Path extends Array<Segment> {
       if (s instanceof MoveTo) {
         lastMoveTo = s;
       } else if (s instanceof ClosePath && lastMoveTo) {
-        s._x = lastMoveTo.x;
-        s._y = lastMoveTo.y;
+        s.x = lastMoveTo.x;
+        s.y = lastMoveTo.y;
       } else if (s instanceof ArcTo) {
         toArc(s, this[i - 1]);
       } else if (s instanceof QuadraticCurveTo) {

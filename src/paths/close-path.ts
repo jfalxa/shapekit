@@ -5,10 +5,7 @@ export function closePath() {
 }
 
 export class ClosePath extends Segment {
-  _x!: number;
-  _y!: number;
-
-  constructor(x = NaN, y = NaN) {
-    super(x, y);
+  constructor() {
+    super(NaN, NaN);
   }
 }

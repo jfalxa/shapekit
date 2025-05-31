@@ -17,7 +17,7 @@ export interface RenderableInit extends Partial<Transform> {
   hidden?: boolean;
 }
 
-export class Renderable {
+export class Renderable implements Transform {
   id?: string;
   parent?: Group;
 
