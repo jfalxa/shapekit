@@ -26,7 +26,7 @@ export class Group extends Renderable {
 
   add(...children: Renderable[]) {
     this.children.push(...children);
-    this.isContentDirty = true;
+    this.__isContentDirty = true;
     for (let i = 0; i < children.length; i++) {
       children[i].parent = this;
     }
@@ -34,7 +34,7 @@ export class Group extends Renderable {
 
   insert(index: number, ...children: Renderable[]) {
     this.children.splice(index, 0, ...children);
-    this.isContentDirty = true;
+    this.__isContentDirty = true;
     for (let i = 0; i < children.length; i++) {
       children[i].parent = this;
     }
@@ -42,7 +42,7 @@ export class Group extends Renderable {
 
   remove(...children: Renderable[]) {
     remove(this.children, children);
-    this.isContentDirty = true;
+    this.__isContentDirty = true;
     for (let i = 0; i < children.length; i++) {
       children[i].parent = undefined;
     }
@@ -60,17 +60,11 @@ export class Group extends Renderable {
   update(): void {
     super.update();
 
-    if (this.parent?.isTransformDirty) {
-      this.isTransformDirty = true;
-    }
-
-    const children = this.children;
-    const size = children.length;
-
-    for (let i = 0; i < size; i++) {
-      const child = children[i];
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i];
+      child.__isTransformDirty ||= this.__isTransformDirty;
       child.update();
-      this.isContentDirty ||= child.isTransformDirty || child.isContentDirty;
+      this.__isContentDirty ||= child.__isTransformDirty || child.__isContentDirty // prettier-ignore
     }
   }
 }

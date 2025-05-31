@@ -90,10 +90,13 @@ export class Text extends Renderable {
 
   update() {
     super.update();
-    if (this.isContentDirty) this.format();
+
+    if (this.__isContentDirty) {
+      this.format();
+    }
   }
 }
 
 track(Text, ["text", "width", "height"], (text) => {
-  text.isContentDirty = true;
+  text.__isContentDirty = true;
 });

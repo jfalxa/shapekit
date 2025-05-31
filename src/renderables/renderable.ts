@@ -33,8 +33,9 @@ export class Renderable {
 
   transform: Matrix3;
 
-  isTransformDirty: boolean;
-  isContentDirty: boolean;
+  __version: number;
+  __isTransformDirty: boolean;
+  __isContentDirty: boolean;
 
   constructor(init: RenderableInit = {}) {
     this.id = init.id;
@@ -51,30 +52,27 @@ export class Renderable {
 
     this.transform = new Matrix3();
 
-    this.isTransformDirty = true;
-    this.isContentDirty = true;
+    this.__version = 0;
+    this.__isTransformDirty = true;
+    this.__isContentDirty = true;
   }
 
   update() {
-    if (this.isTransformDirty) {
+    if (this.__isTransformDirty) {
       this.transform.identity().compose(this);
-    }
-
-    if (this.parent) {
-      if (this.isTransformDirty || this.parent.isTransformDirty) {
-        this.transform.transform(this.parent.transform);
-      }
+      if (this.parent) this.transform.transform(this.parent.transform);
     }
   }
 
   clean() {
-    this.isTransformDirty = false;
-    this.isContentDirty = false;
+    if (this.__isTransformDirty || this.__isContentDirty) this.__version++;
+    this.__isTransformDirty = false;
+    this.__isContentDirty = false;
   }
 }
 
 track(
   Renderable,
   ["x", "y", "scaleX", "scaleY", "skewX", "skewY", "rotation"],
-  (renderable) => (renderable.isTransformDirty = true)
+  (renderable) => (renderable.__isTransformDirty = true)
 );

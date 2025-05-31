@@ -21,7 +21,7 @@ export function trackSegment<S extends Segment>(
 }
 
 function markSegmentDirty(segment: Segment) {
-  if (segment.path?.shape) segment.path.shape.isContentDirty = true;
+  if (segment.path?.shape) segment.path.shape.__isContentDirty = true;
 }
 
 trackSegment(Segment, ["x", "y"]);

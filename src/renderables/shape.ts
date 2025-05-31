@@ -69,7 +69,7 @@ export class Shape extends Renderable {
   update(): void {
     super.update();
 
-    if (this.isContentDirty) {
+    if (this.__isContentDirty) {
       this.path.update();
     }
   }

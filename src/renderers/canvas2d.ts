@@ -154,7 +154,7 @@ export class Canvas2D {
   }
 
   private _getPath2D(shape: Shape) {
-    if (shape.isContentDirty) {
+    if (shape.__isContentDirty) {
       shape.__path2D = buildPath2D(shape.path);
     }
     return shape.__path2D!;
