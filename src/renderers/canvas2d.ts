@@ -179,7 +179,7 @@ function buildPath2D(path: PathLike) {
     } else if (s instanceof QuadraticCurveTo) {
       path2D.quadraticCurveTo(s._cpx, s._cpy, s.x, s.y);
     } else if (s instanceof RoundRect) {
-      path2D.roundRect(s.x, s.y, s.width, s.height, s.radius);
+      path2D.roundRect(s.x, s.y, s.width, s.height, s.radii);
     } else if (s instanceof Rect) {
       path2D.rect(s.x, s.y, s.width, s.height);
     } else if (s instanceof Arc) {

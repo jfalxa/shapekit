@@ -5,9 +5,9 @@ export function ellipse(
   y: number,
   radiusX: number,
   radiusY: number,
-  rotation = 0,
-  startAngle = 0,
-  endAngle = 2 * Math.PI,
+  rotation?: number,
+  startAngle?: number,
+  endAngle?: number,
   counterclockwise?: boolean
 ) {
   return new Ellipse(

@@ -6,7 +6,7 @@ export function arcTo(
   y1: number,
   x2: number,
   y2: number,
-  radius = 0
+  radius?: number
 ) {
   return new ArcTo(x1, y1, x2, y2, radius);
 }

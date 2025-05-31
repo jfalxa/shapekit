@@ -6,30 +6,23 @@ export function roundRect(
   y: number,
   width: number,
   height: number,
-  radius: number
+  radius?: number
 ) {
   return new RoundRect(x, y, width, height, radius);
 }
 
 export class RoundRect extends Rect {
-  declare radius: number | [number, number, number, number];
-  _radii: [number, number, number, number];
+  declare radii?: number | [number, number, number, number];
 
   constructor(
     x: number,
     y: number,
     width: number,
     height: number,
-    radius: number | [number, number, number, number]
+    radii?: number | [number, number, number, number]
   ) {
     super(x, y, width, height);
-
-    this.radius = radius;
-
-    this._radii = !Array.isArray(radius)
-      ? [radius, radius, radius, radius]
-      : radius;
+    this.radii = radii;
   }
 }
-
-trackSegment(RoundRect, ["radius"]);
+trackSegment(RoundRect, ["radii"]);
