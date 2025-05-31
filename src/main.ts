@@ -23,7 +23,6 @@ import { Clip } from "./renderables/clip";
 import { getColor, Perf, rad, rand, renderOBB } from "./debug";
 
 import treeSrc from "./tree.png";
-import { buildAABB } from "./bbox/path";
 
 class App extends Loop {
   scene = new Group();
@@ -368,8 +367,8 @@ class App extends Loop {
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
-    // for (let i = 0; i < 8000; i++) {
-    for (let i = 0; i < 0; i++) {
+    for (let i = 0; i < 16000; i++) {
+      // for (let i = 0; i < 0; i++) {
       this.scene.add(
         // new Group({
         //   children: [
@@ -382,7 +381,7 @@ class App extends Loop {
           path: [rect(0, 0, rand(10, 20, i), rand(10, 20, i * i))],
           // path: [
           //   moveTo(0, 0),
-          //   arc(0, 0, rand(10, 20), 0, rad(315)),
+          //   arc(0, 0, rand(10, 20, i), 0, rad(315)),
           //   closePath(),
           // ],
         })
@@ -401,7 +400,7 @@ class App extends Loop {
     // this.scene.add(this.roundRect);
     // this.scene.add(this.roundTriangle);
     // this.scene.add(this.lemon);
-    this.scene.add(this.group);
+    // this.scene.add(this.group);
     // this.scene.add(this.group2);
     // this.scene.add(this.skewed);
     // this.scene.add(this.circle);
@@ -438,7 +437,7 @@ class App extends Loop {
 
     this.perf.time("render");
 
-    // renderOBB(this.canvas.ctx, this.canvas.scene.children);
+    renderOBB(this.canvas.ctx, this.canvas.scene.children);
     // renderHulls(this.canvas.ctx, this.canvas.children);
 
     // if (this.transformer) {
@@ -460,6 +459,7 @@ window.Matrix3 = Matrix3;
 // @ts-ignore
 window.Vec2 = Vec2;
 
+// import { buildAABB } from "./bbox/path";
 // function resize(path: PathLike, bbox: AABB, width: number, height: number) {
 //   let lastMoveTo: MoveTo | undefined;
 
