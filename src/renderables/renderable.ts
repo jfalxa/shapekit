@@ -36,7 +36,7 @@ export class Renderable implements Transform {
   __isContentDirty: boolean;
 
   __version: number;
-  __cache: Record<string, unknown>;
+  __cache: Record<string, any>;
 
   constructor(init: RenderableInit = {}) {
     this.id = init.id;
