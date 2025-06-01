@@ -1,4 +1,3 @@
-import { AABB } from "./aabb";
 import { ArcTo } from "../paths/arc-to";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
 import { Arc as ArcSegment } from "../paths/arc";
@@ -12,8 +11,9 @@ import { Bezier2 } from "../samplers/bezier2";
 import { Bezier3 } from "../samplers/bezier3";
 import { Arc } from "../samplers/arc";
 import { PathLike } from "../paths/path";
+import { BoundingBox } from "./bounding-box";
 
-export function buildAABB(path: PathLike, out = new AABB()) {
+export function buildPathBBox(path: PathLike, out = new BoundingBox()) {
   out.reset();
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
@@ -26,15 +26,15 @@ export function buildAABB(path: PathLike, out = new AABB()) {
     } else if (s instanceof BezierCurveTo) {
       Bezier3.aabb(s, path[i - 1], out);
     } else if (s instanceof ClosePath) {
-      out.mergePoints(s.x, s.y);
+      out.fit(s.x, s.y);
     } else if (s instanceof LineTo) {
-      out.mergePoints(s.x, s.y);
+      out.fit(s.x, s.y);
     } else if (s instanceof MoveTo) {
-      out.mergePoints(s.x, s.y);
+      out.fit(s.x, s.y);
     } else if (s instanceof QuadraticCurveTo) {
       Bezier2.aabb(s, path[i - 1], out);
     } else if (s instanceof Rect) {
-      out.mergePoints(s.x, s.y, s.x + s.width, s.y + s.height);
+      out.fit(s.x, s.y, s.x + s.width, s.y + s.height);
     }
   }
   return out;

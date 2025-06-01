@@ -1,4 +1,4 @@
-import { AABB } from "../bbox/aabb";
+import { BoundingBox } from "../bbox/bounding-box";
 import { v, Vec2 } from "../math/vec2";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Segment } from "../paths/segment";
@@ -21,11 +21,15 @@ export class Bezier2 {
     return out;
   }
 
-  static aabb(bezier2: QuadraticCurveTo, previous: Segment, out = new AABB()) {
+  static aabb(
+    bezier2: QuadraticCurveTo,
+    previous: Segment,
+    out = new BoundingBox()
+  ) {
     const { x: px, y: py } = previous;
     const { _cpx, _cpy, x, y } = bezier2;
 
-    out.mergePoints(px, py, x, y);
+    out.fit(px, py, x, y);
 
     const extremum = new Vec2();
 
@@ -36,7 +40,7 @@ export class Bezier2 {
 
     for (let i = 0; i < ts.length; i++) {
       Bezier2.sample(px, py, _cpx, _cpy, x, y, ts[i], extremum);
-      out.mergeVector(extremum);
+      out.fit(extremum.x, extremum.y);
     }
 
     return out;

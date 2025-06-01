@@ -1,4 +1,4 @@
-import { AABB } from "../bbox/aabb";
+import { BoundingBox } from "../bbox/bounding-box";
 import { Vec2 } from "../math/vec2";
 import { Arc as ArcSegment } from "../paths/arc";
 import { ArcTo } from "../paths/arc-to";
@@ -48,7 +48,10 @@ export class Arc {
     return out;
   }
 
-  static aabb(arc: ArcSegment | EllipseSegment | ArcTo, out = new AABB()) {
+  static aabb(
+    arc: ArcSegment | EllipseSegment | ArcTo,
+    out = new BoundingBox()
+  ) {
     const { x, y } = arc;
 
     let startAngle: number;
@@ -83,7 +86,7 @@ export class Arc {
           ? Arc.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, t, extremum) // prettier-ignore
           : Arc.sampleCircle(x, y, arc.radiusX, startAngle, sweep, t, extremum);
 
-        out.mergeVector(extremum);
+        out.fit(extremum.x, extremum.y);
       }
     }
 
