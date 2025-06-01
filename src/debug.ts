@@ -1,4 +1,4 @@
-import { OBB } from "./bbox/obb";
+import { BoundingBox } from "./bbox/bounding-box";
 import { Group } from "./renderables/group";
 import { Renderable } from "./renderables/renderable";
 
@@ -26,7 +26,7 @@ export function renderOBB(
   for (const shape of flattenRenderables(renderables)) {
     ctx.beginPath();
 
-    if (!("bbox" in shape) || !(shape.bbox instanceof OBB)) continue;
+    if (!("bbox" in shape) || !(shape.bbox instanceof BoundingBox)) continue;
 
     ctx.moveTo(shape.bbox.a.x, shape.bbox.a.y);
     ctx.lineTo(shape.bbox.b.x, shape.bbox.b.y);
