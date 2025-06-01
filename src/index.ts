@@ -1,5 +1,5 @@
-export * from "./bbox/bounding-box";
-export * from "./bbox/renderable";
+export * from "./bounds/bbox";
+export * from "./bounds/renderable";
 export * from "./math/mat3";
 export * from "./math/vec2";
 export * from "./paths/arc-to";

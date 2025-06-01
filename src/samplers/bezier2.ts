@@ -1,4 +1,4 @@
-import { BoundingBox } from "../bbox/bounding-box";
+import { BBox } from "../bounds/bbox";
 import { v, Vec2 } from "../math/vec2";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Segment } from "../paths/segment";
@@ -21,11 +21,7 @@ export class Bezier2 {
     return out;
   }
 
-  static aabb(
-    bezier2: QuadraticCurveTo,
-    previous: Segment,
-    out = new BoundingBox()
-  ) {
+  static aabb(bezier2: QuadraticCurveTo, previous: Segment, out = new BBox()) {
     const { x: px, y: py } = previous;
     const { _cpx, _cpy, x, y } = bezier2;
 

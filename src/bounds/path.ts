@@ -11,9 +11,9 @@ import { Bezier2 } from "../samplers/bezier2";
 import { Bezier3 } from "../samplers/bezier3";
 import { Elliptic } from "../samplers/elliptic";
 import { PathLike } from "../paths/path";
-import { BoundingBox } from "./bounding-box";
+import { BBox } from "./bbox";
 
-export function buildPathBBox(path: PathLike, out = new BoundingBox()) {
+export function buildPathBBox(path: PathLike, out = new BBox()) {
   out.reset();
   for (let i = 0; i < path.length; i++) {
     const s = path[i];

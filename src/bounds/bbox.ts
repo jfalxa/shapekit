@@ -6,7 +6,7 @@ export interface AABB {
   max: Vec2;
 }
 
-export class BoundingBox implements AABB {
+export class BBox implements AABB {
   a = new Vec2();
   b = new Vec2();
   c = new Vec2();
@@ -56,7 +56,7 @@ export class BoundingBox implements AABB {
     return this;
   }
 
-  copy(other: BoundingBox) {
+  copy(other: BBox) {
     this.a.copy(other.a);
     this.b.copy(other.b);
     this.c.copy(other.c);

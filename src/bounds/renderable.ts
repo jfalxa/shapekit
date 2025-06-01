@@ -4,25 +4,25 @@ import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { cached } from "../utils/cache";
-import { BoundingBox } from "./bounding-box";
+import { BBox } from "./bbox";
 import { getLocalTransform } from "../transformer/local-transform";
 import { buildPathBBox } from "./path";
 
 export const getBBox = cached("globalBBox", _getBBox);
 export const getLocalBBox = cached("localBBox", _getLocalBBox);
 export const getNaturalBBox = cached("naturalBBox", _getNaturalBBox);
-function _getBBox(renderable: Renderable, out = new BoundingBox()) {
+function _getBBox(renderable: Renderable, out = new BBox()) {
   const naturalBBox = getNaturalBBox(renderable);
   return out.copy(naturalBBox).transform(renderable.transform);
 }
 
-function _getLocalBBox(renderable: Renderable, out = new BoundingBox()) {
+function _getLocalBBox(renderable: Renderable, out = new BBox()) {
   const naturalBBox = getNaturalBBox(renderable);
   const localTransform = getLocalTransform(renderable);
   return out.copy(naturalBBox).transform(localTransform);
 }
 
-function _getNaturalBBox(renderable: Renderable, out = new BoundingBox()) {
+function _getNaturalBBox(renderable: Renderable, out = new BBox()) {
   if (renderable instanceof Image || renderable instanceof Text) {
     out.reset().fit(0, 0, renderable.width, renderable.height);
   } else if (renderable instanceof Shape) {

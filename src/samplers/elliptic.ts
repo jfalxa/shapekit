@@ -1,4 +1,4 @@
-import { BoundingBox } from "../bbox/bounding-box";
+import { BBox } from "../bounds/bbox";
 import { Vec2 } from "../math/vec2";
 import { Arc } from "../paths/arc";
 import { ArcTo } from "../paths/arc-to";
@@ -48,7 +48,7 @@ export class Elliptic {
     return out;
   }
 
-  static aabb(elliptic: Arc | Ellipse | ArcTo, out = new BoundingBox()) {
+  static aabb(elliptic: Arc | Ellipse | ArcTo, out = new BBox()) {
     const { x, y, radiusX, radiusY, startAngle, endAngle, counterclockwise } =
       Elliptic.normalize(elliptic);
 
