@@ -19,8 +19,6 @@ export class ArcTo extends Segment {
 
   _x!: number;
   _y!: number;
-  _radiusX!: number;
-  _radiusY!: number;
   _startAngle!: number;
   _endAngle!: number;
 
@@ -71,8 +69,6 @@ export function toArc(arcTo: ArcTo, previous: Segment | undefined) {
 
   arcTo._x = center.x;
   arcTo._y = center.y;
-  arcTo._radiusX = r.x;
-  arcTo._radiusY = r.y;
   arcTo._startAngle = startAngle;
   arcTo._endAngle = endAngle;
 

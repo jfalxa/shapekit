@@ -192,7 +192,7 @@ function buildPath2D(path: PathLike) {
       if (s.radiusX === s.radiusY) {
         path2D.arcTo(s.cpx, s.cpy, s.x, s.y, s.radiusX);
       } else {
-        path2D.ellipse(s._x, s._y, s._radiusX, s._radiusY, 0, s._startAngle, s._endAngle) // prettier-ignore
+        path2D.ellipse(s._x, s._y, s.radiusX, s.radiusY, 0, s._startAngle, s._endAngle) // prettier-ignore
       }
     }
   }
