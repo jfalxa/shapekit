@@ -27,7 +27,7 @@ export interface TextInit extends RenderableInit, TextStyle {
   height?: number;
 }
 
-export class Text extends Renderable {
+export class Text extends Renderable implements TextStyle {
   declare text: string;
 
   declare width: number;
@@ -49,8 +49,8 @@ export class Text extends Renderable {
   direction?: CanvasDirection;
   padding?: number;
 
-  font!: string;
-  lines!: [string, number, number][];
+  font: string;
+  lines: [string, number, number][];
 
   constructor(init: TextInit) {
     super(init);
@@ -80,7 +80,8 @@ export class Text extends Renderable {
     this.direction = init.direction;
     this.padding = init.padding;
 
-    this.format();
+    this.font = getFont(this);
+    this.lines = fitText(this);
   }
 
   format() {

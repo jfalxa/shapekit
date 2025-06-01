@@ -33,9 +33,11 @@ export class Renderable implements Transform {
 
   transform: Matrix3;
 
-  __version: number;
   __isTransformDirty: boolean;
   __isContentDirty: boolean;
+
+  __version: number;
+  __cache: Record<string, unknown>;
 
   constructor(init: RenderableInit = {}) {
     this.id = init.id;
@@ -52,9 +54,11 @@ export class Renderable implements Transform {
 
     this.transform = new Matrix3();
 
-    this.__version = 0;
     this.__isTransformDirty = true;
     this.__isContentDirty = true;
+
+    this.__version = 0;
+    this.__cache = {};
   }
 
   update() {

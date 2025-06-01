@@ -41,8 +41,6 @@ export class Shape extends Renderable {
   filter?: string;
   lineDash?: number[];
 
-  __path2D?: Path2D;
-
   constructor(init: ShapeInit) {
     super(init);
 

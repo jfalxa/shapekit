@@ -98,7 +98,7 @@ export class Canvas2D {
   }
 
   private _renderClip(clip: Clip) {
-    this.ctx.clip(this._getPath2D(clip), clip.fillRule);
+    this.ctx.clip(getPath2D(clip), clip.fillRule);
   }
 
   private _renderGroup(group: Group) {
@@ -111,7 +111,7 @@ export class Canvas2D {
 
   private _renderFill(shape: Shape) {
     this.set("fillStyle", getStyle(this.ctx, shape.fill));
-    this.ctx.fill(this._getPath2D(shape));
+    this.ctx.fill(getPath2D(shape));
   }
 
   private _renderStroke(shape: Shape) {
@@ -122,7 +122,7 @@ export class Canvas2D {
     this.set("strokeStyle", getStyle(this.ctx, shape.stroke));
     this.set("lineDashOffset", shape.lineDashOffset);
     if (shape.lineDash) this.ctx.setLineDash(shape.lineDash);
-    this.ctx.stroke(this._getPath2D(shape));
+    this.ctx.stroke(getPath2D(shape));
   }
 
   private _renderImage(image: Image) {
@@ -152,13 +152,14 @@ export class Canvas2D {
     this.set("shadowOffsetX", shape.shadowOffsetX);
     this.set("shadowOffsetY", shape.shadowOffsetY);
   }
+}
 
-  private _getPath2D(shape: Shape) {
-    if (shape.__isContentDirty) {
-      shape.__path2D = buildPath2D(shape.path);
-    }
-    return shape.__path2D!;
+function getPath2D(shape: Shape) {
+  const cache = shape.__cache as { path2D: Path2D };
+  if (!cache.path2D || shape.__isContentDirty) {
+    cache.path2D = buildPath2D(shape.path);
   }
+  return cache.path2D;
 }
 
 function buildPath2D(path: PathLike) {
