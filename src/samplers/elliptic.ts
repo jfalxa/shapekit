@@ -48,22 +48,9 @@ export class Elliptic {
     return out;
   }
 
-  static aabb(arc: Arc | Ellipse | ArcTo, out = new BoundingBox()) {
-    const { x, y } = arc;
-
-    let startAngle: number;
-    let endAngle: number;
-    let counterclockwise: boolean;
-
-    if (arc instanceof ArcTo) {
-      startAngle = arc._startAngle;
-      endAngle = arc._endAngle;
-      counterclockwise = false;
-    } else {
-      startAngle = arc.startAngle;
-      endAngle = arc.endAngle;
-      counterclockwise = arc.counterclockwise;
-    }
+  static aabb(elliptic: Arc | Ellipse | ArcTo, out = new BoundingBox()) {
+    const { x, y, radiusX, radiusY, startAngle, endAngle, counterclockwise } =
+      Elliptic.normalize(elliptic);
 
     const extremum = new Vec2();
     const base = ((startAngle % TWO_PI) + TWO_PI) % TWO_PI;
@@ -79,17 +66,9 @@ export class Elliptic {
       const isValidNegative = sweep < 0 && delta <= 0 && delta >= sweep;
 
       if (0 <= t && t <= 1 && (isValidPositive || isValidNegative)) {
-        arc.radiusX !== arc.radiusY
-          ? Elliptic.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, t, extremum) // prettier-ignore
-          : Elliptic.sampleCircle(
-              x,
-              y,
-              arc.radiusX,
-              startAngle,
-              sweep,
-              t,
-              extremum
-            );
+        radiusX !== radiusY
+          ? Elliptic.sampleEllipse(x, y, radiusX, radiusY, 0, startAngle, sweep, t, extremum) // prettier-ignore
+          : Elliptic.sampleCircle(x, y, radiusX, startAngle, sweep, t, extremum); // prettier-ignore
 
         out.fit(extremum.x, extremum.y);
       }
@@ -98,10 +77,23 @@ export class Elliptic {
     return out;
   }
 
-  static adaptiveSample(arc: Arc | Ellipse, quality: number, out: Vec2[] = []) {
-    const { x, y, startAngle, endAngle, counterclockwise } = arc;
+  static adaptiveSample(
+    elliptic: Arc | Ellipse | ArcTo,
+    quality: number,
+    out: Vec2[] = []
+  ) {
+    const {
+      x,
+      y,
+      radiusX,
+      radiusY,
+      startAngle,
+      endAngle,
+      counterclockwise,
+      rotation,
+    } = Elliptic.normalize(elliptic);
 
-    const radius = Math.max(arc.radiusX, arc.radiusY);
+    const radius = Math.max(radiusX, radiusY);
 
     if (radius === 0) {
       out.push(new Vec2(x, y));
@@ -115,9 +107,9 @@ export class Elliptic {
 
     for (let i = 0; i <= divisions; i++) {
       const point =
-        arc.radiusX !== arc.radiusY
-          ? Elliptic.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, i / divisions) // prettier-ignore
-          : Elliptic.sampleCircle(x, y, arc.radiusX, startAngle, sweep, i / divisions); // prettier-ignore
+        radiusX !== radiusY
+          ? Elliptic.sampleEllipse(x, y, radiusX, radiusY, rotation, startAngle, sweep, i / divisions) // prettier-ignore
+          : Elliptic.sampleCircle(x, y, radiusX, startAngle, sweep, i / divisions); // prettier-ignore
 
       out.push(point);
     }
@@ -145,6 +137,19 @@ export class Elliptic {
       sweep = sweep > 0 ? sweep - TWO_PI : sweep;
     }
     return sweep;
+  }
+
+  static normalize(e: Arc | Ellipse | ArcTo) {
+    return {
+      radiusX: e.radiusX,
+      radiusY: e.radiusY,
+      x: e instanceof ArcTo ? e._x : e.x,
+      y: e instanceof ArcTo ? e._y : e.y,
+      startAngle: e instanceof ArcTo ? e._startAngle : e.startAngle,
+      endAngle: e instanceof ArcTo ? e._endAngle : e.endAngle,
+      counterclockwise: e instanceof ArcTo ? false : e.counterclockwise,
+      rotation: e instanceof Ellipse ? e.rotation : 0,
+    };
   }
 }
 
