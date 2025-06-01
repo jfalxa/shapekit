@@ -1,13 +1,13 @@
 import { BoundingBox } from "../bbox/bounding-box";
 import { Vec2 } from "../math/vec2";
-import { Arc as ArcSegment } from "../paths/arc";
+import { Arc } from "../paths/arc";
 import { ArcTo } from "../paths/arc-to";
-import { Ellipse as EllipseSegment } from "../paths/ellipse";
+import { Ellipse } from "../paths/ellipse";
 
 const TWO_PI = 2 * Math.PI;
 const EXTREMA = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
 
-export class Arc {
+export class Elliptic {
   static sampleCircle(
     x: number,
     y: number,
@@ -48,10 +48,7 @@ export class Arc {
     return out;
   }
 
-  static aabb(
-    arc: ArcSegment | EllipseSegment | ArcTo,
-    out = new BoundingBox()
-  ) {
+  static aabb(arc: Arc | Ellipse | ArcTo, out = new BoundingBox()) {
     const { x, y } = arc;
 
     let startAngle: number;
@@ -70,7 +67,7 @@ export class Arc {
 
     const extremum = new Vec2();
     const base = ((startAngle % TWO_PI) + TWO_PI) % TWO_PI;
-    const sweep = Arc.sweep(startAngle, endAngle, counterclockwise);
+    const sweep = Elliptic.sweep(startAngle, endAngle, counterclockwise);
 
     for (const quad of EXTREMA) {
       let delta = quad - base;
@@ -83,8 +80,16 @@ export class Arc {
 
       if (0 <= t && t <= 1 && (isValidPositive || isValidNegative)) {
         arc.radiusX !== arc.radiusY
-          ? Arc.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, t, extremum) // prettier-ignore
-          : Arc.sampleCircle(x, y, arc.radiusX, startAngle, sweep, t, extremum);
+          ? Elliptic.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, t, extremum) // prettier-ignore
+          : Elliptic.sampleCircle(
+              x,
+              y,
+              arc.radiusX,
+              startAngle,
+              sweep,
+              t,
+              extremum
+            );
 
         out.fit(extremum.x, extremum.y);
       }
@@ -93,11 +98,7 @@ export class Arc {
     return out;
   }
 
-  static adaptiveSample(
-    arc: ArcSegment | EllipseSegment,
-    quality: number,
-    out: Vec2[] = []
-  ) {
+  static adaptiveSample(arc: Arc | Ellipse, quality: number, out: Vec2[] = []) {
     const { x, y, startAngle, endAngle, counterclockwise } = arc;
 
     const radius = Math.max(arc.radiusX, arc.radiusY);
@@ -109,14 +110,14 @@ export class Arc {
 
     const tolerance = 1 / quality;
     const step = 2 * Math.acos(1 - tolerance / radius);
-    const sweep = Arc.sweep(startAngle, endAngle, counterclockwise);
+    const sweep = Elliptic.sweep(startAngle, endAngle, counterclockwise);
     const divisions = Math.abs(Math.ceil(sweep / step)) || 0;
 
     for (let i = 0; i <= divisions; i++) {
       const point =
         arc.radiusX !== arc.radiusY
-          ? Arc.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, i / divisions) // prettier-ignore
-          : Arc.sampleCircle(x, y, arc.radiusX, startAngle, sweep, i / divisions); // prettier-ignore
+          ? Elliptic.sampleEllipse(x, y, arc.radiusX, arc.radiusY, 0, startAngle, sweep, i / divisions) // prettier-ignore
+          : Elliptic.sampleCircle(x, y, arc.radiusX, startAngle, sweep, i / divisions); // prettier-ignore
 
       out.push(point);
     }

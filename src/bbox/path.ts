@@ -9,7 +9,7 @@ import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Rect } from "../paths/rect";
 import { Bezier2 } from "../samplers/bezier2";
 import { Bezier3 } from "../samplers/bezier3";
-import { Arc } from "../samplers/arc";
+import { Elliptic } from "../samplers/elliptic";
 import { PathLike } from "../paths/path";
 import { BoundingBox } from "./bounding-box";
 
@@ -18,11 +18,11 @@ export function buildPathBBox(path: PathLike, out = new BoundingBox()) {
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
     if (s instanceof ArcTo) {
-      Arc.aabb(s, out);
+      Elliptic.aabb(s, out);
     } else if (s instanceof ArcSegment) {
-      Arc.aabb(s, out);
+      Elliptic.aabb(s, out);
     } else if (s instanceof EllipseSegment) {
-      Arc.aabb(s, out);
+      Elliptic.aabb(s, out);
     } else if (s instanceof BezierCurveTo) {
       Bezier3.aabb(s, path[i - 1], out);
     } else if (s instanceof ClosePath) {
