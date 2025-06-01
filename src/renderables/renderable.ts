@@ -1,4 +1,5 @@
 import { Matrix3 } from "../math/mat3";
+import { Cache } from "../utils/cache";
 import { track } from "../utils/track";
 import { Group } from "./group";
 
@@ -17,7 +18,7 @@ export interface RenderableInit extends Partial<Transform> {
   hidden?: boolean;
 }
 
-export class Renderable implements Transform {
+export class Renderable implements Transform, Cache {
   id?: string;
   hidden: boolean;
   parent?: Group;
