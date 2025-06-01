@@ -21,10 +21,12 @@ export interface ShapeStyle {
 
 export interface ShapeInit extends RenderableInit, ShapeStyle {
   path: PathLike;
+  quality?: number;
 }
 
 export class Shape extends Renderable {
   path: Path;
+  quality: number;
 
   fill?: Style;
   stroke?: Style;
@@ -45,6 +47,7 @@ export class Shape extends Renderable {
     super(init);
 
     this.path = new Path(init.path, this);
+    this.quality = init.quality ?? 1;
 
     this.fill = init.fill;
     this.stroke = init.stroke;
