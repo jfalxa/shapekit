@@ -19,6 +19,7 @@ export interface RenderableInit extends Partial<Transform> {
 
 export class Renderable implements Transform {
   id?: string;
+  hidden: boolean;
   parent?: Group;
 
   declare x: number;
@@ -28,8 +29,6 @@ export class Renderable implements Transform {
   declare skewX: number;
   declare skewY: number;
   declare rotation: number;
-
-  hidden: boolean;
 
   transform: Matrix3;
 

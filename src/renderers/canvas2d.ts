@@ -17,6 +17,8 @@ import { Rect } from "../paths/rect";
 import { RoundRect } from "../paths/round-rect";
 import { PathLike } from "../paths/path";
 
+type Ctx = CanvasRenderingContext2D;
+
 export interface Canvas2DInit {
   width: number;
   height: number;
@@ -26,7 +28,7 @@ export interface Canvas2DInit {
 export class Canvas2D {
   scene: Group;
   element: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
+  ctx: Ctx;
 
   fill: Style;
 
@@ -43,12 +45,9 @@ export class Canvas2D {
     this.fill = init.fill ?? "#ffffff";
   }
 
-  set<K extends keyof CanvasRenderingContext2D>(
-    property: K,
-    value: CanvasRenderingContext2D[K] | undefined
-  ) {
-    if (value !== undefined && this.ctx[property] !== value) {
-      this.ctx[property] = value;
+  set<K extends keyof Ctx>(key: K, value: Ctx[K] | undefined) {
+    if (value !== undefined && this.ctx[key] !== value) {
+      this.ctx[key] = value;
     }
   }
 
