@@ -2,6 +2,8 @@
 // console.log(brush);
 // import * as bounds from "./bounds";
 // console.log(bounds);
+// import * as transforms from "./transforms";
+// console.log(transforms);
 import { Loop } from "vroum";
 import { Canvas2D } from "./renderers/canvas2d";
 import { Shape } from "./renderables/shape";
@@ -23,9 +25,9 @@ import { closePath } from "./paths/close-path";
 import { rect } from "./paths/rect";
 import { Clip } from "./renderables/clip";
 import { getColor, Perf, rad, rand, renderBBox, renderHulls } from "./debug";
+import { contains, getBBox, getPoints, overlaps } from "./bounds";
 
 import treeSrc from "./tree.png";
-import { contains } from "./bounds";
 
 class App extends Loop {
   scene = new Group();
@@ -114,6 +116,7 @@ class App extends Loop {
     y: 300,
     width: 200,
     height: 100,
+    textStroke: "black",
   });
 
   lemon = new Shape({
@@ -186,7 +189,7 @@ class App extends Loop {
     x: 400,
     y: 300,
     stroke: "purple",
-    path: [ellipse(0, 0, 100, 50, Math.PI / 3)],
+    path: [ellipse(0, 0, 100, 50, rad(45))],
   });
 
   skewed = new Group({
@@ -353,7 +356,7 @@ class App extends Loop {
   async mount() {
     document.body.append(this.canvas.element);
 
-    (this.group.children[0] as Group).children.push(
+    (this.group.children[0] as Group).add(
       new Image({
         id: "IMAGE",
         x: +100,
@@ -364,14 +367,19 @@ class App extends Loop {
     );
 
     this.canvas.element.addEventListener("click", (e) => {
+      let start: number, end: number;
+      start = performance.now();
       const rect = this.canvas.element.getBoundingClientRect();
       const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
 
       const renderable = this.scene.walk((renderable) => {
-        if (renderable === this.scene) return;
-        if (contains(renderable, point)) return renderable;
+        if (!(renderable instanceof Group)) {
+          if (contains(renderable, point)) return renderable;
+        }
       });
 
+      end = performance.now();
+      console.log(`${end - start}ms`);
       console.log("clicked", renderable);
     });
 
@@ -388,6 +396,7 @@ class App extends Loop {
         // new Group({
         //   children: [
         new Shape({
+          id: String(i),
           fill: getColor(i),
           // new Image({
           // image: treeImage,
@@ -409,32 +418,33 @@ class App extends Loop {
     // this.scene.add(this.rect1);
     // this.scene.add(this.rect2);
     // this.scene.add(this.rect3);
-    this.scene.add(this.path);
+    // this.scene.add(this.path);
     // this.scene.add(this.path2);
     // this.scene.add(this.path3);
     // this.scene.add(this.roundRect);
     // this.scene.add(this.roundTriangle);
     // this.scene.add(this.lemon);
-    // this.scene.add(this.group);
+    this.scene.add(this.group);
     // this.scene.add(this.group2);
     // this.scene.add(this.skewed);
     // this.scene.add(this.circle);
     // this.scene.add(this.arc);
     // this.scene.add(this.ellipse);
+    // this.scene.add(this.text);
 
-    this.perf.log(1500);
+    // this.perf.log(1500);
   }
 
   tick() {
     this.perf.time("start");
 
     for (const shape of this.scene.children) {
-      shape.rotation += 0.001 * this.deltaTime;
+      // shape.rotation += 0.001 * this.deltaTime;
     }
 
-    this.perf.time("rotate");
+    // this.perf.time("rotate");
 
-    // if (this.rect1.overlaps(this.rect2)) {
+    // if (overlaps(this.rect1, this.rect2)) {
     //   this.rect1.fill = "lime";
     //   this.rect2.fill = "orange";
     // } else {
@@ -442,18 +452,22 @@ class App extends Loop {
     //   this.rect2.fill = "red";
     // }
 
-    // if (this.rect1.overlaps(this.path)) {
+    // if (overlaps(this.rect1, this.path)) {
     //   this.path.stroke = "red";
     // } else {
     //   this.path.stroke = "blue";
     // }
 
     this.canvas.update();
-
     this.perf.time("render");
 
     renderBBox(this.canvas.ctx, this.scene.children);
+    // this.scene.children.map(getBBox);
+    this.perf.time("bbox");
+
     renderHulls(this.canvas.ctx, this.scene.children);
+    // this.scene.children.map(getPoints);
+    this.perf.time("hulls");
 
     // if (this.transformer) {
     // renderOBB(this.canvas.ctx, [this.transformer], "lime");
