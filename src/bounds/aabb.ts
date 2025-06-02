@@ -15,3 +15,14 @@ export function aabbContains(container: AABB, target: AABB | Vec2) {
     max.y <= container.max.y
   );
 }
+
+export function aabbOverlaps(container: AABB, target: AABB | Vec2) {
+  const min = target instanceof Vec2 ? target : target.min;
+  const max = target instanceof Vec2 ? target : target.max;
+  return (
+    container.min.x <= max.x &&
+    container.max.x >= min.x &&
+    container.min.y <= max.y &&
+    container.max.y >= min.y
+  );
+}
