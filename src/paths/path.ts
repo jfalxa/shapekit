@@ -1,6 +1,7 @@
 import { Shape } from "../renderables/shape";
+import { toArc } from "../samplers/elliptic";
 import { remove } from "../utils/array";
-import { ArcTo, toArc } from "./arc-to";
+import { ArcTo } from "./arc-to";
 import { BezierCurveTo } from "./bezier-curve-to";
 import { ClosePath } from "./close-path";
 import { MoveTo } from "./move-to";
