@@ -6,7 +6,7 @@ import { Text } from "../renderables/text";
 import { cached } from "../utils/cache";
 import { BBox } from "./bbox";
 import { getLocalTransform } from "../transformer/local-transform";
-import { buildPathBBox } from "./path";
+import { getPathBBox } from "./path";
 
 export const getBBox = cached("globalBBox", _getBBox);
 export const getLocalBBox = cached("localBBox", _getLocalBBox);
@@ -24,15 +24,16 @@ function _getLocalBBox(renderable: Renderable, out = new BBox()) {
 }
 
 function _getNaturalBBox(renderable: Renderable, out = new BBox()) {
+  if (renderable instanceof Shape) return getPathBBox(renderable.path);
+
   if (renderable instanceof Image || renderable instanceof Text) {
     out.reset().fit(0, 0, renderable.width, renderable.height);
-  } else if (renderable instanceof Shape) {
-    buildPathBBox(renderable.path, out);
   } else if (renderable instanceof Group) {
     out.reset();
     for (let i = 0; i < renderable.children.length; i++) {
       out.merge(getLocalBBox(renderable.children[i]));
     }
   }
+
   return out;
 }

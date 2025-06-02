@@ -10,10 +10,13 @@ import { Rect } from "../paths/rect";
 import { Bezier2 } from "../samplers/bezier2";
 import { Bezier3 } from "../samplers/bezier3";
 import { Elliptic } from "../samplers/elliptic";
-import { PathLike } from "../paths/path";
+import { Path } from "../paths/path";
 import { BBox } from "./bbox";
+import { cached } from "../utils/cache";
 
-export function buildPathBBox(path: PathLike, out = new BBox()) {
+export const getPathBBox = cached("bbox", _getPathBBox);
+
+function _getPathBBox(path: Path, out = new BBox()) {
   out.reset();
   for (let i = 0; i < path.length; i++) {
     const s = path[i];

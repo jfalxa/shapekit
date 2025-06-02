@@ -7,27 +7,25 @@ import { Rect } from "../paths/rect";
 import { Bezier2 } from "../samplers/bezier2";
 import { Bezier3 } from "../samplers/bezier3";
 import { Elliptic } from "../samplers/elliptic";
-import { PathLike } from "../paths/path";
 import { Vec2 } from "../math/vec2";
 import { Box } from "./box";
-import { RoundRect } from "../paths";
+import { Path, RoundRect } from "../paths";
+import { cached } from "../utils/cache";
 
-export function buildPathPoints(
-  path: PathLike,
-  quality: number,
-  out: Vec2[] = []
-) {
+export const getPathPoints = cached("points", _getPathPoints);
+
+function _getPathPoints(path: Path, out: Vec2[] = []) {
   out.length = 0;
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
     if (s instanceof ArcTo || s instanceof Arc || s instanceof Ellipse) {
-      out.push(...Elliptic.adaptiveSample(s, quality));
+      out.push(...Elliptic.adaptiveSample(s, path.quality));
     } else if (s instanceof BezierCurveTo) {
-      out.push(...Bezier3.adaptiveSample(s, path[i - 1], quality));
+      out.push(...Bezier3.adaptiveSample(s, path[i - 1], path.quality));
     } else if (s instanceof QuadraticCurveTo) {
-      out.push(...Bezier2.adaptiveSample(s, path[i - 1], quality));
+      out.push(...Bezier2.adaptiveSample(s, path[i - 1], path.quality));
     } else if (s instanceof RoundRect) {
-      out.push(...Box.sampleRoundRect(s, quality));
+      out.push(...Box.sampleRoundRect(s, path.quality));
     } else if (s instanceof Rect) {
       out.push(...Box.sampleRect(s));
     } else {

@@ -26,7 +26,6 @@ export interface ShapeInit extends RenderableInit, ShapeStyle {
 
 export class Shape extends Renderable {
   path: Path;
-  quality: number;
 
   fill?: Style;
   stroke?: Style;
@@ -46,8 +45,7 @@ export class Shape extends Renderable {
   constructor(init: ShapeInit) {
     super(init);
 
-    this.path = new Path(init.path, this);
-    this.quality = init.quality ?? 1;
+    this.path = new Path(init.path, init.quality ?? 1, this);
 
     this.fill = init.fill;
     this.stroke = init.stroke;
@@ -67,9 +65,6 @@ export class Shape extends Renderable {
 
   update(): void {
     super.update();
-
-    if (this.__isContentDirty) {
-      this.path.update();
-    }
+    this.__isContentDirty ||= this.path.__isDirty;
   }
 }

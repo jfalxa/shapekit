@@ -1,6 +1,7 @@
 import { Shape } from "../renderables/shape";
 import { toArc } from "../samplers/elliptic";
 import { remove } from "../utils/array";
+import { Cache } from "../utils/cache";
 import { ArcTo } from "./arc-to";
 import { BezierCurveTo } from "./bezier-curve-to";
 import { ClosePath } from "./close-path";
@@ -10,9 +11,21 @@ import { Segment } from "./segment";
 
 export type PathLike = Segment[];
 
-export class Path extends Array<Segment> {
-  constructor(segments: Segment[] = [], public shape?: Shape) {
+export class Path extends Array<Segment> implements Cache {
+  quality: number;
+  shape?: Shape;
+
+  __version: number;
+  __cache: Record<string, any>;
+  __isDirty: boolean;
+
+  constructor(segments: Segment[] = [], quality = 1, shape?: Shape) {
     super();
+    this.quality = quality;
+    this.shape = shape;
+    this.__version = 0;
+    this.__cache = {};
+    this.__isDirty = true;
     this.add(...segments);
   }
 
@@ -51,6 +64,11 @@ export class Path extends Array<Segment> {
         [s._cp1x, s._cp1y] = getControl(s, this[i - 1]);
       }
     }
+  }
+
+  clean() {
+    if (this.__isDirty) this.__version++;
+    this.__isDirty = false;
   }
 }
 

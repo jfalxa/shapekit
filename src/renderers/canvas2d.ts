@@ -15,7 +15,8 @@ import { MoveTo } from "../paths/move-to";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Rect } from "../paths/rect";
 import { RoundRect } from "../paths/round-rect";
-import { PathLike } from "../paths/path";
+import { Path } from "../paths/path";
+import { cached } from "../utils/cache";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -97,7 +98,7 @@ export class Canvas2D {
   }
 
   private _renderClip(clip: Clip) {
-    this.ctx.clip(getPath2D(clip), clip.fillRule);
+    this.ctx.clip(getPath2D(clip.path), clip.fillRule);
   }
 
   private _renderGroup(group: Group) {
@@ -110,7 +111,7 @@ export class Canvas2D {
 
   private _renderFill(shape: Shape) {
     this.set("fillStyle", getStyle(this.ctx, shape.fill));
-    this.ctx.fill(getPath2D(shape));
+    this.ctx.fill(getPath2D(shape.path));
   }
 
   private _renderStroke(shape: Shape) {
@@ -121,7 +122,7 @@ export class Canvas2D {
     this.set("strokeStyle", getStyle(this.ctx, shape.stroke));
     this.set("lineDashOffset", shape.lineDashOffset);
     if (shape.lineDash) this.ctx.setLineDash(shape.lineDash);
-    this.ctx.stroke(getPath2D(shape));
+    this.ctx.stroke(getPath2D(shape.path));
   }
 
   private _renderImage(image: Image) {
@@ -153,16 +154,12 @@ export class Canvas2D {
   }
 }
 
-function getPath2D(shape: Shape) {
-  const cache = shape.__cache as { path2D: Path2D };
-  if (!cache.path2D || shape.__isContentDirty) {
-    cache.path2D = buildPath2D(shape.path);
-  }
-  return cache.path2D;
-}
+const getPath2D = cached("path2D", _getPath2D);
 
-function buildPath2D(path: PathLike) {
+function _getPath2D(path: Path) {
   const path2D = new Path2D();
+
+  path.update();
 
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
@@ -196,6 +193,8 @@ function buildPath2D(path: PathLike) {
       }
     }
   }
+
+  path.clean();
 
   return path2D;
 }

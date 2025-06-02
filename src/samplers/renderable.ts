@@ -2,7 +2,7 @@ import { getLocalTransform } from "../transformer/local-transform";
 import { Vec2 } from "../math/vec2";
 import { Renderable } from "../renderables/renderable";
 import { cached } from "../utils/cache";
-import { buildPathPoints } from "./path";
+import { getPathPoints } from "./path";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { getNaturalBBox } from "../bounds/renderable";
@@ -33,9 +33,9 @@ function _getLocalPoints(renderable: Renderable, out: Vec2[] = []) {
 }
 
 function _getNaturalPoints(renderable: Renderable, out: Vec2[] = []) {
-  if (renderable instanceof Shape) {
-    buildPathPoints(renderable.path, renderable.quality, out);
-  } else if (renderable instanceof Text || renderable instanceof Image) {
+  if (renderable instanceof Shape) return getPathPoints(renderable.path);
+
+  if (renderable instanceof Text || renderable instanceof Image) {
     const { a, b, c, d } = getNaturalBBox(renderable);
     out.length = 0;
     out.push(a, b, c, d, a);
