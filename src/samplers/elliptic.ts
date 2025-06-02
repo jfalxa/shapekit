@@ -6,7 +6,6 @@ import { ArcTo } from "../paths/arc-to";
 import { Ellipse } from "../paths/ellipse";
 
 const TWO_PI = 2 * Math.PI;
-const EXTREMA = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
 
 export interface ArcLike {
   x: number;
@@ -46,22 +45,29 @@ export class Elliptic {
     out = new Vec2()
   ) {
     const angle = startAngle + sweep * t;
+    const angleX = radiusX * Math.cos(angle);
+    const angleY = radiusY * Math.sin(angle);
 
-    const ax = radiusX * Math.cos(angle);
-    const ay = radiusY * Math.sin(angle);
+    const cosR = Math.cos(rotation);
+    const sinR = Math.sin(rotation);
 
-    const cos = Math.cos(rotation);
-    const sin = Math.sin(rotation);
-
-    out.x = x + ax * cos - y * sin;
-    out.y = y + ay * sin + y * cos;
+    out.x = x + angleX * cosR - angleY * sinR;
+    out.y = y + angleX * sinR + angleY * cosR;
 
     return out;
   }
 
   static aabb(elliptic: Arc | Ellipse | ArcTo | ArcLike, out = new BBox()) {
-    const { x, y, radiusX, radiusY, startAngle, endAngle, counterclockwise } =
-      Elliptic.normalize(elliptic);
+    const {
+      x,
+      y,
+      radiusX,
+      radiusY,
+      startAngle,
+      endAngle,
+      rotation,
+      counterclockwise,
+    } = Elliptic.normalize(elliptic);
 
     const base = ((startAngle % TWO_PI) + TWO_PI) % TWO_PI;
     const sweep = Elliptic.sweep(startAngle, endAngle, counterclockwise);
@@ -69,7 +75,13 @@ export class Elliptic {
     const ts: number[] = [0, 1];
     const point = new Vec2();
 
-    for (const angle of EXTREMA) {
+    const cosR = Math.cos(rotation);
+    const sinR = Math.sin(rotation);
+
+    const angleX = Math.atan2(-radiusY * sinR, radiusX * cosR);
+    const angleY = Math.atan2(radiusY * cosR, radiusX * sinR);
+
+    for (const angle of [angleX, angleX + Math.PI, angleY, angleY + Math.PI]) {
       let delta = angle - base;
       if (delta < 0) delta += TWO_PI;
       if (counterclockwise) delta = delta - TWO_PI;
@@ -83,12 +95,14 @@ export class Elliptic {
       }
     }
 
-    ts.sort();
+    ts.sort((a, b) => a - b);
 
     for (let i = 0; i < ts.length; i++) {
-      radiusX !== radiusY
-          ? Elliptic.sampleEllipse(x, y, radiusX, radiusY, 0, startAngle, sweep, ts[i], point) // prettier-ignore
-          : Elliptic.sampleCircle(x, y, radiusX, startAngle, sweep, ts[i], point); // prettier-ignore
+      if (radiusX !== radiusY || rotation !== 0) {
+        Elliptic.sampleEllipse(x, y, radiusX, radiusY, rotation, startAngle, sweep, ts[i], point) // prettier-ignore
+      } else {
+        Elliptic.sampleCircle(x, y, radiusX, startAngle, sweep, ts[i], point); // prettier-ignore
+      }
 
       out.fit(point.x, point.y);
     }
@@ -125,11 +139,13 @@ export class Elliptic {
     const divisions = Math.abs(Math.ceil(sweep / step)) || 0;
 
     for (let i = 0; i <= divisions; i++) {
-      const point =
-        radiusX !== radiusY
-          ? Elliptic.sampleEllipse(x, y, radiusX, radiusY, rotation, startAngle, sweep, i / divisions) // prettier-ignore
-          : Elliptic.sampleCircle(x, y, radiusX, startAngle, sweep, i / divisions); // prettier-ignore
-
+      const point = new Vec2();
+      const t = i / divisions;
+      if (radiusX !== radiusY) {
+        Elliptic.sampleEllipse(x, y, radiusX, radiusY, rotation, startAngle, sweep, t, point); // prettier-ignore
+      } else {
+        Elliptic.sampleCircle(x, y, radiusX, startAngle, sweep, t, point);
+      }
       out.push(point);
     }
 
