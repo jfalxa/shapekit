@@ -127,6 +127,24 @@ export class Matrix3 extends Float64Array {
     return this.multiply(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
   }
 
+  invert() {
+    const [a, b, , c, d, , e, f] = this;
+
+    const det = a * d - b * c;
+    if (det === 0) throw new Error("Matrix is not invertible");
+    const invDet = 1 / det;
+
+    this[0] = d * invDet;
+    this[1] = -b * invDet;
+    this[3] = -c * invDet;
+    this[4] = a * invDet;
+
+    this[6] = -(e * this[0] + f * this[3]);
+    this[7] = -(e * this[1] + f * this[4]);
+
+    return this;
+  }
+
   multiply(
     a: number,
     b: number,
