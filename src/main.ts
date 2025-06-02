@@ -22,9 +22,10 @@ import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
 import { rect } from "./paths/rect";
 import { Clip } from "./renderables/clip";
-import { getColor, Perf, rad, rand, renderOBB } from "./debug";
+import { getColor, Perf, rad, rand, renderBBox, renderHulls } from "./debug";
 
 import treeSrc from "./tree.png";
+import { contains } from "./bounds";
 
 class App extends Loop {
   scene = new Group();
@@ -362,6 +363,18 @@ class App extends Loop {
       })
     );
 
+    this.canvas.element.addEventListener("click", (e) => {
+      const rect = this.canvas.element.getBoundingClientRect();
+      const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+
+      const renderable = this.scene.walk((renderable) => {
+        if (renderable === this.scene) return;
+        if (contains(renderable, point)) return renderable;
+      });
+
+      console.log("clicked", renderable);
+    });
+
     // this.transformer = new Transformer(this.group.children[0].children);
     // this.transformer = new Transformer([this.roundRect, this.roundTriangle]);
     // this.transformer = new Transformer([this.roundRect]);
@@ -369,8 +382,8 @@ class App extends Loop {
     // this.transformer = new Transformer([this.circle]);
     // this.transformer = new Transformer([this.group.children[0].children[0]]);
 
-    for (let i = 0; i < 16000; i++) {
-      // for (let i = 0; i < 0; i++) {
+    // for (let i = 0; i < 16000; i++) {
+    for (let i = 0; i < 0; i++) {
       this.scene.add(
         // new Group({
         //   children: [
@@ -439,8 +452,8 @@ class App extends Loop {
 
     this.perf.time("render");
 
-    renderOBB(this.canvas.ctx, this.canvas.scene.children);
-    // renderHulls(this.canvas.ctx, this.canvas.children);
+    // renderBBox(this.canvas.ctx, this.scene.children);
+    renderHulls(this.canvas.ctx, this.scene.children);
 
     // if (this.transformer) {
     // renderOBB(this.canvas.ctx, [this.transformer], "lime");

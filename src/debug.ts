@@ -1,8 +1,44 @@
-import { BBox } from "./bounds/bbox";
+import { getBBox, getPoints } from "./bounds";
 import { Group } from "./renderables/group";
 import { Renderable } from "./renderables/renderable";
 
-export function renderOBB(
+export function renderHulls(
+  ctx: CanvasRenderingContext2D,
+  renderables: Renderable[]
+) {
+  ctx.save();
+  ctx.resetTransform();
+
+  ctx.strokeStyle = "lime";
+  ctx.lineCap = "square";
+  ctx.lineWidth = 3;
+
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.filter = "none";
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "black";
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+  for (const shape of flattenRenderables(renderables)) {
+    const points = getPoints(shape);
+    if (points.length === 0) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(points[0][0], points[0][1]);
+
+    for (let j = 1; j < points.length; j++) {
+      ctx.lineTo(points[j][0], points[j][1]);
+    }
+
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function renderBBox(
   ctx: CanvasRenderingContext2D,
   renderables: Renderable[],
   color = "orange"
@@ -26,22 +62,22 @@ export function renderOBB(
   for (const shape of flattenRenderables(renderables)) {
     ctx.beginPath();
 
-    if (!("bbox" in shape) || !(shape.bbox instanceof BBox)) continue;
+    const bbox = getBBox(shape);
 
-    ctx.moveTo(shape.bbox.a.x, shape.bbox.a.y);
-    ctx.lineTo(shape.bbox.b.x, shape.bbox.b.y);
-    ctx.lineTo(shape.bbox.c.x, shape.bbox.c.y);
-    ctx.lineTo(shape.bbox.d.x, shape.bbox.d.y);
+    ctx.moveTo(bbox.a.x, bbox.a.y);
+    ctx.lineTo(bbox.b.x, bbox.b.y);
+    ctx.lineTo(bbox.c.x, bbox.c.y);
+    ctx.lineTo(bbox.d.x, bbox.d.y);
     ctx.closePath();
 
     ctx.stroke();
 
-    // ctx.beginPath();
-    // ctx.arc(shape.obb.center.x, shape.obb.center.y, 5, 0, 2 * Math.PI);
-    // ctx.fill();
+    ctx.beginPath();
+    ctx.arc(bbox.center.x, bbox.center.y, 5, 0, 2 * Math.PI);
+    ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(shape.bbox.a.x, shape.bbox.a.y, 5, 0, 2 * Math.PI);
+    ctx.arc(bbox.a.x, bbox.a.y, 5, 0, 2 * Math.PI);
     ctx.fill();
   }
   ctx.restore();
@@ -144,8 +180,8 @@ export function chain(functions: Function[], interval = 1000) {
   }
 }
 
-function flattenRenderables(renderables: (Renderable | Transformer)[]) {
-  const flat: (Renderable | Transformer)[] = [];
+function flattenRenderables(renderables: Renderable[]) {
+  const flat: Renderable[] = [];
   for (const renderable of renderables) {
     flat.push(renderable);
     if (renderable instanceof Group) {
