@@ -5,10 +5,9 @@ import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { Box } from "../samplers/box";
-import { getPoints } from "../samplers/renderable";
 import { AABB } from "./aabb";
 import { BBox } from "./bbox";
-import { getBBox } from "./renderable";
+import { getBBox, getPoints } from "./renderable";
 
 export interface Poly {
   isPolygon: boolean;
