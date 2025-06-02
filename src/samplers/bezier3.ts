@@ -89,8 +89,8 @@ export class Bezier3 {
       const abc = v(ab).add(bc).scale(0.5);
       const bcd = v(bc).add(cd).scale(0.5);
       const abcd = v(abc).add(bcd).scale(0.5);
-      Bezier3.subdivision(abcd, bcd, cd, d, t2, out);
       Bezier3.subdivision(a, ab, abc, abcd, t2, out);
+      Bezier3.subdivision(abcd, bcd, cd, d, t2, out);
     }
 
     return out;

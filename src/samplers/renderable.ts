@@ -18,7 +18,7 @@ function _getPoints(renderable: Renderable, out: Vec2[] = []) {
     if (!out[i]) out[i] = new Vec2();
     out[i].copy(naturalPoints[i]).transform(renderable.transform);
   }
-  return naturalPoints;
+  return out;
 }
 
 function _getLocalPoints(renderable: Renderable, out: Vec2[] = []) {

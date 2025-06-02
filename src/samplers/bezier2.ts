@@ -49,7 +49,7 @@ export class Bezier2 {
     out: Vec2[] = []
   ): Vec2[] {
     const p0 = new Vec2(previous.x, previous.y);
-    const p1 = new Vec2(bezier2.cpx, bezier2.cpy);
+    const p1 = new Vec2(bezier2._cpx, bezier2._cpy);
     const p2 = new Vec2(bezier2.x, bezier2.y);
     const tolerance2 = (1 / quality) * (1 / quality);
     return Bezier2.subdivision(p0, p1, p2, tolerance2, out);
