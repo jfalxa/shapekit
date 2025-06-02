@@ -115,8 +115,9 @@ class App extends Loop {
     x: 400,
     y: 300,
     width: 200,
-    height: 100,
+    // height: 100,
     textStroke: "black",
+    padding: 16,
   });
 
   lemon = new Shape({
@@ -361,7 +362,6 @@ class App extends Loop {
         id: "IMAGE",
         x: +100,
         width: 100,
-        height: 50,
         image: await Image.load(treeSrc),
       })
     );
@@ -439,7 +439,7 @@ class App extends Loop {
     this.perf.time("start");
 
     for (const shape of this.scene.children) {
-      // shape.rotation += 0.001 * this.deltaTime;
+      shape.rotation += 0.001 * this.deltaTime;
     }
 
     // this.perf.time("rotate");
