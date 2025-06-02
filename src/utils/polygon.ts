@@ -1,7 +1,7 @@
 import { Vec2, Point } from "../math/vec2";
 
 // even odd rule algorithm
-export function isPointInPolygon(point: Point, polygon: Vec2[]): boolean {
+export function isPointInPolygon(polygon: Vec2[], point: Point): boolean {
   let inside = false;
   const len = polygon.length;
 

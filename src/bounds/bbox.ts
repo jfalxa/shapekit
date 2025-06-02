@@ -1,10 +1,6 @@
 import { Matrix3 } from "../math/mat3";
 import { Vec2 } from "../math/vec2";
-
-export interface AABB {
-  min: Vec2;
-  max: Vec2;
-}
+import { AABB } from "./aabb";
 
 export class BBox implements AABB {
   a = new Vec2();
@@ -54,6 +50,11 @@ export class BBox implements AABB {
     max.max(a).max(b).max(c).max(d);
     this.update();
     return this;
+  }
+
+  isAABB() {
+    const { a, b, c, d } = this;
+    return a.x === d.x && a.y === b.y && c.x === b.x && c.y === d.y;
   }
 
   copy(other: BBox) {

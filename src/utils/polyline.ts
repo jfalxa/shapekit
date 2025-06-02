@@ -1,9 +1,9 @@
 import { Point, Vec2 } from "../math/vec2";
 
 export function isPointInPolyline(
-  point: Point,
   polyline: Vec2[],
-  lineWidth = 0
+  lineWidth: number,
+  point: Point
 ): boolean {
   const radius = lineWidth / 2;
   const threshold2 = radius * radius;
@@ -24,8 +24,8 @@ export function isPointInPolyline(
 
 export function doPolylinesOverlap(
   a: Vec2[],
-  b: Vec2[],
   aLineWidth = 0,
+  b: Vec2[],
   bLineWidth = 0
 ): boolean {
   const radiusA = aLineWidth / 2;

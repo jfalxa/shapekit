@@ -11,6 +11,7 @@ import { buildPathBBox } from "./path";
 export const getBBox = cached("globalBBox", _getBBox);
 export const getLocalBBox = cached("localBBox", _getLocalBBox);
 export const getNaturalBBox = cached("naturalBBox", _getNaturalBBox);
+
 function _getBBox(renderable: Renderable, out = new BBox()) {
   const naturalBBox = getNaturalBBox(renderable);
   return out.copy(naturalBBox).transform(renderable.transform);
