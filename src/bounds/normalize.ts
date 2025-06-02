@@ -1,4 +1,5 @@
 import { Vec2, Point } from "../math/vec2";
+import { Group } from "../renderables";
 import { Image } from "../renderables/image";
 import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
@@ -21,6 +22,16 @@ export function normalize(
   obj: Renderable | BBox | AABB | Vec2 | Point | Poly
 ): Poly | Vec2 {
   if (isPoly(obj)) return obj;
+
+  if (obj instanceof Group) {
+    return {
+      isPolygon: true,
+      isPolyline: false,
+      points: [],
+      lineWidth: 0,
+      aabb: getBBox(obj),
+    };
+  }
 
   if (obj instanceof Shape) {
     return {
@@ -70,7 +81,7 @@ export function normalize(
     return new Vec2(obj.x, obj.y);
   }
 
-  throw new Error("Object type is not supported");
+  throw new Error(`Object type is not supported: ${obj.constructor.name}`);
 }
 
 function isPoly(

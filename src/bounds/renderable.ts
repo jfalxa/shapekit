@@ -31,7 +31,7 @@ function _getNaturalBBox(renderable: Renderable, out = new BBox()) {
   } else if (renderable instanceof Group) {
     out.reset();
     for (let i = 0; i < renderable.children.length; i++) {
-      out.merge(getLocalBBox(renderable));
+      out.merge(getLocalBBox(renderable.children[i]));
     }
   }
   return out;

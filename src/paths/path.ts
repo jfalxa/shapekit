@@ -11,7 +11,7 @@ export type PathLike = Segment[];
 
 export class Path extends Array<Segment> {
   constructor(segments: Segment[] = [], public shape?: Shape) {
-    super(segments.length);
+    super();
     this.add(...segments);
   }
 

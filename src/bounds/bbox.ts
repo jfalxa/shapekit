@@ -26,7 +26,8 @@ export class BBox implements AABB {
   merge(other: AABB) {
     this.min.min(other.min).min(other.max);
     this.max.max(other.min).max(other.max);
-    this.update();
+    this._updateCorners();
+    this._updateBox();
     return this;
   }
 
@@ -36,7 +37,8 @@ export class BBox implements AABB {
     min.y = Math.min(min.y, y1, y2);
     max.x = Math.max(max.x, x1, x2);
     max.y = Math.max(max.y, y1, y2);
-    this.update();
+    this._updateCorners();
+    this._updateBox();
     return this;
   }
 
@@ -48,7 +50,7 @@ export class BBox implements AABB {
     d.transform(matrix);
     min.min(a).min(b).min(c).min(d);
     max.max(a).max(b).max(c).max(d);
-    this.update();
+    this._updateBox();
     return this;
   }
 
@@ -69,7 +71,15 @@ export class BBox implements AABB {
     return this;
   }
 
-  update() {
+  private _updateCorners() {
+    const { a, b, c, d, min, max } = this;
+    a.copy(min);
+    b.put(max.x, min.y);
+    c.copy(max);
+    d.put(min.x, max.y);
+  }
+
+  private _updateBox() {
     const { a, c, min, max, center } = this;
     center.x = (a.x + c.x) / 2;
     center.y = (a.y + c.y) / 2;
