@@ -20,8 +20,11 @@ export function fitText(text: Text): [string, number, number][] {
   const textLines: string[] = [];
   const words = (text.text ?? "").split(" ");
 
+  const width = text.getWidth();
+  const height = text.getHeight();
+
   let line = "";
-  let maxWidth = text.width - 2 * (text.padding ?? 0);
+  let maxWidth = width - 2 * (text.padding ?? 0);
 
   if (font !== textCtx.font) textCtx.font = font;
 
@@ -39,14 +42,14 @@ export function fitText(text: Text): [string, number, number][] {
     line = word;
   }
 
-  let x = text.width / 2;
+  let x = width / 2;
   if (textAlign === "left") x = padding;
-  if (textAlign === "right") x = text.width - padding;
+  if (textAlign === "right") x = width - padding;
 
   let y = 0;
   if (textVerticalAlign === "top") y = padding;
-  if (textVerticalAlign === "middle") y = -text.height / 2;
-  if (textVerticalAlign === "bottom") y = text.height - textLines.length * lineHeight - padding; // prettier-ignore
+  if (textVerticalAlign === "middle") y = -height / 2;
+  if (textVerticalAlign === "bottom") y = height - textLines.length * lineHeight - padding; // prettier-ignore
 
   for (let i = 0; i < textLines.length; i++) {
     y += lineHeight;

@@ -1,3 +1,4 @@
+import { track } from "../utils/track";
 import { Renderable, RenderableInit } from "./renderable";
 
 export interface ImageInit extends RenderableInit {
@@ -8,19 +9,41 @@ export interface ImageInit extends RenderableInit {
 
 export class Image extends Renderable {
   image: CanvasImageSource;
-  width: number;
-  height: number;
+
+  width?: number;
+  height?: number;
+
+  naturalWidth: number;
+  naturalHeight: number;
 
   constructor(init: ImageInit) {
     super(init);
 
     this.image = init.image;
 
-    if (init.width === undefined || init.height === undefined) {
-      [this.width, this.height] = Image.dimensions(init.image);
-    } else {
-      this.width = init.width;
-      this.height = init.height;
+    [this.naturalWidth, this.naturalHeight] = Image.dimensions(init.image);
+
+    this.width = init.width;
+    this.height = init.height;
+  }
+
+  getWidth() {
+    if (this.width !== undefined) return this.width;
+    else if (this.height !== undefined) return this.height * (this.naturalWidth / this.naturalHeight); // prettier-ignore
+    else return this.naturalWidth;
+  }
+
+  getHeight() {
+    if (this.height !== undefined) return this.height;
+    else if (this.width !== undefined) return this.width * (this.naturalHeight / this.naturalWidth); // prettier-ignore
+    else return this.naturalHeight;
+  }
+
+  update() {
+    super.update();
+
+    if (this.__isContentDirty) {
+      [this.naturalWidth, this.naturalHeight] = Image.dimensions(this.image);
     }
   }
 
@@ -46,3 +69,7 @@ export class Image extends Renderable {
     }
   }
 }
+
+track(Image, ['image'], (image) => {
+  image.__isContentDirty = true
+})

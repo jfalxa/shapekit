@@ -30,8 +30,11 @@ export interface TextInit extends RenderableInit, TextStyle {
 export class Text extends Renderable implements TextStyle {
   declare text: string;
 
-  declare width: number;
-  declare height: number;
+  declare width?: number;
+  declare height?: number;
+
+  naturalWidth!: number;
+  naturalHeight!: number;
 
   fontFamily?: string;
   fontSize?: number;
@@ -49,20 +52,16 @@ export class Text extends Renderable implements TextStyle {
   direction?: CanvasDirection;
   padding?: number;
 
-  font: string;
-  lines: [string, number, number][];
+  font!: string;
+  lines!: [string, number, number][];
 
   constructor(init: TextInit) {
     super(init);
 
     this.text = init.text;
 
-    if (init.width === undefined || init.height === undefined) {
-      [this.width, this.height] = measureText(this.text, init);
-    } else {
-      this.width = init.width;
-      this.height = init.height;
-    }
+    this.width = init.width;
+    this.height = init.height;
 
     this.fontFamily = init.fontFamily;
     this.fontSize = init.fontSize;
@@ -80,21 +79,30 @@ export class Text extends Renderable implements TextStyle {
     this.direction = init.direction;
     this.padding = init.padding;
 
-    this.font = getFont(this);
-    this.lines = fitText(this);
+    this.format();
+  }
+
+  getWidth() {
+    if (this.width !== undefined) return this.width;
+    return this.naturalWidth;
+  }
+
+  getHeight() {
+    if (this.height !== undefined) return this.height;
+    if (this.width === undefined) return this.naturalHeight;
+    const lineHeight = this.lineHeight ?? this.fontSize ?? 12;
+    return lineHeight * (this.lines?.length ?? 0) + 2 * (this.padding ?? 0);
   }
 
   format() {
+    [this.naturalWidth, this.naturalHeight] = measureText(this.text, this);
     this.font = getFont(this);
     this.lines = fitText(this);
   }
 
   update() {
     super.update();
-
-    if (this.__isContentDirty) {
-      this.format();
-    }
+    if (this.__isContentDirty) this.format();
   }
 }
 

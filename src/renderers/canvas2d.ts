@@ -126,7 +126,7 @@ export class Canvas2D {
   }
 
   private _renderImage(image: Image) {
-    this.ctx.drawImage(image.image, 0, 0, image.width, image.height);
+    this.ctx.drawImage(image.image, 0, 0, image.getWidth(), image.getHeight());
   }
 
   private _renderText(text: Text) {

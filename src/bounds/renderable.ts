@@ -32,7 +32,7 @@ function _getNaturalBBox(renderable: Renderable, out = new BBox()) {
   if (renderable instanceof Shape) return getPathBBox(renderable.path);
 
   if (renderable instanceof Image || renderable instanceof Text) {
-    out.reset().fit(0, 0, renderable.width, renderable.height);
+    out.reset().fit(0, 0, renderable.getWidth(), renderable.getHeight());
   } else if (renderable instanceof Group) {
     out.reset();
     for (let i = 0; i < renderable.children.length; i++) {
@@ -72,7 +72,7 @@ function _getNaturalPoints(renderable: Renderable, out: Vec2[] = []) {
   if (renderable instanceof Shape) return getPathPoints(renderable.path);
 
   if (renderable instanceof Text || renderable instanceof Image) {
-    Box.sample(0, 0, renderable.width, renderable.height, out);
+    Box.sample(0, 0, renderable.getWidth(), renderable.getHeight(), out);
   }
 
   return out;
