@@ -1,5 +1,7 @@
 // import * as brush from "./index";
 // console.log(brush);
+// import * as bounds from "./bounds";
+// console.log(bounds);
 import { Loop } from "vroum";
 import { Canvas2D } from "./renderers/canvas2d";
 import { Shape } from "./renderables/shape";
