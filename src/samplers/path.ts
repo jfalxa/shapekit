@@ -10,6 +10,7 @@ import { Elliptic } from "../samplers/elliptic";
 import { PathLike } from "../paths/path";
 import { Vec2 } from "../math/vec2";
 import { Box } from "./box";
+import { RoundRect } from "../paths";
 
 export function buildPathPoints(
   path: PathLike,
@@ -25,6 +26,8 @@ export function buildPathPoints(
       out.push(...Bezier3.adaptiveSample(s, path[i - 1], quality));
     } else if (s instanceof QuadraticCurveTo) {
       out.push(...Bezier2.adaptiveSample(s, path[i - 1], quality));
+    } else if (s instanceof RoundRect) {
+      out.push(...Box.sampleRoundRect(s, quality));
     } else if (s instanceof Rect) {
       out.push(...Box.sampleRect(s));
     } else {
