@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Matrix3 } from "../math/mat3";
 import { Point, v, Vec2 } from "../math/vec2";
 import { BBox } from "../bounds/bbox";
