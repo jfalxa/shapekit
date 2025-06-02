@@ -67,7 +67,7 @@ export class Canvas2D {
       return;
     }
 
-    if (renderable instanceof Shape) {
+    if (!(renderable instanceof Group)) {
       const t = renderable.transform;
       this.ctx.setTransform(t[0], t[1], t[3], t[4], t[6], t[7]);
     }

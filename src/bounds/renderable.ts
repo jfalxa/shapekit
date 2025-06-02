@@ -8,6 +8,7 @@ import { BBox } from "./bbox";
 import { getLocalTransform } from "../transforms/local-transform";
 import { getPathBBox, getPathPoints } from "./path";
 import { Vec2 } from "../math/vec2";
+import { Box } from "../samplers";
 
 export const getBBox = cached("globalBBox", _getBBox);
 export const getLocalBBox = cached("localBBox", _getLocalBBox);
@@ -71,9 +72,7 @@ function _getNaturalPoints(renderable: Renderable, out: Vec2[] = []) {
   if (renderable instanceof Shape) return getPathPoints(renderable.path);
 
   if (renderable instanceof Text || renderable instanceof Image) {
-    const { a, b, c, d } = getNaturalBBox(renderable);
-    out.length = 0;
-    out.push(a, b, c, d, a);
+    Box.sample(0, 0, renderable.width, renderable.height, out);
   }
 
   return out;
