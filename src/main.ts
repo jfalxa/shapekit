@@ -409,7 +409,7 @@ class App extends Loop {
     // this.scene.add(this.rect1);
     // this.scene.add(this.rect2);
     // this.scene.add(this.rect3);
-    // this.scene.add(this.path);
+    this.scene.add(this.path);
     // this.scene.add(this.path2);
     // this.scene.add(this.path3);
     // this.scene.add(this.roundRect);
@@ -452,7 +452,7 @@ class App extends Loop {
 
     this.perf.time("render");
 
-    // renderBBox(this.canvas.ctx, this.scene.children);
+    renderBBox(this.canvas.ctx, this.scene.children);
     renderHulls(this.canvas.ctx, this.scene.children);
 
     // if (this.transformer) {
