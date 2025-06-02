@@ -1,5 +1,5 @@
 import { Vec2, Point } from "../math/vec2";
-import { Group } from "../renderables";
+import { Group } from "../renderables/group";
 import { Image } from "../renderables/image";
 import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";

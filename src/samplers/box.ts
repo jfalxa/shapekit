@@ -1,8 +1,8 @@
 import { AABB } from "../bounds/aabb";
 import { BBox } from "../bounds/bbox";
 import { Vec2 } from "../math/vec2";
-import { RoundRect } from "../paths";
 import { Rect } from "../paths/rect";
+import { RoundRect } from "../paths/round-rect";
 import { Elliptic } from "./elliptic";
 
 export class Box {

@@ -1,9 +1,9 @@
 import { BBox } from "../bounds/bbox";
 import { v, Vec2 } from "../math/vec2";
-import { Segment } from "../paths";
 import { Arc } from "../paths/arc";
 import { ArcTo } from "../paths/arc-to";
 import { Ellipse } from "../paths/ellipse";
+import { Segment } from "../paths/segment";
 
 const TWO_PI = 2 * Math.PI;
 

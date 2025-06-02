@@ -6,16 +6,16 @@ import { Ellipse, Ellipse as EllipseSegment } from "../paths/ellipse";
 import { LineTo } from "../paths/line-to";
 import { MoveTo } from "../paths/move-to";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
+import { RoundRect } from "../paths/round-rect";
 import { Rect } from "../paths/rect";
 import { Bezier2 } from "../samplers/bezier2";
 import { Bezier3 } from "../samplers/bezier3";
+import { Box } from "../samplers/box";
 import { Elliptic } from "../samplers/elliptic";
 import { Path } from "../paths/path";
 import { BBox } from "./bbox";
 import { cached } from "../utils/cache";
 import { Vec2 } from "../math/vec2";
-import { RoundRect } from "../paths";
-import { Box } from "../samplers";
 
 export const getPathBBox = cached("bbox", _getPathBBox);
 export const getPathPoints = cached("points", _getPathPoints);
