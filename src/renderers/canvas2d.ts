@@ -194,7 +194,5 @@ function _getPath2D(path: Path) {
     }
   }
 
-  path.clean();
-
   return path2D;
 }

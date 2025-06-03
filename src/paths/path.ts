@@ -17,7 +17,6 @@ export class Path extends Array<Segment> implements Cache {
 
   __version: number;
   __cache: Record<string, any>;
-  __isDirty: boolean;
 
   constructor(segments: Segment[] = [], quality = 1, shape?: Shape) {
     super();
@@ -25,26 +24,22 @@ export class Path extends Array<Segment> implements Cache {
     this.shape = shape;
     this.__version = 0;
     this.__cache = {};
-    this.__isDirty = true;
     this.add(...segments);
   }
 
   add(...segments: Segment[]) {
     this.push(...segments);
     for (let i = 0; i < segments.length; i++) segments[i].path = this;
-    if (this.shape) this.shape.__isContentDirty = true;
   }
 
   insert(index: number, ...segments: Segment[]) {
     this.splice(index, 0, ...segments);
     for (let i = 0; i < segments.length; i++) segments[i].path = this;
-    if (this.shape) this.shape.__isContentDirty = true;
   }
 
   remove(...segments: Segment[]) {
     remove(this, segments);
     for (let i = 0; i < segments.length; i++) segments[i].path = undefined;
-    if (this.shape) this.shape.__isContentDirty = true;
   }
 
   update() {
@@ -64,11 +59,6 @@ export class Path extends Array<Segment> implements Cache {
         [s._cp1x, s._cp1y] = getControl(s, this[i - 1]);
       }
     }
-  }
-
-  clean() {
-    if (this.__isDirty) this.__version++;
-    this.__isDirty = false;
   }
 }
 
