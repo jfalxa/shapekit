@@ -48,19 +48,6 @@ export class Group extends Renderable {
     }
   }
 
-  walk<T = void>(operation: (renderable: Renderable) => T): T {
-    const result = operation(this);
-    if (result !== undefined) return result;
-
-    for (let i = 0; i < this.children.length; i++) {
-      const child = this.children[i];
-      const result = child instanceof Group ? child.walk(operation) : operation(child); // prettier-ignore
-      if (result !== undefined) return result;
-    }
-
-    return undefined as T;
-  }
-
   update(): void {
     super.update();
 
