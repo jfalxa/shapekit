@@ -1,21 +1,26 @@
+import { Vec2 } from "../math/vec2";
+import { Matrix3 } from "../math/mat3";
 import { Group } from "../renderables/group";
 import { Image } from "../renderables/image";
 import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { cached } from "../utils/cache";
-import { BBox } from "./bbox";
-import { getLocalTransform } from "../transforms/local-transform";
-import { getPathBBox, getPathPoints } from "./path";
-import { Vec2 } from "../math/vec2";
 import { Box } from "../samplers";
+import { BBox } from "./bbox";
+import { getPathBBox, getPathPoints } from "./path";
 
+export const getLocalTransform = cached("localTransform", _getLocalTransform);
 export const getBBox = cached("globalBBox", _getBBox);
 export const getLocalBBox = cached("localBBox", _getLocalBBox);
 export const getNaturalBBox = cached("naturalBBox", _getNaturalBBox);
 export const getPoints = cached("globalPoints", _getPoints);
 export const getLocalPoints = cached("localPoints", _getLocalPoints);
 export const getNaturalPoints = cached("naturalPoints", _getNaturalPoints);
+
+function _getLocalTransform(renderable: Renderable, out = new Matrix3()) {
+  return out.identity().compose(renderable);
+}
 
 function _getBBox(renderable: Renderable, out = new BBox()) {
   const naturalBBox = getNaturalBBox(renderable);
