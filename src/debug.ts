@@ -1,4 +1,5 @@
-import { getBBox, getPoints } from "./bounds";
+import { BBox, getBBox, getPoints } from "./bounds";
+import { Vec2 } from "./math/vec2";
 import { Group } from "./renderables/group";
 import { Renderable } from "./renderables/renderable";
 
@@ -9,30 +10,23 @@ export function renderHulls(
   ctx.save();
   ctx.resetTransform();
 
-  ctx.strokeStyle = "lime";
-  ctx.lineCap = "square";
-  ctx.lineWidth = 3;
-
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "source-over";
-  ctx.filter = "none";
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = "black";
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-
   for (const shape of flattenRenderables(renderables)) {
     const points = getPoints(shape);
-    if (points.length === 0) continue;
+    renderHull(ctx, points);
+  }
 
-    ctx.beginPath();
-    ctx.moveTo(points[0][0], points[0][1]);
+  ctx.restore();
+}
 
-    for (let j = 1; j < points.length; j++) {
-      ctx.lineTo(points[j][0], points[j][1]);
-    }
+export function renderBBoxes(
+  ctx: CanvasRenderingContext2D,
+  renderables: Renderable[]
+) {
+  ctx.save();
+  ctx.resetTransform();
 
-    ctx.stroke();
+  for (const renderable of flattenRenderables(renderables)) {
+    renderBBox(ctx, getBBox(renderable));
   }
 
   ctx.restore();
@@ -40,47 +34,50 @@ export function renderHulls(
 
 export function renderBBox(
   ctx: CanvasRenderingContext2D,
-  renderables: Renderable[],
+  bbox: BBox,
   color = "orange"
 ) {
-  ctx.save();
-  ctx.resetTransform();
-
   ctx.fillStyle = color;
   ctx.strokeStyle = color;
   ctx.lineCap = "square";
   ctx.lineWidth = 4;
 
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "source-over";
-  ctx.filter = "none";
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = "black";
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
+  ctx.moveTo(bbox.a.x, bbox.a.y);
+  ctx.lineTo(bbox.b.x, bbox.b.y);
+  ctx.lineTo(bbox.c.x, bbox.c.y);
+  ctx.lineTo(bbox.d.x, bbox.d.y);
+  ctx.closePath();
 
-  for (const shape of flattenRenderables(renderables)) {
-    ctx.beginPath();
+  ctx.stroke();
 
-    const bbox = getBBox(shape);
+  ctx.beginPath();
+  ctx.arc(bbox.center.x, bbox.center.y, 5, 0, 2 * Math.PI);
+  ctx.fill();
 
-    ctx.moveTo(bbox.a.x, bbox.a.y);
-    ctx.lineTo(bbox.b.x, bbox.b.y);
-    ctx.lineTo(bbox.c.x, bbox.c.y);
-    ctx.lineTo(bbox.d.x, bbox.d.y);
-    ctx.closePath();
+  ctx.beginPath();
+  ctx.arc(bbox.a.x, bbox.a.y, 5, 0, 2 * Math.PI);
+  ctx.fill();
+}
 
-    ctx.stroke();
+export function renderHull(
+  ctx: CanvasRenderingContext2D,
+  hull: Vec2[],
+  color = "lime"
+) {
+  if (hull.length === 0) return;
 
-    ctx.beginPath();
-    ctx.arc(bbox.center.x, bbox.center.y, 5, 0, 2 * Math.PI);
-    ctx.fill();
+  ctx.strokeStyle = color;
+  ctx.lineCap = "square";
+  ctx.lineWidth = 3;
 
-    ctx.beginPath();
-    ctx.arc(bbox.a.x, bbox.a.y, 5, 0, 2 * Math.PI);
-    ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(hull[0][0], hull[0][1]);
+
+  for (let j = 1; j < hull.length; j++) {
+    ctx.lineTo(hull[j][0], hull[j][1]);
   }
-  ctx.restore();
+
+  ctx.stroke();
 }
 
 export class Perf {

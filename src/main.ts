@@ -24,8 +24,18 @@ import { roundRect } from "./paths/round-rect";
 import { closePath } from "./paths/close-path";
 import { rect } from "./paths/rect";
 import { Clip } from "./renderables/clip";
-import { getColor, Perf, rad, rand, renderBBox, renderHulls } from "./debug";
+import {
+  getColor,
+  Perf,
+  rad,
+  rand,
+  renderBBox,
+  renderBBoxes,
+  renderHulls,
+} from "./debug";
 import { contains, getBBox, getPoints, overlaps } from "./bounds";
+import { walk } from "./utils/walk";
+import { Transformer } from "./transforms/transformer";
 
 import treeSrc from "./tree.png";
 
@@ -350,21 +360,12 @@ class App extends Loop {
     ],
   });
 
-  transformer!: Transformer;
+  transformer = new Transformer();
 
   perf = new Perf();
 
   async mount() {
     document.body.append(this.canvas.element);
-
-    (this.group.children[0] as Group).add(
-      new Image({
-        id: "IMAGE",
-        x: +100,
-        width: 100,
-        image: await Image.load(treeSrc),
-      })
-    );
 
     this.canvas.element.addEventListener("click", (e) => {
       let start: number, end: number;
@@ -372,7 +373,7 @@ class App extends Loop {
       const rect = this.canvas.element.getBoundingClientRect();
       const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
 
-      const renderable = this.scene.walk((renderable) => {
+      const renderable = walk(this.scene, (renderable) => {
         if (!(renderable instanceof Group)) {
           if (contains(renderable, point)) return renderable;
         }
@@ -383,12 +384,8 @@ class App extends Loop {
       console.log("clicked", renderable);
     });
 
-    // this.transformer = new Transformer(this.group.children[0].children);
-    // this.transformer = new Transformer([this.roundRect, this.roundTriangle]);
-    // this.transformer = new Transformer([this.roundRect]);
-    // this.transformer = new Transformer([this.rect3]);
-    // this.transformer = new Transformer([this.circle]);
-    // this.transformer = new Transformer([this.group.children[0].children[0]]);
+    // @ts-ignore
+    window.t = this.transformer;
 
     // for (let i = 0; i < 16000; i++) {
     for (let i = 0; i < 0; i++) {
@@ -413,6 +410,24 @@ class App extends Loop {
         // })
       );
     }
+
+    (this.group.children[0] as Group).add(
+      new Image({
+        id: "IMAGE",
+        x: +100,
+        width: 100,
+        height: 50,
+        image: await Image.load(treeSrc),
+      })
+    );
+
+    this.transformer.select(this.group);
+    // this.transformer.select(...this.group.children[0].children);
+    // this.transformer.select(this.roundRect, this.roundTriangle);
+    // this.transformer.select(this.roundRect);
+    // this.transformer.select(this.rect3);
+    // this.transformer.select(this.circle);
+    // this.transformer.select(this.group.children[0].children[0]);
 
     // this.scene.add(this.polyline);
     // this.scene.add(this.rect1);
@@ -439,7 +454,7 @@ class App extends Loop {
     this.perf.time("start");
 
     for (const shape of this.scene.children) {
-      shape.rotation += 0.001 * this.deltaTime;
+      // shape.rotation += 0.001 * this.deltaTime;
     }
 
     // this.perf.time("rotate");
@@ -461,13 +476,15 @@ class App extends Loop {
     this.canvas.update();
     this.perf.time("render");
 
-    renderBBox(this.canvas.ctx, this.scene.children);
+    renderBBoxes(this.canvas.ctx, this.scene.children);
     // this.scene.children.map(getBBox);
     this.perf.time("bbox");
 
-    renderHulls(this.canvas.ctx, this.scene.children);
+    // renderHulls(this.canvas.ctx, this.scene.children);
     // this.scene.children.map(getPoints);
     this.perf.time("hulls");
+
+    renderBBox(this.canvas.ctx, this.transformer.bbox, "blue");
 
     // if (this.transformer) {
     // renderOBB(this.canvas.ctx, [this.transformer], "lime");
@@ -487,46 +504,3 @@ window.app = new App();
 window.Matrix3 = Matrix3;
 // @ts-ignore
 window.Vec2 = Vec2;
-
-// import { buildAABB } from "./bbox/path";
-// function resize(path: PathLike, bbox: AABB, width: number, height: number) {
-//   let lastMoveTo: MoveTo | undefined;
-
-//   const sx = width && bbox.width ? width / bbox.width : 1;
-//   const sy = height && bbox.height ? height / bbox.height : 1;
-
-//   for (let i = 0; i < path.length; i++) {
-//     const s = path[i];
-//     s.x *= sx;
-//     s.y *= sy;
-
-//     if (s instanceof MoveTo) {
-//       lastMoveTo = s;
-//     } else if (s instanceof ClosePath && lastMoveTo) {
-//       s._x = lastMoveTo.x;
-//       s._y = lastMoveTo.y;
-//     } else if (s instanceof Rect) {
-//       s.width *= sx;
-//       s.height *= sy;
-//     } else if (s instanceof Ellipse) {
-//       s.radiusX *= sx;
-//       s.radiusY *= sy;
-//     } else if (s instanceof Arc) {
-//       s.radiusX *= sx;
-//       s.radiusY *= sy;
-//     } else if (s instanceof ArcTo) {
-//       s.cpx *= sx;
-//       s.cpy *= sy;
-//       s.radiusX *= sx;
-//       s.radiusY *= sy;
-//     } else if (s instanceof QuadraticCurveTo) {
-//       [s._cpx, s._cpy] = getControl(s, path[i - 1], sx, sy);
-//     } else if (s instanceof BezierCurveTo) {
-//       [s._cp1x, s._cp1y] = getControl(s, path[i - 1], sx, sy);
-//       s.cp2x *= sx;
-//       s.cp2y *= sy;
-//     }
-//   }
-
-//   buildAABB(path, bbox);
-// }
