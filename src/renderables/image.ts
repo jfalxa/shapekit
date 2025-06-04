@@ -42,7 +42,7 @@ export class Image extends Renderable {
   update() {
     super.update();
 
-    if (this.__isContentDirty) {
+    if (this.__isDirty) {
       [this.naturalWidth, this.naturalHeight] = Image.dimensions(this.image);
     }
   }
@@ -71,5 +71,5 @@ export class Image extends Renderable {
 }
 
 track(Image, ['image'], (image) => {
-  image.__isContentDirty = true
+  image.__isDirty = true
 })

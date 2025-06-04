@@ -102,10 +102,10 @@ export class Text extends Renderable implements TextStyle {
 
   update() {
     super.update();
-    if (this.__isContentDirty) this.format();
+    if (this.__isDirty) this.format();
   }
 }
 
 track(Text, ["text", "width", "height"], (text) => {
-  text.__isContentDirty = true;
+  text.__isDirty = true;
 });

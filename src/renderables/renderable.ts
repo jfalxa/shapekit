@@ -33,11 +33,9 @@ export class Renderable implements Transform, Cache {
 
   transform: Matrix3;
 
-  __isTransformDirty: boolean;
-  __isContentDirty: boolean;
-
   __version: number;
   __cache: Record<string, any>;
+  __isDirty: boolean;
 
   constructor(init: RenderableInit = {}) {
     this.id = init.id;
@@ -54,29 +52,26 @@ export class Renderable implements Transform, Cache {
 
     this.transform = new Matrix3();
 
-    this.__isTransformDirty = true;
-    this.__isContentDirty = true;
-
     this.__version = 0;
     this.__cache = {};
+    this.__isDirty = true;
   }
 
   update() {
-    if (this.__isTransformDirty) {
+    if (this.__isDirty) {
       this.transform.identity().compose(this);
       if (this.parent) this.transform.transform(this.parent.transform);
     }
   }
 
   clean() {
-    if (this.__isTransformDirty || this.__isContentDirty) this.__version++;
-    this.__isTransformDirty = false;
-    this.__isContentDirty = false;
+    if (this.__isDirty) this.__version++;
+    this.__isDirty = false;
   }
 }
 
 track(
   Renderable,
   ["x", "y", "scaleX", "scaleY", "skewX", "skewY", "rotation"],
-  (renderable) => (renderable.__isTransformDirty = true)
+  (renderable) => (renderable.__isDirty = true)
 );

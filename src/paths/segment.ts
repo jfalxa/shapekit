@@ -1,5 +1,5 @@
 import { Constructor, track } from "../utils/track";
-import { Path } from "./path";
+import { markPathDirty, Path } from "./path";
 
 export class Segment {
   path?: Path;
@@ -13,15 +13,15 @@ export class Segment {
   }
 }
 
+function markSegmentDirty(segment: Segment) {
+  if (segment.path) markPathDirty(segment.path);
+}
+
 export function trackSegment<S extends Segment>(
   Class: Constructor<S>,
   props: (keyof S)[]
 ) {
   track(Class, props, markSegmentDirty);
-}
-
-function markSegmentDirty(segment: Segment) {
-  if (segment.path) segment.path.__version++;
 }
 
 trackSegment(Segment, ["x", "y"]);

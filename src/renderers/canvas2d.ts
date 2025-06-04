@@ -160,6 +160,7 @@ function _getPath2D(path: Path) {
   const path2D = new Path2D();
 
   path.update();
+  path.__isDirty = false;
 
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
