@@ -48,8 +48,8 @@ export class BBox implements AABB {
     b.transform(matrix);
     c.transform(matrix);
     d.transform(matrix);
-    min.min(a).min(b).min(c).min(d);
-    max.max(a).max(b).max(c).max(d);
+    min.put(Infinity).min(a).min(b).min(c).min(d);
+    max.put(-Infinity).max(a).max(b).max(c).max(d);
     this._updateBox();
     return this;
   }
@@ -66,6 +66,7 @@ export class BBox implements AABB {
     this.d.copy(other.d);
     this.min.copy(other.min);
     this.max.copy(other.max);
+    this.center.copy(other.center);
     this.width = other.width;
     this.height = other.height;
     return this;
