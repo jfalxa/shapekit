@@ -1,17 +1,26 @@
-// @ts-nocheck
-
 import { Matrix3 } from "../math/mat3";
 import { Point, v, Vec2 } from "../math/vec2";
 import { BBox } from "../bounds/bbox";
 import { Renderable, Transform } from "../renderables/renderable";
-import { getBBox } from "../bounds";
+import { getBBox, getCenter, getNaturalBBox } from "../bounds/renderable";
+import { Segment } from "../paths/segment";
+import { Shape } from "../renderables/shape";
+import { clone, copy, scale } from "./path";
+import { walk } from "../utils/walk";
+import { Text } from "../renderables/text";
+import { Group } from "../renderables/group";
+import { Image } from "../renderables/image";
 
 interface Snapshot extends Transform {
   transform: Matrix3;
   invParentTransform: Matrix3;
+  path: Segment[];
+  naturalBBox: BBox;
 }
 
 export class Transformer {
+  selection!: Renderable[];
+
   x!: number;
   y!: number;
   width!: number;
@@ -22,7 +31,7 @@ export class Transformer {
   skewY!: number;
   rotation!: number;
 
-  obb = new BBox();
+  bbox = new BBox();
 
   private _x!: number;
   private _y!: number;
@@ -35,15 +44,14 @@ export class Transformer {
   private _rotation!: number;
 
   private _snapshots = new Map<Renderable, Snapshot>();
-  private _single!: Snapshot;
   private _center = new Vec2();
   private _delta = new Vec2();
-  private _obb = new BBox();
+  private _initialBBox = new BBox();
   private _transform = new Matrix3();
   private _selectionTransform = new Matrix3();
 
-  constructor(public selection: Renderable[]) {
-    this.reset();
+  constructor(selection: Renderable[] = []) {
+    this.select(...selection);
   }
 
   apply() {
@@ -64,7 +72,7 @@ export class Transformer {
     this._skewX = this.skewX;
     this._skewY = this.skewY;
     this._rotation = this.rotation;
-    this._center.copy(this.obb.center);
+    this._center.copy(this.bbox.center);
     this.apply();
   }
 
@@ -79,29 +87,38 @@ export class Transformer {
     this.apply();
   }
 
-  reset() {
-    this._obb.min.put(+Infinity);
-    this._obb.max.put(-Infinity);
+  select(...renderables: Renderable[]) {
+    this.selection = renderables;
+
+    this._initialBBox.min.put(+Infinity);
+    this._initialBBox.max.put(-Infinity);
 
     this._snapshots.clear();
 
     for (let i = 0; i < this.selection.length; i++) {
-      const renderable = this.selection[i];
-      this._single = this._snapshot(renderable);
-      if (this.selection.length > 1) this._obb.merge(getBBox(renderable));
+      const selected = this.selection[i];
+      selected.update();
+
+      walk(selected, (renderable) => {
+        this._snapshot(renderable);
+      });
     }
 
     if (this.selection.length === 1) {
-      this._obb.copy(getBBox(this.selection[0]));
+      this._initialBBox.copy(getBBox(this.selection[0]));
+    } else {
+      for (let i = 0; i < this.selection.length; i++) {
+        this._initialBBox.merge(getBBox(this.selection[i]));
+      }
     }
 
-    this.obb.copy(this._obb);
-    this._center.copy(this.obb.center);
+    this.bbox.copy(this._initialBBox);
+    this._center.copy(this.bbox.center);
 
     this.x = this._x = 0;
     this.y = this._y = 0;
-    this.width = this._width = this.obb.width;
-    this.height = this._height = this.obb.height;
+    this.width = this._width = this.bbox.width;
+    this.height = this._height = this.bbox.height;
     this.scaleX = this._scaleX = 1;
     this.scaleY = this._scaleY = 1;
     this.skewX = this._skewX = 0;
@@ -170,40 +187,40 @@ export class Transformer {
     this.apply();
   }
 
-  _applySingle() {
+  private _applySingle() {
     const [renderable] = this.selection;
-    const { width, height } = this._obb;
+    const { width, height } = this._initialBBox;
+
+    const snapshot = this._snapshots.get(renderable)!;
 
     const sx = width !== 0 ? this.scaleX * (this.width / width) : 1;
     const sy = height !== 0 ? this.scaleY * (this.height / height) : 1;
 
-    const transform = {
-      x: this._single.x + this.x,
-      y: this._single.y + this.y,
-      scaleX: this._single.scaleX * sx,
-      scaleY: this._single.scaleY * sy,
-      skewX: this._single.skewX + this.skewX,
-      skewY: this._single.skewY + this.skewY,
-      rotation: this._single.rotation + this.rotation,
-    };
-
-    renderable.width = this._single.width;
-    renderable.height = this._single.height;
+    const transform = new Matrix3().compose({
+      x: snapshot.x + this.x,
+      y: snapshot.y + this.y,
+      scaleX: snapshot.scaleX * sx,
+      scaleY: snapshot.scaleY * sy,
+      skewX: snapshot.skewX + this.skewX,
+      skewY: snapshot.skewY + this.skewY,
+      rotation: snapshot.rotation + this.rotation,
+    });
 
     this._transform
       .identity()
-      .compose(transform)
-      .transform(this._single!.invParentTransform)
-      .decompose(renderable, true);
+      .transform(transform)
+      .transform(snapshot.invParentTransform);
+
+    this._applyTransform(renderable, this._transform);
 
     renderable.update();
-    this.obb.copy(renderable.obb);
+    this.bbox.copy(getBBox(renderable));
   }
 
-  _applyMultiple() {
-    const [cx, cy] = this._obb.center;
-    const sx = this.scaleX * (this.width / this._obb.width);
-    const sy = this.scaleY * (this.height / this._obb.height);
+  private _applyMultiple() {
+    const [cx, cy] = this._initialBBox.center;
+    const sx = this.scaleX * (this.width / this._initialBBox.width);
+    const sy = this.scaleY * (this.height / this._initialBBox.height);
 
     this._transform
       .identity()
@@ -216,40 +233,61 @@ export class Transformer {
       const renderable = this.selection[i];
       const snapshot = this._snapshots.get(renderable)!;
 
-      renderable.width = snapshot.width;
-      renderable.height = snapshot.height;
-
       this._selectionTransform
         .copy(snapshot.transform)
         .transform(this._transform)
-        .transform(snapshot.invParentTransform)
-        .decompose(renderable, true);
+        .transform(snapshot.invParentTransform);
 
+      this._applyTransform(renderable, this._selectionTransform);
       renderable.update();
     }
 
-    this.obb.copy(this._obb).transform(this._transform);
+    this.bbox.copy(this._initialBBox).transform(this._transform);
   }
 
-  _snapshot(renderable: Renderable) {
+  private _applyTransform(renderable: Renderable, transform: Matrix3) {
+    const snapshot = this._snapshots.get(renderable)!;
+
+    const { scaleX, scaleY, ...decomposed } = transform.decompose();
+    Object.assign(renderable, decomposed);
+
+    const sx = scaleX / snapshot.scaleX;
+    const sy = scaleY / snapshot.scaleY;
+
+    if (renderable instanceof Shape) {
+      scale(copy(snapshot.path, renderable.path), sx, sy);
+    } else if (renderable instanceof Text || renderable instanceof Image) {
+      if (renderable.width !== undefined) renderable.width = snapshot.naturalBBox.width * sx; // prettier-ignore
+      if (renderable.height !== undefined) renderable.height = snapshot.naturalBBox.height * sy; // prettier-ignore
+    } else if (renderable instanceof Group) {
+      for (let i = 0; i < renderable.children.length; i++) {
+        const child = renderable.children[i];
+        const childSnaphost = this._snapshots.get(child)!;
+        const childTransform = new Matrix3().compose(childSnaphost).scale(sx, sy); // prettier-ignore
+        this._applyTransform(child, childTransform);
+      }
+    }
+  }
+
+  private _snapshot(renderable: Renderable) {
     const localTransform = new Matrix3().compose(renderable);
     const parentTransform = new Matrix3(renderable.parent?.transform);
     const invParentTransform = new Matrix3(parentTransform).invert();
     const transform = new Matrix3(localTransform).transform(parentTransform);
+    const naturalBBox = new BBox().copy(getNaturalBBox(renderable));
+    const path = renderable instanceof Shape ? clone(renderable.path) : [];
 
-    const decomposed = transform.decompose();
-    decomposed.width = renderable.width;
-    decomposed.height = renderable.height;
-
-    const snapshot = { ...decomposed, transform, invParentTransform };
+    const decomposed = localTransform.decompose();
+    const snapshot = { ...decomposed, transform, invParentTransform, naturalBBox, path }; // prettier-ignore
     this._snapshots.set(renderable, snapshot);
+
     return snapshot;
   }
 
   _adjust(anchor: Vec2, sx = this.scaleX, sy = this.scaleY) {
-    const center =
+    let center =
       this.selection.length === 1 //
-        ? this.selection[0].center
+        ? getCenter(this.selection[0])
         : this._center;
 
     return this._delta
