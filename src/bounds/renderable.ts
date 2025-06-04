@@ -11,6 +11,7 @@ import { BBox } from "./bbox";
 import { getPathBBox, getPathPoints } from "./path";
 
 export const getLocalTransform = cached("localTransform", _getLocalTransform);
+export const getCenter = cached("globalCenter", _getCenter);
 export const getBBox = cached("globalBBox", _getBBox);
 export const getLocalBBox = cached("localBBox", _getLocalBBox);
 export const getNaturalBBox = cached("naturalBBox", _getNaturalBBox);
@@ -20,6 +21,10 @@ export const getNaturalPoints = cached("naturalPoints", _getNaturalPoints);
 
 function _getLocalTransform(renderable: Renderable, out = new Matrix3()) {
   return out.identity().compose(renderable);
+}
+
+function _getCenter(renderable: Renderable, out = new Vec2()) {
+  return out.put(0).transform(renderable.transform);
 }
 
 function _getBBox(renderable: Renderable, out = new BBox()) {
