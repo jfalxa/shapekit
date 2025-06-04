@@ -1,4 +1,5 @@
 import { remove } from "../utils/array";
+import { markDirty } from "../utils/cache";
 import { Renderable, RenderableInit } from "./renderable";
 
 export interface GroupStyle {
@@ -26,26 +27,20 @@ export class Group extends Renderable {
 
   add(...children: Renderable[]) {
     this.children.push(...children);
-    this.__isDirty = true;
-    for (let i = 0; i < children.length; i++) {
-      children[i].parent = this;
-    }
+    bindParent(children, this);
+    markDirty(this);
   }
 
   insert(index: number, ...children: Renderable[]) {
     this.children.splice(index, 0, ...children);
-    this.__isDirty = true;
-    for (let i = 0; i < children.length; i++) {
-      children[i].parent = this;
-    }
+    bindParent(children, this);
+    markDirty(this);
   }
 
   remove(...children: Renderable[]) {
     remove(this.children, children);
-    this.__isDirty = true;
-    for (let i = 0; i < children.length; i++) {
-      children[i].parent = undefined;
-    }
+    bindParent(children, undefined);
+    markDirty(this);
   }
 
   update(): void {
@@ -55,9 +50,15 @@ export class Group extends Renderable {
 
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i];
-      child.__isDirty ||= isGroupDirty;
+      if (isGroupDirty && !child.__isDirty) markDirty(child);
       child.update();
-      this.__isDirty ||= child.__isDirty;
+      if (child.__isDirty && !this.__isDirty) markDirty(this);
     }
+  }
+}
+
+function bindParent(children: Renderable[], parent: Group | undefined) {
+  for (let i = 0; i < children.length; i++) {
+    children[i].parent = parent;
   }
 }

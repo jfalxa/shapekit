@@ -16,7 +16,7 @@ import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
 import { Rect } from "../paths/rect";
 import { RoundRect } from "../paths/round-rect";
 import { Path } from "../paths/path";
-import { cached } from "../utils/cache";
+import { cached, cleanDirty } from "../utils/cache";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -63,7 +63,7 @@ export class Canvas2D {
 
   render(renderable: Renderable) {
     if (renderable.hidden) {
-      renderable.clean();
+      cleanDirty(renderable);
       return;
     }
 
@@ -74,7 +74,7 @@ export class Canvas2D {
 
     if (renderable instanceof Clip) {
       this._renderClip(renderable);
-      renderable.clean();
+      cleanDirty(renderable);
       return;
     }
 
@@ -92,8 +92,7 @@ export class Canvas2D {
       if (renderable.stroke) this._renderStroke(renderable);
     }
 
-    renderable.clean();
-
+    cleanDirty(renderable);
     this.ctx.restore();
   }
 
@@ -159,9 +158,6 @@ const getPath2D = cached("path2D", _getPath2D);
 function _getPath2D(path: Path) {
   const path2D = new Path2D();
 
-  path.update();
-  path.__isDirty = false;
-
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
     if (s instanceof BezierCurveTo) {
@@ -195,5 +191,6 @@ function _getPath2D(path: Path) {
     }
   }
 
+  cleanDirty(path);
   return path2D;
 }

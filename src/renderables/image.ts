@@ -1,3 +1,4 @@
+import { markDirty } from "../utils/cache";
 import { track } from "../utils/track";
 import { Renderable, RenderableInit } from "./renderable";
 
@@ -70,6 +71,4 @@ export class Image extends Renderable {
   }
 }
 
-track(Image, ['image'], (image) => {
-  image.__isDirty = true
-})
+track(Image, ['image'], markDirty)

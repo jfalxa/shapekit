@@ -1,6 +1,7 @@
 import { Renderable, RenderableInit } from "./renderable";
 import { Path, PathLike } from "../paths/path";
 import { Style } from "../styles/style";
+import { markDirty } from "../utils/cache";
 
 export interface ShapeStyle {
   fill?: Style;
@@ -65,6 +66,10 @@ export class Shape extends Renderable {
 
   update(): void {
     super.update();
-    this.__isDirty ||= this.path.__isDirty;
+
+    if (this.path.__isDirty) {
+      this.path.update();
+      markDirty(this);
+    }
   }
 }

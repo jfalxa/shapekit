@@ -1,5 +1,5 @@
 import { Matrix3 } from "../math/mat3";
-import { Cache } from "../utils/cache";
+import { Cache, markDirty } from "../utils/cache";
 import { track } from "../utils/track";
 import { Group } from "./group";
 
@@ -63,15 +63,10 @@ export class Renderable implements Transform, Cache {
       if (this.parent) this.transform.transform(this.parent.transform);
     }
   }
-
-  clean() {
-    if (this.__isDirty) this.__version++;
-    this.__isDirty = false;
-  }
 }
 
 track(
   Renderable,
   ["x", "y", "scaleX", "scaleY", "skewX", "skewY", "rotation"],
-  (renderable) => (renderable.__isDirty = true)
+  markDirty
 );

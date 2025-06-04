@@ -1,7 +1,7 @@
 import { Shape } from "../renderables/shape";
 import { toArc } from "../samplers/elliptic";
 import { remove } from "../utils/array";
-import { Cache } from "../utils/cache";
+import { Cache, markDirty } from "../utils/cache";
 import { ArcTo } from "./arc-to";
 import { BezierCurveTo } from "./bezier-curve-to";
 import { ClosePath } from "./close-path";
@@ -32,19 +32,19 @@ export class Path extends Array<Segment> implements Cache {
   add(...segments: Segment[]) {
     this.push(...segments);
     for (let i = 0; i < segments.length; i++) segments[i].path = this;
-    markPathDirty(this);
+    markDirty(this);
   }
 
   insert(index: number, ...segments: Segment[]) {
     this.splice(index, 0, ...segments);
     for (let i = 0; i < segments.length; i++) segments[i].path = this;
-    markPathDirty(this);
+    markDirty(this);
   }
 
   remove(...segments: Segment[]) {
     remove(this, segments);
     for (let i = 0; i < segments.length; i++) segments[i].path = undefined;
-    markPathDirty(this);
+    markDirty(this);
   }
 
   update() {
@@ -65,11 +65,6 @@ export class Path extends Array<Segment> implements Cache {
       }
     }
   }
-}
-
-export function markPathDirty(path: Path) {
-  path.__isDirty = true;
-  path.__version++;
 }
 
 function getControl(

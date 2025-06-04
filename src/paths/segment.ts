@@ -1,5 +1,6 @@
+import { markDirty } from "../utils/cache";
 import { Constructor, track } from "../utils/track";
-import { markPathDirty, Path } from "./path";
+import { Path } from "./path";
 
 export class Segment {
   path?: Path;
@@ -14,7 +15,7 @@ export class Segment {
 }
 
 function markSegmentDirty(segment: Segment) {
-  if (segment.path) markPathDirty(segment.path);
+  if (segment.path) markDirty(segment.path);
 }
 
 export function trackSegment<S extends Segment>(

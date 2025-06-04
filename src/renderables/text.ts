@@ -2,6 +2,7 @@ import { Style } from "../styles/style";
 import { track } from "../utils/track";
 import { fitText, getFont, measureText } from "../utils/text";
 import { Renderable, RenderableInit } from "./renderable";
+import { markDirty } from "../utils/cache";
 
 export interface TextStyle {
   fontFamily?: string;
@@ -106,6 +107,4 @@ export class Text extends Renderable implements TextStyle {
   }
 }
 
-track(Text, ["text", "width", "height"], (text) => {
-  text.__isDirty = true;
-});
+track(Text, ["text", "width", "height"], markDirty);

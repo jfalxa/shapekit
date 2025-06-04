@@ -1,6 +1,7 @@
 export interface Cache {
   __version: number;
   __cache: Record<string, any>;
+  __isDirty: boolean;
 }
 
 export interface Version<T> {
@@ -8,9 +9,7 @@ export interface Version<T> {
   value: T;
 }
 
-export interface CacheUpdate<C extends Cache, T> {
-  (obj: C, value: T | undefined): T;
-}
+export type CacheUpdate<C extends Cache, T> = (obj: C, value?: T) => T;
 
 export function cached<C extends Cache, T>(
   key: string,
@@ -32,4 +31,13 @@ export function cached<C extends Cache, T>(
 
     return cached.value;
   };
+}
+
+export function markDirty(cache: Cache) {
+  cache.__isDirty = true;
+  cache.__version++;
+}
+
+export function cleanDirty(cache: Cache) {
+  cache.__isDirty = false;
 }
