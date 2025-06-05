@@ -1,8 +1,8 @@
 import { ArcTo } from "../paths/arc-to";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
-import { Arc, Arc as ArcSegment } from "../paths/arc";
+import { Arc } from "../paths/arc";
 import { ClosePath } from "../paths/close-path";
-import { Ellipse, Ellipse as EllipseSegment } from "../paths/ellipse";
+import { Ellipse } from "../paths/ellipse";
 import { LineTo } from "../paths/line-to";
 import { MoveTo } from "../paths/move-to";
 import { QuadraticCurveTo } from "../paths/quadratic-curve-to";
@@ -24,22 +24,18 @@ function _getPathBBox(path: Path, out = new BBox()) {
   out.reset();
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
-    if (s instanceof ArcTo) {
-      Elliptic.aabb(s, out);
-    } else if (s instanceof ArcSegment) {
-      Elliptic.aabb(s, out);
-    } else if (s instanceof EllipseSegment) {
+    if (s instanceof ArcTo || s instanceof Arc || s instanceof Ellipse) {
       Elliptic.aabb(s, out);
     } else if (s instanceof BezierCurveTo) {
       Bezier3.aabb(s, path[i - 1], out);
+    } else if (s instanceof QuadraticCurveTo) {
+      Bezier2.aabb(s, path[i - 1], out);
     } else if (s instanceof ClosePath) {
       out.fit(s.x, s.y);
     } else if (s instanceof LineTo) {
       out.fit(s.x, s.y);
     } else if (s instanceof MoveTo) {
       out.fit(s.x, s.y);
-    } else if (s instanceof QuadraticCurveTo) {
-      Bezier2.aabb(s, path[i - 1], out);
     } else if (s instanceof Rect) {
       out.fit(s.x, s.y, s.x + s.width, s.y + s.height);
     }
