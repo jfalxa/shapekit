@@ -189,12 +189,6 @@ export class Elliptic {
   }
 }
 
-function isExactCircle(sweep: number) {
-  if (sweep % TWO_PI === 0) return true;
-  else if (Math.abs((TWO_PI - sweep) % TWO_PI) < 1e-6) return true;
-  else return false;
-}
-
 export function toArc(arcTo: ArcTo, previous: Segment | undefined) {
   if (!previous) throw new Error("Missing previous segment");
 
@@ -230,4 +224,10 @@ export function toArc(arcTo: ArcTo, previous: Segment | undefined) {
   arcTo._endAngle = endAngle;
 
   return arcTo;
+}
+
+function isExactCircle(sweep: number) {
+  if (sweep % TWO_PI === 0) return true;
+  else if (Math.abs((TWO_PI - sweep) % TWO_PI) < 1e-6) return true;
+  else return false;
 }
