@@ -2,6 +2,27 @@
   "name": "shapekit",
   "version": "0.0.0",
   "type": "module",
+  "main": "dist/core.js",
+  "module": "dist/core.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/core.js",
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/core.cjs"
+    },
+    "./bounds": {
+      "import": "./dist/bounds.js",
+      "types": "./dist/types/bounds/index.d.ts",
+      "require": "./dist/bounds.cjs"
+    },
+    "./transforms": {
+      "import": "./dist/transforms.js",
+      "types": "./dist/types/transforms/index.d.ts",
+      "require": "./dist/transforms.cjs"
+    }
+  },
+  "sideEffects": false,
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

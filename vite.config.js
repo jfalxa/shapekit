@@ -4,16 +4,27 @@ import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const f = (path) => resolve(__dirname, `src/${path}`);
 
 export default defineConfig({
-  plugins: [dts({ rollupTypes: true })],
+  emptyOutDir: true,
+
+  plugins: [
+    dts({
+      rollupTypes: false, //
+      outDir: "dist/types",
+    }),
+  ],
 
   build: {
+    minify: false,
     lib: {
-      name: "Brush",
-      fileName: "brush",
-      entry: resolve(__dirname, "src/index.ts"),
-      formats: ["umd", "es"],
+      name: "ShapeKit",
+      entry: {
+        core: f("index.ts"),
+        bounds: f("bounds/index.ts"),
+        transforms: f("transforms/index.ts"),
+      },
     },
   },
 });
