@@ -67,18 +67,12 @@ export function pointToLineDistance2(p: Point, a: Point, b: Point): number {
   return distance2(p, projection);
 }
 
-function segmentsDistance2(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2) {
-  if (doLinesIntersect(a1, a2, b1, b2)) return 0;
-
-  const d1 = pointToLineDistance2(a1, b1, b2);
-  const d2 = pointToLineDistance2(a2, b1, b2);
-  const d3 = pointToLineDistance2(b1, a1, a2);
-  const d4 = pointToLineDistance2(b2, a1, a2);
-
-  return Math.min(d1, d2, d3, d4);
-}
-
-function doLinesIntersect(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2): boolean {
+export function doLinesIntersect(
+  a1: Vec2,
+  a2: Vec2,
+  b1: Vec2,
+  b2: Vec2
+): boolean {
   const d1 = crossProduct(a1, a2, b1);
   const d2 = crossProduct(a1, a2, b2);
   const d3 = crossProduct(b1, b2, a1);
@@ -92,6 +86,17 @@ function doLinesIntersect(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2): boolean {
   if (d4 === 0 && between(a2, b1, b2)) return true;
 
   return false;
+}
+
+function segmentsDistance2(a1: Vec2, a2: Vec2, b1: Vec2, b2: Vec2) {
+  if (doLinesIntersect(a1, a2, b1, b2)) return 0;
+
+  const d1 = pointToLineDistance2(a1, b1, b2);
+  const d2 = pointToLineDistance2(a2, b1, b2);
+  const d3 = pointToLineDistance2(b1, a1, a2);
+  const d4 = pointToLineDistance2(b2, a1, a2);
+
+  return Math.min(d1, d2, d3, d4);
 }
 
 function distance2(p1: Point, p2: Point): number {

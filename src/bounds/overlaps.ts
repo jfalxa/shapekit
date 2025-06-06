@@ -1,7 +1,7 @@
 import { Group } from "../renderables/group";
 import { Renderable } from "../renderables/renderable";
-import { doPolygonsOverlap } from "../utils/polygon";
-import { doPolylinesOverlap } from "../utils/polyline";
+import { doPolygonsOverlap } from "./polygon";
+import { doPolylinesOverlap } from "./polyline";
 import { AABB, aabbOverlaps } from "./aabb";
 import { BBox } from "./bbox";
 import { contains } from "./contains";

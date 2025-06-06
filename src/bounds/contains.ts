@@ -1,8 +1,8 @@
 import { Point, Vec2 } from "../math/vec2";
 import { Group } from "../renderables/group";
 import { Renderable } from "../renderables/renderable";
-import { isPointInPolygon } from "../utils/polygon";
-import { isPointInPolyline } from "../utils/polyline";
+import { isPointInPolygon } from "./polygon";
+import { isPointInPolyline } from "./polyline";
 import { AABB, aabbContains } from "./aabb";
 import { BBox } from "./bbox";
 import { normalize, Poly } from "./normalize";

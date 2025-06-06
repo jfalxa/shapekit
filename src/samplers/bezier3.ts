@@ -2,7 +2,7 @@ import { BBox } from "../bounds/bbox";
 import { v, Vec2 } from "../math/vec2";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
 import { Segment } from "../paths/segment";
-import { pointToLineDistance2 } from "../utils/polyline";
+import { pointToLineDistance2 } from "../bounds/polyline";
 
 export class Bezier3 {
   static sample(
