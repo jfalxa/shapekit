@@ -1,5 +1,5 @@
-import { Matrix3 } from "../math/mat3";
-import { Vec2 } from "../math/vec2";
+import { Matrix3 } from "../utils/mat3";
+import { Vec2 } from "../utils/vec2";
 import { AABB } from "./aabb";
 
 export class BBox implements AABB {
@@ -54,11 +54,6 @@ export class BBox implements AABB {
     return this;
   }
 
-  isAABB() {
-    const { a, b, c, d } = this;
-    return a.x === d.x && a.y === b.y && c.x === b.x && c.y === d.y;
-  }
-
   copy(other: BBox) {
     this.a.copy(other.a);
     this.b.copy(other.b);
@@ -81,10 +76,10 @@ export class BBox implements AABB {
   }
 
   private _updateBox() {
-    const { a, c, min, max, center } = this;
+    const { a, b, c, d, center } = this;
     center.x = (a.x + c.x) / 2;
     center.y = (a.y + c.y) / 2;
-    this.width = max.x - min.x;
-    this.height = max.y - min.y;
+    this.width = Math.hypot(b.x - a.x, b.y - a.y);
+    this.height = Math.hypot(d.x - a.x, d.y - a.y);
   }
 }
