@@ -1,5 +1,5 @@
 import { Renderable, RenderableInit } from "./renderable";
-import { Path, PathLike } from "../paths/path";
+import { Path, PathLike, updatePath } from "../paths/path";
 import { Style } from "../styles/style";
 import { markDirty } from "../utils/cache";
 
@@ -68,7 +68,7 @@ export class Shape extends Renderable {
     super.update();
 
     if (this.path.__isDirty) {
-      this.path.update();
+      updatePath(this.path);
       markDirty(this);
     }
   }

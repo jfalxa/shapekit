@@ -46,23 +46,23 @@ export class Path extends Array<Segment> implements Cache {
     for (let i = 0; i < segments.length; i++) segments[i].path = undefined;
     markDirty(this);
   }
+}
 
-  update() {
-    let lastMoveTo: MoveTo | undefined;
-    for (let i = 0; i < this.length; i++) {
-      const s = this[i];
-      if (s instanceof MoveTo) {
-        lastMoveTo = s;
-      } else if (s instanceof ClosePath && lastMoveTo) {
-        s.x = lastMoveTo.x;
-        s.y = lastMoveTo.y;
-      } else if (s instanceof ArcTo) {
-        toArc(s, this[i - 1]);
-      } else if (s instanceof QuadraticCurveTo) {
-        [s._cpx, s._cpy] = getControl(s, this[i - 1]);
-      } else if (s instanceof BezierCurveTo) {
-        [s._cp1x, s._cp1y] = getControl(s, this[i - 1]);
-      }
+export function updatePath(path: Path) {
+  let lastMoveTo: MoveTo | undefined;
+  for (let i = 0; i < path.length; i++) {
+    const s = path[i];
+    if (s instanceof MoveTo) {
+      lastMoveTo = s;
+    } else if (s instanceof ClosePath && lastMoveTo) {
+      s.x = lastMoveTo.x;
+      s.y = lastMoveTo.y;
+    } else if (s instanceof ArcTo) {
+      toArc(s, path[i - 1]);
+    } else if (s instanceof QuadraticCurveTo) {
+      [s._cpx, s._cpy] = getControl(s, path[i - 1]);
+    } else if (s instanceof BezierCurveTo) {
+      [s._cp1x, s._cp1y] = getControl(s, path[i - 1]);
     }
   }
 }
