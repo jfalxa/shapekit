@@ -6,7 +6,7 @@ import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
 import { cached } from "../utils/cache";
-import { Box } from "../samplers";
+import { Box } from "../samplers/box";
 import { BBox } from "./bbox";
 import { getPathBBox, getPathPoints } from "./path";
 

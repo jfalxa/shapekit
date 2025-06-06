@@ -3,3 +3,7 @@ export * from "./contains";
 export * from "./overlaps";
 export * from "./path";
 export * from "./renderable";
+export * from "../samplers/elliptic";
+export * from "../samplers/bezier2";
+export * from "../samplers/bezier3";
+export * from "../samplers/box";
