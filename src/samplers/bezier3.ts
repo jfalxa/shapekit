@@ -41,8 +41,8 @@ export class Bezier3 {
     const extremum = new Vec2();
 
     const ts = [
-      ...solve(p0x, _cp1x, cp2x, p1x),
-      ...solve(p0y, _cp1y, cp2y, p1y),
+      ...solveExtrema(p0x, _cp1x, cp2x, p1x),
+      ...solveExtrema(p0y, _cp1y, cp2y, p1y),
     ];
 
     for (let i = 0; i < ts.length; i++) {
@@ -98,7 +98,7 @@ export class Bezier3 {
 }
 
 // Helper to solve at^2 + bt + c = 0 and return real roots in (0,1)
-export function solve(p0: number, cp1: number, cp2: number, p1: number) {
+function solveExtrema(p0: number, cp1: number, cp2: number, p1: number) {
   const a = -p0 + 3 * cp1 - 3 * cp2 + p1;
   const b = 2 * (p0 - 2 * cp1 + cp2);
   const c = -p0 + cp1;

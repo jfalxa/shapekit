@@ -30,8 +30,8 @@ export class Bezier2 {
     const extremum = new Vec2();
 
     const ts: number[] = [
-      ...solve(px, _cpx, x), //
-      ...solve(py, _cpy, y),
+      ...solveExtrema(px, _cpx, x), //
+      ...solveExtrema(py, _cpy, y),
     ];
 
     for (let i = 0; i < ts.length; i++) {
@@ -72,7 +72,7 @@ export class Bezier2 {
   }
 }
 
-function solve(p0: number, cp: number, p1: number) {
+function solveExtrema(p0: number, cp: number, p1: number) {
   const ts: number[] = [];
   const denomX = p0 - 2 * cp + p1;
   if (!epsilon(denomX)) {
