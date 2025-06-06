@@ -16,13 +16,9 @@ export class Group extends Renderable {
 
   constructor(init: GroupInit = {}) {
     super(init);
-
-    this.children = [];
+    this.children = init.children ?? [];
     this.globalCompositeOperation = init.globalCompositeOperation;
-
-    if (init.children) {
-      this.add(...init.children);
-    }
+    bindParent(this.children, this);
   }
 
   add(...children: Renderable[]) {

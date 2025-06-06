@@ -20,13 +20,18 @@ export class Path extends Array<Segment> implements Cache {
   __isDirty: boolean;
 
   constructor(segments: Segment[] = [], quality = 1, shape?: Shape) {
-    super();
+    super(segments.length);
+
     this.quality = quality;
     this.shape = shape;
     this.__version = 0;
     this.__cache = {};
     this.__isDirty = true;
-    this.add(...segments);
+
+    for (let i = 0; i < segments.length; i++) {
+      this[i] = segments[i];
+      this[i].path = this;
+    }
   }
 
   add(...segments: Segment[]) {
