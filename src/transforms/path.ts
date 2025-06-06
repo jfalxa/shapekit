@@ -10,7 +10,7 @@ import { MoveTo } from "../paths/move-to";
 import { LineTo } from "../paths/line-to";
 import { ClosePath } from "../paths/close-path";
 
-export function copy(source: Segment[], target: Segment[]) {
+export function copyPath(source: Segment[], target: Segment[]) {
   for (let i = 0; i < source.length; i++) {
     const s = source[i];
     const o = target[i];
@@ -57,7 +57,7 @@ export function copy(source: Segment[], target: Segment[]) {
   return target;
 }
 
-export function clone(segments: Segment[], out: Segment[] = []) {
+export function clonePath(segments: Segment[], out: Segment[] = []) {
   out.length = segments.length;
 
   for (let i = 0; i < segments.length; i++) {
@@ -97,7 +97,7 @@ export function clone(segments: Segment[], out: Segment[] = []) {
   return out;
 }
 
-export function scale(segments: Segment[], sx: number, sy: number) {
+export function scalePath(segments: Segment[], sx: number, sy: number) {
   for (let i = 0; i < segments.length; i++) {
     const s = segments[i];
 

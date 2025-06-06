@@ -5,7 +5,7 @@ import { Renderable, Transform } from "../renderables/renderable";
 import { getBBox, getCenter, getNaturalBBox } from "../bounds/renderable";
 import { Segment } from "../paths/segment";
 import { Shape } from "../renderables/shape";
-import { clone, copy, scale } from "./path";
+import { clonePath, copyPath, scalePath } from "./path";
 import { walk } from "../utils/walk";
 import { Text } from "../renderables/text";
 import { Group } from "../renderables/group";
@@ -15,7 +15,7 @@ interface Snapshot extends Transform {
   transform: Matrix3;
   invParentTransform: Matrix3;
   path: Segment[];
-  naturalBBox: BBox;
+  bbox: BBox;
 }
 
 export class Transformer {
@@ -255,10 +255,10 @@ export class Transformer {
     const sy = scaleY / snapshot.scaleY;
 
     if (renderable instanceof Shape) {
-      scale(copy(snapshot.path, renderable.path), sx, sy);
+      scalePath(copyPath(snapshot.path, renderable.path), sx, sy);
     } else if (renderable instanceof Text || renderable instanceof Image) {
-      if (renderable.width !== undefined) renderable.width = snapshot.naturalBBox.width * sx; // prettier-ignore
-      if (renderable.height !== undefined) renderable.height = snapshot.naturalBBox.height * sy; // prettier-ignore
+      if (renderable.width !== undefined) renderable.width = snapshot.bbox.width * sx; // prettier-ignore
+      if (renderable.height !== undefined) renderable.height = snapshot.bbox.height * sy; // prettier-ignore
     } else if (renderable instanceof Group) {
       for (let i = 0; i < renderable.children.length; i++) {
         const child = renderable.children[i];
@@ -274,11 +274,11 @@ export class Transformer {
     const parentTransform = new Matrix3(renderable.parent?.transform);
     const invParentTransform = new Matrix3(parentTransform).invert();
     const transform = new Matrix3(localTransform).transform(parentTransform);
-    const naturalBBox = new BBox().copy(getNaturalBBox(renderable));
-    const path = renderable instanceof Shape ? clone(renderable.path) : [];
+    const bbox = new BBox().copy(getNaturalBBox(renderable));
+    const path = renderable instanceof Shape ? clonePath(renderable.path) : [];
 
     const decomposed = localTransform.decompose();
-    const snapshot = { ...decomposed, transform, invParentTransform, naturalBBox, path }; // prettier-ignore
+    const snapshot = { ...decomposed, transform, invParentTransform, bbox, path }; // prettier-ignore
     this._snapshots.set(renderable, snapshot);
 
     return snapshot;
