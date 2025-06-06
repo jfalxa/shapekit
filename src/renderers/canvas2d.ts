@@ -61,12 +61,6 @@ export class Canvas2D {
     this.render(this.scene);
   }
 
-  loop(callback: () => void) {
-    callback();
-    this.update();
-    requestAnimationFrame(() => this.loop(callback));
-  }
-
   render(renderable: Renderable) {
     if (renderable.hidden) {
       cleanDirty(renderable);
