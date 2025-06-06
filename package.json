@@ -1,6 +1,5 @@
 {
-  "name": "brush",
-  "private": true,
+  "name": "shapekit",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
