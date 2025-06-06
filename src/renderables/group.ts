@@ -53,6 +53,24 @@ export class Group extends Renderable {
   }
 }
 
+export function walk<T = void>(
+  renderable: Renderable,
+  operation: (renderable: Renderable) => T
+): T {
+  const result = operation(renderable);
+  if (result !== undefined) return result;
+
+  if (renderable instanceof Group) {
+    for (let i = 0; i < renderable.children.length; i++) {
+      const child = renderable.children[i];
+      const result = walk(child, operation);
+      if (result !== undefined) return result;
+    }
+  }
+
+  return undefined as T;
+}
+
 function bindParent(children: Renderable[], parent: Group | undefined) {
   for (let i = 0; i < children.length; i++) {
     children[i].parent = parent;

@@ -1,13 +1,13 @@
 import { Matrix3 } from "../utils/mat3";
 import { Point, v, Vec2 } from "../utils/vec2";
 import { BBox } from "../bounds/bbox";
-import { Renderable, Transform, walk } from "../renderables/renderable";
+import { Renderable, Transform } from "../renderables/renderable";
 import { getBBox, getCenter, getNaturalBBox } from "../bounds/renderable";
 import { Segment } from "../paths/segment";
 import { Shape } from "../renderables/shape";
 import { clonePath, copyPath, scalePath } from "./path";
 import { Text } from "../renderables/text";
-import { Group } from "../renderables/group";
+import { Group, walk } from "../renderables/group";
 import { Image } from "../renderables/image";
 
 interface Snapshot extends Transform {
