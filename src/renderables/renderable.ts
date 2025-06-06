@@ -1,4 +1,4 @@
-import { Matrix3 } from "../math/mat3";
+import { Matrix3 } from "../utils/mat3";
 import { Cache, markDirty } from "../utils/cache";
 import { track } from "../utils/track";
 import { Group } from "./group";

@@ -1,4 +1,4 @@
-import { Point, Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../utils/vec2";
 
 export function isPointInPolyline(
   polyline: Vec2[],

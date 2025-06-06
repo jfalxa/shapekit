@@ -1,4 +1,4 @@
-import { Vec2, Point } from "../math/vec2";
+import { Vec2, Point } from "../utils/vec2";
 import { doLinesIntersect } from "./polyline";
 
 // even odd rule algorithm

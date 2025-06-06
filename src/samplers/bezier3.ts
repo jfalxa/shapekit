@@ -1,5 +1,5 @@
 import { BBox } from "../bounds/bbox";
-import { v, Vec2 } from "../math/vec2";
+import { v, Vec2 } from "../utils/vec2";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
 import { Segment } from "../paths/segment";
 import { pointToLineDistance2 } from "../bounds/polyline";

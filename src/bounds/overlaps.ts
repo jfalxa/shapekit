@@ -5,14 +5,14 @@ import { doPolylinesOverlap } from "./polyline";
 import { AABB, aabbOverlaps } from "./aabb";
 import { BBox } from "./bbox";
 import { contains } from "./contains";
-import { normalize, Poly } from "./normalize";
+import { normalize, Normalized } from "./normalize";
 
 export function overlaps(
   container: Renderable | BBox | AABB,
   target: Renderable | BBox | AABB
 ) {
-  const c = normalize(container) as Poly;
-  const t = normalize(target) as Poly;
+  const c = normalize(container) as Normalized;
+  const t = normalize(target) as Normalized;
 
   if (container instanceof Group) {
     if (!aabbOverlaps(c.aabb, t.aabb)) return false;

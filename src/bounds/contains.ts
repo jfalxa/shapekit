@@ -1,17 +1,17 @@
-import { Point, Vec2 } from "../math/vec2";
+import { Point, Vec2 } from "../utils/vec2";
 import { Group } from "../renderables/group";
 import { Renderable } from "../renderables/renderable";
 import { isPointInPolygon } from "./polygon";
 import { isPointInPolyline } from "./polyline";
 import { AABB, aabbContains } from "./aabb";
 import { BBox } from "./bbox";
-import { normalize, Poly } from "./normalize";
+import { normalize, Normalized } from "./normalize";
 
 export function contains(
-  container: Renderable | BBox | AABB | Poly,
-  target: Renderable | BBox | AABB | Vec2 | Point | Poly
+  container: Renderable | BBox | AABB | Normalized,
+  target: Renderable | BBox | AABB | Vec2 | Point | Normalized
 ) {
-  const c = normalize(container) as Poly;
+  const c = normalize(container) as Normalized;
   const t = normalize(target);
 
   if (container instanceof Group) {
@@ -36,7 +36,7 @@ export function contains(
   return false;
 }
 
-function polyContainsPoint(poly: Poly, point: Vec2) {
+function polyContainsPoint(poly: Normalized, point: Vec2) {
   if (poly.isPolygon && isPointInPolygon(poly.points, point)) return true;
   if (poly.isPolyline && isPointInPolyline(poly.points, poly.lineWidth, point)) return true; // prettier-ignore
   return false;

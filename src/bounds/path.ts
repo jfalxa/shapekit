@@ -15,7 +15,7 @@ import { Elliptic } from "../samplers/elliptic";
 import { Path } from "../paths/path";
 import { BBox } from "./bbox";
 import { cached } from "../utils/cache";
-import { Vec2 } from "../math/vec2";
+import { Vec2 } from "../utils/vec2";
 
 export const getPathBBox = cached("bbox", _getPathBBox);
 export const getPathPoints = cached("points", _getPathPoints);

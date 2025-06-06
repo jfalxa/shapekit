@@ -1,5 +1,5 @@
-import { Vec2 } from "../math/vec2";
-import { Matrix3 } from "../math/mat3";
+import { Vec2 } from "../utils/vec2";
+import { Matrix3 } from "../utils/mat3";
 import { Group } from "../renderables/group";
 import { Image } from "../renderables/image";
 import { Renderable } from "../renderables/renderable";

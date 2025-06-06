@@ -1,5 +1,5 @@
 import { BBox } from "../bounds/bbox";
-import { v, Vec2 } from "../math/vec2";
+import { v, Vec2 } from "../utils/vec2";
 import { Arc } from "../paths/arc";
 import { ArcTo } from "../paths/arc-to";
 import { Ellipse } from "../paths/ellipse";

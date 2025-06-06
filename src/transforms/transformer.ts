@@ -1,5 +1,5 @@
-import { Matrix3 } from "../math/mat3";
-import { Point, v, Vec2 } from "../math/vec2";
+import { Matrix3 } from "../utils/mat3";
+import { Point, v, Vec2 } from "../utils/vec2";
 import { BBox } from "../bounds/bbox";
 import { Renderable, Transform, walk } from "../renderables/renderable";
 import { getBBox, getCenter, getNaturalBBox } from "../bounds/renderable";
