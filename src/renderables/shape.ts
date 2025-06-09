@@ -1,0 +1,75 @@
+import { Renderable, RenderableInit } from "./renderable";
+import { Path, PathLike, updatePath } from "../paths/path";
+import { Style } from "../styles/style";
+import { markDirty } from "../utils/cache";
+
+export interface ShapeStyle {
+  fill?: Style;
+  stroke?: Style;
+  lineWidth?: number;
+  lineCap?: CanvasLineCap;
+  lineJoin?: CanvasLineJoin;
+  lineDashOffset?: number;
+  miterLimit?: number;
+  shadowBlur?: number;
+  shadowColor?: string;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  globalAlpha?: number;
+  filter?: string;
+  lineDash?: number[];
+}
+
+export interface ShapeInit extends RenderableInit, ShapeStyle {
+  path: PathLike;
+  quality?: number;
+}
+
+export class Shape extends Renderable {
+  path: Path;
+
+  fill?: Style;
+  stroke?: Style;
+  lineWidth?: number;
+  lineCap?: CanvasLineCap;
+  lineJoin?: CanvasLineJoin;
+  lineDashOffset?: number;
+  miterLimit?: number;
+  shadowBlur?: number;
+  shadowColor?: string;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  globalAlpha?: number;
+  filter?: string;
+  lineDash?: number[];
+
+  constructor(init: ShapeInit) {
+    super(init);
+
+    this.path = new Path(init.path, init.quality ?? 1, this);
+
+    this.fill = init.fill;
+    this.stroke = init.stroke;
+    this.lineWidth = init.lineWidth;
+    this.lineCap = init.lineCap;
+    this.lineJoin = init.lineJoin;
+    this.lineDashOffset = init.lineDashOffset;
+    this.miterLimit = init.miterLimit;
+    this.shadowBlur = init.shadowBlur;
+    this.shadowColor = init.shadowColor;
+    this.shadowOffsetX = init.shadowOffsetX;
+    this.shadowOffsetY = init.shadowOffsetY;
+    this.globalAlpha = init.globalAlpha;
+    this.filter = init.filter;
+    this.lineDash = init.lineDash;
+  }
+
+  update(): void {
+    super.update();
+
+    if (this.path.__isDirty) {
+      updatePath(this.path);
+      markDirty(this);
+    }
+  }
+}
