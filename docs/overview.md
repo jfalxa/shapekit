@@ -78,13 +78,14 @@ function animate() {
 animate();
 ```
 
-For advanced control of loop timing behavior, please see `https://gitlab.com/jfalxa/vroum`.
+> [!NOTE]
+> The library does not provide a way to create `requestAnimationFrame` loops, so you can easily integrate it to anything you already have in place. If you need advanced and precise control of loop behavior, please see [https://gitlab.com/jfalxa/vroum]().
 
 ## Module Guides
 
-- [**Core Module Guide**](./core.md) - Learn about renderables, paths, and styling
-- [**Bounds Module Guide**](./bounds.md) - Master geometry analysis and hit-testing
-- [**Transforms Module Guide**](./transforms.md) - Build interactive transformation tools
+- [**Core Module Guide**](./core/examples-core.md) - Learn about renderables, paths, and styling
+- [**Bounds Module Guide**](./bounds/examples-bounds.md) - Master geometry analysis and hit-testing
+- [**Transforms Module Guide**](./transforms/examples-transforms.md) - Build interactive transformation tools
 - [**Examples & Tutorials**](./examples.md) - Common use cases and patterns
 
 ## API Reference

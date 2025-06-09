@@ -2,6 +2,8 @@
 
 The core module (`shapekit`) provides the fundamental building blocks for creating 2D graphics. It includes renderables, path primitives, styling options, and the Canvas2D renderer.
 
+The API reference can be accessed [here](./api-core.md).
+
 ## Table of Contents
 
 - [Renderables](#renderables)
@@ -206,33 +208,40 @@ ellipse(x, y, radiusX, radiusY, rotation?)
 ### Path Commands
 
 ```typescript
-import { moveTo, lineTo, arcTo, bezierCurveTo, quadraticCurveTo, closePath } from "shapekit";
+import {
+  moveTo,
+  lineTo,
+  arcTo,
+  bezierCurveTo,
+  quadraticCurveTo,
+  closePath,
+} from "shapekit";
 
 // Move pen without drawing
-moveTo(x, y)
+moveTo(x, y);
 
 // Draw straight line
-lineTo(x, y)
+lineTo(x, y);
 
 // Draw arc between points
-arcTo(x1, y1, x2, y2, radius)
+arcTo(x1, y1, x2, y2, radius);
 
 // Cubic bezier curve
-bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)
+bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
 
 // Smooth cubic bezier curve (SVG-style)
 // First control point computed from previous segment
-bezierCurveTo(cp2x, cp2y, x, y)
+bezierCurveTo(cp2x, cp2y, x, y);
 
 // Quadratic bezier curve
-quadraticCurveTo(cpx, cpy, x, y)
+quadraticCurveTo(cpx, cpy, x, y);
 
 // Smooth quadratic bezier curve (SVG-style)
 // Control point computed from previous segment
-quadraticCurveTo(x, y)
+quadraticCurveTo(x, y);
 
 // Close current path
-closePath()
+closePath();
 ```
 
 ### Complex Paths
@@ -316,8 +325,10 @@ import { linearGradient } from "shapekit";
 
 const shape = new Shape({
   fill: linearGradient(
-    0, 0, // Start point (x1, y1)
-    100, 0, // End point (x2, y2)
+    0,
+    0, // Start point (x1, y1)
+    100,
+    0, // End point (x2, y2)
     {
       0: "red", // Color stops
       50: "yellow",
@@ -335,8 +346,12 @@ import { radialGradient } from "shapekit";
 
 const shape = new Shape({
   fill: radialGradient(
-    50, 50, 0, // Start circle (x1, y1, r1)
-    50, 50, 50, // End circle (x2, y2, r2)
+    50,
+    50,
+    0, // Start circle (x1, y1, r1)
+    50,
+    50,
+    50, // End circle (x2, y2, r2)
     {
       0: "white",
       100: "black",
@@ -353,7 +368,8 @@ import { conicGradient } from "shapekit";
 
 const shape = new Shape({
   fill: conicGradient(
-    50, 50, // Center point (x, y)
+    50,
+    50, // Center point (x, y)
     0, // Start angle
     {
       0: "red",
