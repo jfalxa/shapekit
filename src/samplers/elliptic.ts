@@ -1,5 +1,5 @@
 import { BBox } from "../bounds/bbox";
-import { v, Vec2 } from "../utils/vec2";
+import { Vec2 } from "../utils/vec2";
 import { Arc } from "../paths/arc";
 import { ArcTo } from "../paths/arc-to";
 import { Ellipse } from "../paths/ellipse";
@@ -18,6 +18,9 @@ export interface ArcLike {
 }
 
 export class Elliptic {
+  private static _point = new Vec2();
+  private static _tempPoint = new Vec2();
+
   static sampleCircle(
     x: number,
     y: number,
@@ -73,7 +76,7 @@ export class Elliptic {
     const sweep = Elliptic.sweep(startAngle, endAngle, counterclockwise);
 
     const ts: number[] = [0, 1];
-    const point = new Vec2();
+    const point = this._point;
 
     const cosR = Math.cos(rotation);
     const sinR = Math.sin(rotation);
@@ -113,8 +116,9 @@ export class Elliptic {
   static adaptiveSample(
     elliptic: Arc | Ellipse | ArcTo | ArcLike,
     quality: number,
-    out: Vec2[] = []
-  ) {
+    out: Vec2[] = [],
+    startIndex = out.length
+  ): number {
     const {
       x,
       y,
@@ -129,8 +133,12 @@ export class Elliptic {
     const radius = Math.max(radiusX, radiusY);
 
     if (radius === 0) {
-      out.push(new Vec2(x, y));
-      return out;
+      if (startIndex < out.length) {
+        out[startIndex].put(x, y);
+      } else {
+        out[startIndex] = new Vec2(x, y);
+      }
+      return startIndex + 1;
     }
 
     const tolerance = 1 / quality;
@@ -138,18 +146,26 @@ export class Elliptic {
     const sweep = Elliptic.sweep(startAngle, endAngle, counterclockwise);
     const divisions = Math.abs(Math.ceil(sweep / step)) || 0;
 
+    let writeIndex = startIndex;
+    const point = this._tempPoint;
+
     for (let i = 0; i <= divisions; i++) {
-      const point = new Vec2();
       const t = i / divisions;
       if (radiusX !== radiusY) {
         Elliptic.sampleEllipse(x, y, radiusX, radiusY, rotation, startAngle, sweep, t, point); // prettier-ignore
       } else {
         Elliptic.sampleCircle(x, y, radiusX, startAngle, sweep, t, point);
       }
-      out.push(point);
+
+      if (writeIndex < out.length) {
+        out[writeIndex].put(point.x, point.y);
+      } else {
+        out[writeIndex] = new Vec2(point.x, point.y);
+      }
+      writeIndex++;
     }
 
-    return out;
+    return writeIndex;
   }
 
   static sweep(
@@ -189,29 +205,44 @@ export class Elliptic {
   }
 }
 
+// Static Vec2 instances for toArc function
+const _toArc_r = new Vec2();
+const _toArc_from = new Vec2();
+const _toArc_cp = new Vec2();
+const _toArc_to = new Vec2();
+const _toArc_v0 = new Vec2();
+const _toArc_v2 = new Vec2();
+const _toArc_t0 = new Vec2();
+const _toArc_t1 = new Vec2();
+const _toArc_bisector = new Vec2();
+const _toArc_center = new Vec2();
+
 export function toArc(arcTo: ArcTo, previous: Segment | undefined) {
   if (!previous) throw new Error("Missing previous segment");
 
-  const r = new Vec2(arcTo.radiusX, arcTo.radiusY);
+  const r = _toArc_r.put(arcTo.radiusX, arcTo.radiusY);
 
-  const from = new Vec2(previous.x, previous.y).divide(r);
-  const cp = new Vec2(arcTo.cpx, arcTo.cpy).divide(r);
-  const to = new Vec2(arcTo.x, arcTo.y).divide(r);
+  const from = _toArc_from.put(previous.x, previous.y).divide(r);
+  const cp = _toArc_cp.put(arcTo.cpx, arcTo.cpy).divide(r);
+  const to = _toArc_to.put(arcTo.x, arcTo.y).divide(r);
 
-  const v0 = v(from).subtract(cp).normalize();
-  const v2 = v(to).subtract(cp).normalize();
+  const v0 = _toArc_v0.put(from.x, from.y).subtract(cp).normalize();
+  const v2 = _toArc_v2.put(to.x, to.y).subtract(cp).normalize();
 
   const theta = Math.acos(v0.dot(v2));
 
   const d = 1 / Math.tan(theta / 2);
 
-  const t0 = v(v0).scale(d).add(cp);
-  const t1 = v(v2).scale(d).add(cp);
+  const t0 = _toArc_t0.put(v0.x, v0.y).scale(d).add(cp);
+  const t1 = _toArc_t1.put(v2.x, v2.y).scale(d).add(cp);
 
-  const bisector = v(v0).add(v2).normalize();
+  const bisector = _toArc_bisector.put(v0.x, v0.y).add(v2).normalize();
 
   const offset = 1 / Math.sin(theta / 2);
-  const center = v(bisector).scale(offset).add(cp);
+  const center = _toArc_center
+    .put(bisector.x, bisector.y)
+    .scale(offset)
+    .add(cp);
 
   const startAngle = Math.atan2(t0.y - center.y, t0.x - center.x);
   const endAngle = Math.atan2(t1.y - center.y, t1.x - center.x);

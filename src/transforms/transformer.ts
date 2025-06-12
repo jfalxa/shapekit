@@ -1,5 +1,5 @@
 import { Matrix3 } from "../utils/mat3";
-import { Point, v, Vec2 } from "../utils/vec2";
+import { Point, Vec2 } from "../utils/vec2";
 import { BBox } from "../bounds/bbox";
 import { Renderable, Transform } from "../renderables/renderable";
 import { getBBox, getCenter, getNaturalBBox } from "../bounds/renderable";
@@ -48,6 +48,11 @@ export class Transformer {
   private _initialBBox = new BBox();
   private _transform = new Matrix3();
   private _selectionTransform = new Matrix3();
+  private _tempStart = new Vec2();
+  private _tempEnd = new Vec2();
+  private _tempAB = new Vec2();
+  private _tempAC = new Vec2();
+  private _tempAnchor = new Vec2();
 
   constructor(selection: Renderable[] = []) {
     this.select(...selection);
@@ -131,14 +136,14 @@ export class Transformer {
   }
 
   rotate(handle: Point, delta: Point) {
-    const start = v(handle);
-    const end = v(start).translate(delta.x, delta.y);
+    const start = this._tempStart.put(handle.x, handle.y);
+    const end = this._tempEnd.put(handle.x + delta.x, handle.y + delta.y);
     const anchor = this._center;
 
     const [startLocal, endLocal, anchorLocal] = this._local(start, end, anchor);
 
-    const AB = v(startLocal).subtract(anchorLocal);
-    const AC = v(endLocal).subtract(anchorLocal);
+    const AB = this._tempAB.put(startLocal.x, startLocal.y).subtract(anchorLocal); // prettier-ignore
+    const AC = this._tempAC.put(endLocal.x, endLocal.y).subtract(anchorLocal);
 
     const dot = AB.dot(AC);
     const cross = AB.cross(AC);
@@ -154,14 +159,14 @@ export class Transformer {
   }
 
   resize(handle: Point, delta: Point) {
-    const start = v(handle);
-    const end = v(start).translate(delta.x, delta.y);
-    const anchor = v(this._center).scale(2).subtract(start);
+    const start = this._tempStart.put(handle.x, handle.y);
+    const end = this._tempEnd.put(handle.x + delta.x, handle.y + delta.y);
+    const anchor = this._tempAnchor.copy(this._center).scale(2).subtract(start);
 
     const [startLocal, endLocal, anchorLocal] = this._local(start, end, anchor);
 
-    const startDims = v(startLocal).subtract(anchorLocal);
-    const endDims = v(endLocal).subtract(anchorLocal);
+    const startDims = this._tempAB.put(startLocal.x, startLocal.y).subtract(anchorLocal); // prettier-ignore
+    const endDims = this._tempAC.put(endLocal.x, endLocal.y).subtract(anchorLocal); // prettier-ignore
 
     const signX = Math.sign(startDims.x * endDims.x);
     const signY = Math.sign(startDims.y * endDims.y);
@@ -195,7 +200,7 @@ export class Transformer {
     const sx = width !== 0 ? this.scaleX * (this.width / width) : 1;
     const sy = height !== 0 ? this.scaleY * (this.height / height) : 1;
 
-    const transform = new Matrix3().compose({
+    const transform = this._selectionTransform.identity().compose({
       x: snapshot.x + this.x,
       y: snapshot.y + this.y,
       scaleX: snapshot.scaleX * sx,
@@ -316,7 +321,9 @@ export class Transformer {
       .invert();
 
     for (let i = 0; i < vectors.length; i++) {
-      locals[i] = v(vectors[i]).transform(this._transform);
+      locals[i] = new Vec2(vectors[i].x, vectors[i].y).transform(
+        this._transform
+      );
     }
 
     return locals;

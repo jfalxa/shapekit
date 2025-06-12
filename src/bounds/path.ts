@@ -44,22 +44,30 @@ function _getPathBBox(path: Path, out = new BBox()) {
 }
 
 function _getPathPoints(path: Path, out: Vec2[] = []) {
-  out.length = 0;
+  let writeIndex = 0;
+  
   for (let i = 0; i < path.length; i++) {
     const s = path[i];
     if (s instanceof ArcTo || s instanceof Arc || s instanceof Ellipse) {
-      out.push(...Elliptic.adaptiveSample(s, path.quality));
+      writeIndex = Elliptic.adaptiveSample(s, path.quality, out, writeIndex);
     } else if (s instanceof BezierCurveTo) {
-      out.push(...Bezier3.adaptiveSample(s, path[i - 1], path.quality));
+      writeIndex = Bezier3.adaptiveSample(s, path[i - 1], path.quality, out, writeIndex);
     } else if (s instanceof QuadraticCurveTo) {
-      out.push(...Bezier2.adaptiveSample(s, path[i - 1], path.quality));
+      writeIndex = Bezier2.adaptiveSample(s, path[i - 1], path.quality, out, writeIndex);
     } else if (s instanceof RoundRect) {
-      out.push(...Box.sampleRoundRect(s, path.quality));
+      writeIndex = Box.sampleRoundRect(s, path.quality, out, writeIndex);
     } else if (s instanceof Rect) {
-      out.push(...Box.sampleRect(s));
+      writeIndex = Box.sampleRect(s, out, writeIndex);
     } else {
-      out.push(new Vec2(s.x, s.y));
+      if (writeIndex < out.length) {
+        out[writeIndex].put(s.x, s.y);
+      } else {
+        out[writeIndex] = new Vec2(s.x, s.y);
+      }
+      writeIndex++;
     }
   }
+  
+  out.length = writeIndex;
   return out;
 }

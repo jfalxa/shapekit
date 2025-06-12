@@ -1,10 +1,16 @@
 import { BBox } from "../bounds/bbox";
-import { v, Vec2 } from "../utils/vec2";
+import { Vec2 } from "../utils/vec2";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
 import { Segment } from "../paths/segment";
 import { pointToLineDistance2 } from "../bounds/polyline";
 
 export class Bezier3 {
+  private static _p0 = new Vec2();
+  private static _p1 = new Vec2();
+  private static _p2 = new Vec2();
+  private static _p3 = new Vec2();
+  private static _mid = new Vec2();
+
   static sample(
     px: number,
     py: number,
@@ -59,41 +65,49 @@ export class Bezier3 {
     bezier3: BezierCurveTo,
     previous: Segment,
     quality: number,
-    out: Vec2[] = []
-  ) {
-    const p0 = new Vec2(previous.x, previous.y);
-    const p1 = new Vec2(bezier3._cp1x, bezier3._cp1y);
-    const p2 = new Vec2(bezier3.cp2x, bezier3.cp2y);
-    const p3 = new Vec2(bezier3.x, bezier3.y);
-    const tolerance2 = (1 / quality) * (1 / quality);
-    return Bezier3.subdivision(p0, p1, p2, p3, tolerance2, out);
+    out: Vec2[] = [],
+    startIndex = out.length
+  ): number {
+    const p0 = this._p0.put(previous.x, previous.y);
+    const p1 = this._p1.put(bezier3._cp1x, bezier3._cp1y);
+    const p2 = this._p2.put(bezier3.cp2x, bezier3.cp2y);
+    const p3 = this._p3.put(bezier3.x, bezier3.y);
+    const t2 = (1 / quality) * (1 / quality);
+
+    return Bezier3.subdivision(p0, p1, p2, p3, t2, out, startIndex);
   }
 
-  static subdivision(
+  private static subdivision(
     a: Vec2,
     b: Vec2,
     c: Vec2,
     d: Vec2,
     t2: number,
-    out: Vec2[]
-  ) {
-    const mid = Bezier3.sample(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y, 0.5); // prettier-ignore
+    out: Vec2[],
+    writeIndex: number
+  ): number {
+    const mid = this._mid;
+    Bezier3.sample(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y, 0.5, mid); // prettier-ignore
     const distance2 = pointToLineDistance2(mid, a, d);
 
     if (distance2 <= t2) {
-      out.push(new Vec2(d.x, d.y));
+      if (writeIndex < out.length) {
+        out[writeIndex].put(d.x, d.y);
+      } else {
+        out[writeIndex] = new Vec2(d.x, d.y);
+      }
+      return writeIndex + 1;
     } else {
-      const ab = v(a).add(b).scale(0.5);
-      const bc = v(b).add(c).scale(0.5);
-      const cd = v(c).add(d).scale(0.5);
-      const abc = v(ab).add(bc).scale(0.5);
-      const bcd = v(bc).add(cd).scale(0.5);
-      const abcd = v(abc).add(bcd).scale(0.5);
-      Bezier3.subdivision(a, ab, abc, abcd, t2, out);
-      Bezier3.subdivision(abcd, bcd, cd, d, t2, out);
-    }
+      const ab = new Vec2(a.x, a.y).add(b).scale(0.5);
+      const bc = new Vec2(b.x, b.y).add(c).scale(0.5);
+      const cd = new Vec2(c.x, c.y).add(d).scale(0.5);
+      const abc = new Vec2(ab.x, ab.y).add(bc).scale(0.5);
+      const bcd = new Vec2(bc.x, bc.y).add(cd).scale(0.5);
+      const abcd = new Vec2(abc.x, abc.y).add(bcd).scale(0.5);
 
-    return out;
+      const midIndex = Bezier3.subdivision(a, ab, abc, abcd, t2, out, writeIndex); // prettier-ignore
+      return Bezier3.subdivision(abcd, bcd, cd, d, t2, out, midIndex);
+    }
   }
 }
 
