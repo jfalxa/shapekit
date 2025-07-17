@@ -4,6 +4,7 @@ import { Clip } from "../renderables/clip";
 import { Renderable } from "../renderables/renderable";
 import { Shape } from "../renderables/shape";
 import { Text } from "../renderables/text";
+import { Raw } from "../renderables/raw";
 import { getStyle, Style } from "../styles/style";
 import { ArcTo } from "../paths/arc-to";
 import { BezierCurveTo } from "../paths/bezier-curve-to";
@@ -61,7 +62,11 @@ export class Canvas2D {
     this.render(this.scene);
   }
 
-  render(renderable: Renderable) {
+  render(renderable: Renderable | Raw) {
+    if (renderable instanceof Raw) {
+      return renderable.render(this.ctx);
+    }
+
     if (renderable.hidden) {
       cleanDirty(renderable);
       return;
