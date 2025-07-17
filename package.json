@@ -16,6 +16,11 @@
       "types": "./dist/types/bounds/index.d.ts",
       "require": "./dist/bounds.cjs"
     },
+    "./json": {
+      "import": "./dist/json.js",
+      "types": "./dist/types/json/index.d.ts",
+      "require": "./dist/json.cjs"
+    },
     "./transforms": {
       "import": "./dist/transforms.js",
       "types": "./dist/types/transforms/index.d.ts",

@@ -6,9 +6,9 @@ export function roundRect(
   y: number,
   width: number,
   height: number,
-  radius?: number
+  radii?: number
 ) {
-  return new RoundRect(x, y, width, height, radius);
+  return new RoundRect(x, y, width, height, radii);
 }
 
 export class RoundRect extends Rect {
@@ -25,4 +25,5 @@ export class RoundRect extends Rect {
     this.radii = radii;
   }
 }
+
 trackSegment(RoundRect, ["radii"]);

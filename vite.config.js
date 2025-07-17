@@ -24,6 +24,7 @@ export default defineConfig({
         core: f("index.ts"),
         bounds: f("bounds/index.ts"),
         transforms: f("transforms/index.ts"),
+        json: f("json/index.ts"),
       },
     },
   },
