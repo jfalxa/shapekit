@@ -16,6 +16,7 @@ export * from "./renderables/image";
 export * from "./renderables/renderable";
 export * from "./renderables/shape";
 export * from "./renderables/text";
+export * from "./renderables/raw";
 export * from "./renderers/canvas2d";
 export * from "./styles/conic-gradient";
 export * from "./styles/gradient";
