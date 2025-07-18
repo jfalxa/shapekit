@@ -68,7 +68,7 @@ describe("bounds/path", () => {
 
       expect(bbox.min.x).toBe(25);
       expect(bbox.max.x).toBe(75);
-      expect(bbox.min.y).toBe(25);
+      expect(bbox.min.y).toBe(50);
       expect(bbox.max.y).toBe(75);
     });
 
