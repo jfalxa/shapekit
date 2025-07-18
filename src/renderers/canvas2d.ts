@@ -64,7 +64,8 @@ export class Canvas2D {
 
   render(renderable: Renderable | Raw) {
     if (renderable instanceof Raw) {
-      return renderable.render(this.ctx);
+      renderable.render(this.ctx);
+      return;
     }
 
     if (renderable.hidden) {
